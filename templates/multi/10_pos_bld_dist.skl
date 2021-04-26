@@ -1,0 +1,207 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : convert synthetic data to continuous recording
+&!             Assume that first record start from time 0
+&!
+&!  This skeleton will:
+&!  1) Create blended continuous records 
+&!  2) (Optional) apply random noise  
+&!  3) Create discontinous records from the continuous data 
+&!
+&!  AUTHOR(S)   : C. Willacy & G. Chang, Mar 2021 
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ---------------
+&!     |pre-modelling|
+&!     ---------------
+&!            |
+&!     ------------------
+&!     |pre-modelling qc|
+&!     ------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     ----------------
+&!     |data blending |
+&!     ----------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+& character 	POOL 		= pool_wiz
+&
+&!==============================================================================
+&! Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE POST IDENTED TRACES & THE ACQUISITION GEOMETRY  FILE 
+&!
+& character  	input_data 		= blended_trc_wiz	 	! modelled ssf trace input   
+& character  	input_sqsaf 		= orig_geom_wiz  		! original acquisition geometry file   
+& character  	input_sqsaf_recip 	= recip_geom_wiz	  	! reciprocal acquisition geometry file   
+& integer	srtall_maxsize		= srtall_wiz			! SRTALL maxsiz size 
+&!
+&!....2) SPECIFIY THE INPUT and OUTPUT TRACE LENGTHS 
+&!
+& integer  	tmax 		= tmax_wiz		! length of input trace
+& integer  	tmax_cont	= tout_wiz		! length of output trace (i.e. piece of continous record); must be a multiple of 1000
+& integer  	wavelet_t0 	= t0_wiz 		! where on the trace is t0? Was it moved down for modelling
+& integer  	dt 	 	= dt_wiz		! sampling of trace
+&!
+&!....3) DO YOU WANT REAPPLY RECIPROCITY ON THE OUTPUT? 
+&! 	- if yes then set the following parameter to true, false otherwise
+&!	- this might be needed for migration
+&!
+& boolean 	reciprocity	 	= true   
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+& record io:std_io:sipmap_in input_record = {  &
+&    data_set => input_data                    &
+& }
+&!
+& record io:std_io:sqsaf_in input_record_sqsaf = {  &
+&    data_set => input_sqsaf,                       &
+&    exec => 'EXEC'                                 &
+& }
+&!
+& record io:std_io:sqsaf_in input_record_sqsaf_recip = {  &
+&    data_set => input_sqsaf_recip,                       &
+&    exec => 'EXEC',                                      &
+&    media => {                                           &
+&       data_range => ({                                  &
+&          mnemon => 'SHT',                               &
+&          minval => $recpt,                              &
+&          maxval => $recpt                               &
+&       })                                                &
+&    }                                                    &
+& }
+&!
+& call io:sipmap_in(sipmap => input_record,  &
+&                   mode => 'DECLARE')
+&!
+& call io:sqsaf_in(sqsaf => input_record_sqsaf,  &
+&                  mode => 'DECLARE')
+&!
+& call io:sqsaf_in(sqsaf => input_record_sqsaf_recip,  &
+&                  mode => 'DECLARE')
+&!
+& character sip_rel   = 'latest'
+&
+& call begin_job(RELEASE => sip_rel)
+& call begin_sesam_deck()
+&!
+INFO
+&!
+& call io:sqsaf_in(sqsaf => input_record_sqsaf,  &
+&                  mode => 'CARDS')
+INFO
+& call acqlib:v08:findcrec(tmax_out => tmax_cont)
+INFO
+DSCOUT                  sht_recst-*.saf                                               
+SQSAF
+CON
+INFO  --------------------------------------------------------------------------
+INFO  next create the post saf geometry ready for deblending with OBNPTY 
+INFO
+INFO  first find the trace number in the continuous record for each shot
+INFO  --------------------------------------------------------------------------
+INFO  --------------------------------------------------------------------------
+INFO  then perform the cut to discontinuous records
+INFO  this can only be done if function findcrec has been called first
+INFO  --------------------------------------------------------------------------
+& call io:sipmap_in(sipmap => input_record ,  &
+&                   mode   => 'CARDS')
+INFO
+& call acqlib:v08:cont2dis(			&
+&		wavelet_t0 	=> wavelet_t0,		&
+&		tmax_in  	=> tmax_cont,		&
+&		tmax_cont 	=> tmax_cont,		&
+&		dt 	 	=> dt			&
+& )
+INFO
+INFO  reapply reciprocity?
+INFO
+& if (reciprocity) then
+DSCOUT                  temp.ssf                                              
+MEDCTLFILE_SIZE=100GB
+SIPMAP
+CON
+& call io:sqsaf_in(sqsaf => input_record_sqsaf_recip,  &
+&                  mode => 'CARDS')
+INFO
+DSCOUT                  recip.saf                                             
+MEDCTLFILE_SIZE=10GB
+SQSAF
+CON
+DSCIN                   temp.ssf                                              
+SIPMAP
+INFO
+INFO  need to swap trace idents back so that they match the original geometry
+INFO
+& call acqlib:v08:recipssf()
+INFO
+INFO  update to the correct reciprocal depths
+INFO
+DSCIN                   recip.saf                                             
+SQSAF                                     NOEXEC
+INFO  
+SQXFER   SHT   SHT                                    REJIGNMEMMEM999999REIDNT
+SAFSET  ZSHT  ZREC
+THSET   ZSHT  ZREC
+INFO
+INFO  define some additional idents for later use
+INFO
+THMANI
+THEXPR XSHTST = XSHT   ;
+THEXPR XRECST = XREC   ;
+THEXPR YSHTST = YSHT   ;
+THEXPR YRECST = YREC   ;
+THEXPR ZSHTST = ZSHT   ;
+THEXPR ZRECST = ZREC   ;
+THEXPR SHOTDP = ZSHT   ;
+THEXPR RCVRDP = ZREC   ;
+INFO
+& endif
+INFO
+SRTALLSHTLIN SHTPT                    5000    MB
+INFO
+& call io:sipmap_out(sipmap => {                                                    &
+&    data_set => 'blended_dist_trc',                                                &
+&    media => {                                                                     &
+&       pool => POOL,                                                               &
+&       filesize => 100000,                                                         &
+&       nfile => 1                                                                  &
+&    },                                                                             &
+&    montor => {                                                                    &
+&       sidt => ('SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT',    &
+&       'DATE', 'TIME', 'SHTLIN', 'RECLIN', 'RECPT', 'XDIST', 'XSHTST', 'YSHTST',   &
+&       'ZSHTST', 'XRECST', 'YRECST', 'ZRECST', 'SHOTDP', 'RCVRDP', 'INSNUM')       &
+&    }                                                                              &
+& })
+INFO
+&!
+& call end_sesam_deck()
+&!
+& call end_job()
+&!
+& call jpr_validate(ignoresuspect => 'no')

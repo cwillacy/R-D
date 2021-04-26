@@ -1,0 +1,91 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  Merge SAF geometry files for normal geometry 
+&!
+&!  This skeleton will:
+&!  1) use the converted saf files to create the full acquisition geometry in saf format
+&!  2) (optional) interpolate the ZREC from a horizon using the interpz slang module
+&!  3) (optional) create mirror geometry 
+&!  4) (optional) create ssf traces for modelling 
+&!
+&!  AUTHOR(S) : C. Willacy Mar 2021
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = pool_wiz
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+& character 	input_hfssf 	= pos_norm_hftrc_wiz
+& character 	input_lfssf 	= pos_norm_lftrc_wiz
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+& call begin_sesam_deck()
+&!
+INFO
+& call io:sipmap_in(sipmap => {               &
+&    data_set => input_hfssf                  &
+& },                                          &
+&                   mode => 'DECLARE+CARDS')
+INFO
+NORM    SCAL                   CMULT              100.
+THMANI
+THEXPR SUBTYP=0;
+INFO
+MERGE             SHTLIN                   SHTPT
+INFO
+& call io:sipmap_in(sipmap => {               &
+&    data_set => input_lfssf                  &
+& },                                          &
+&                   mode => 'DECLARE+CARDS')
+INFO
+THMANI
+THEXPR SUBTYP=1;
+INFO
+MERGE             SHTLIN                   SHTPT
+INFO
+SRTALLSHTLIN SHTPT                    4000    MB
+INFO
+& call io:sipmap_out(sipmap => {                                                  &
+&    data_set => 'pos_mrg_trc',                                                   &
+&    media => {                                                                   &
+&       pool => POOL,                                                             &
+&       filesize => 100000,                                                       &
+&       nfile => 1                                                                &
+&    },                                                                           &
+&    montor => {                                                                  &
+&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT')           &
+&    }                                                                            &
+& })
+INFO
+& call end_sesam_deck()
+&!
+& call end_job()
+& call jpr_validate()

@@ -1,0 +1,294 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : Update idents after modelling and apply any trace corrections 
+&!  
+&!  This skeleton will:
+&!  1) Add pre-modelled idents back to the post-modelled trace headers 
+&!  2) (Optional) apply source signature  
+&!  3) (Optional) reverse reciprocity 
+&!  4) (Optional) add random noise
+&!
+&!  AUTHOR(S) : C. Willacy Mar 2021
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ------------------------------
+&!     |pre-modelling 1 - SPS to SAF|
+&!     ------------------------------
+&!            |
+&!     -----------------------------------
+&!     |pre-modelling 2 - normal geometry|
+&!     -----------------------------------
+&!            |
+&!     ----------------------------------------
+&!     |pre-modelling 3 - reciprocal geometry |
+&!     ----------------------------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     --------------------------------------
+&!     |data blending 1 - continuous traces |
+&!     --------------------------------------
+&!            |
+&!     -----------------------------------------
+&!     |data blending 2 - discontinuous traces |
+&!     -----------------------------------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = pool_wiz
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel = 'latest'
+&!
+&!==============================================================================
+&! Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE INPUT MODELLED TRACES AND THE ORIGINAL ACQISITION GEOMETRY SAF 
+&!
+& character 	ssf_input 	= ''			! modelled traces
+& character 	ident_saf 	= lfsplit_saf_wiz	! original acquisition saf from pre-modelling skl
+& integer	wvel		= 1500			! water velocity in m/s
+&!
+&!....2) DO YOU WANT TO APPLY A SOURCE SIGNATURE? 
+&! 	- if yes, then set the following parameter to true, false otherwise
+&!	- and supply a wavsam file 
+&!
+& boolean 	source		= false 
+& character 	source_wavelet 	= NULL 
+&!
+&!....3) WAS RECIPROCITY APPLIED IN PRE-MODELLING? 
+&! 	- if yes then set the following parameter to true, false otherwise
+&!      - note that this will remove the reciprocity that was applied in the pre-modelling
+&!	  skeleton, i.e. back to the orginal geometry
+&!
+& boolean 	invreciprocity 	= true  ! boolean switch to remove previously applied reciprocity
+&!
+&!....4) DO YOU WANT TO ADD RANDOM NOISE TO THE DATA? 
+&! 	- if yes then set the following parameter to true, false otherwise
+&!
+& boolean 	noise	 	= false			! switch to add random noise 
+& character 	noimod	 	= 'NDB' 		! noise mode
+& real	 	faclev	 	= -95.0  		! noise level depending on mode
+& real	 	flow	 	= 1.0  			! -3dB frequency of low freqeuncy slope (Hz)
+& real	 	fhigh	 	= 20.0  		! -3dB frequency of high frequency slope (Hz)
+& integer	iorlow	 	= 6  			! order of low frequency slope
+& integer	iorhig	 	= 6  			! order of high frequency slope
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input              &
+& },                                    &
+&                   mode => 'DECLARE')
+&!
+&  integer       tmax = $DSHIS(ssf_input,'TMAX')
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+&! copy the SPS files
+&!
+& if source then
+&  call jcl_get_file(REMOTE_NAME => source_wavelet,   	&
+&                    LOCAL_NAME => 'source_wavelet',  	&
+&                    CLASS => 'BINARY')
+&!
+& endif
+&!
+& call begin_sesam_deck()
+INFO
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => ident_saf,                  &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+SQSORT  XSHT   ASC  YSHT   ASC  XREC        YREC
+INFO
+DSCOUT                  shtident.saf                                               
+MEDCTLFILE_SIZE=100GB
+SQSAF
+CON
+INFO
+STLISTOPER  OPER  OPER
+INFO
+& call io:sipmap_in(sipmap => {       &
+&    data_set => ssf_input            &
+& },                                  &
+&                   mode => 'CARDS')
+&!
+INFO
+INFO  calculate the direct arrival time to use for qc later on
+INFO
+THMANI
+THEXPR SCRAT7 = (DATE*100000) + (TIME/10); 
+THEXPR SCRAT8 = SQRT((XREC-XSHT)^2 + (YREC-YSHT)^2 + (ZREC-ZSHT)^2) ;
+& sub(#1,i0) wvel
+THEXPR SCRAT9 = NINT((REAL(SCRAT8) / REAL(#1)) * 1000.) ;
+INFO  
+& if (invreciprocity) then
+INFO
+INFO  need to swap trace idents back so that they match the original geometry
+INFO
+& 	call acqlib:v08:recipssf()
+INFO
+& endif
+INFO
+INFO  we now have the shot gathers as per the original geometry
+INFO
+SRTALL  XSHT  YSHT   ASC   ASC         500 MEMMB
+SORBAD  XREC  YREC
+INFO
+DSCIN                   shtident.saf
+SQSAF                                     NOEXEC
+INFO  
+INFO  TIME is in unit of 0.1msec, DATE is in unit of 100sec
+SQXFER  XSHT  XSHT  YSHT  YSHT  XREC  XREC  YREC  YRECREJIGNASCASC 10000REIDNT
+SAFSET  DATE  TIMESHTLIN SHTPTRECLIN RECPTINSNUMSHTCOD
+THSET   DATE  TIMESHTLIN SHTPTRECLIN RECPTINSNUMSHTCOD
+INFO
+INFO  TIME is in unit of 0.1msec, DATE is in unit of 100sec
+INFO  TIME is 6 digits, DATE is 6 digits 
+THMANI
+INFO  calculate SHT time in secs 
+THEXPR SCRAT2 = DATE *100 + TIME/10000;
+INFO
+THLIST             20000
+THMNE SHTLIN SHTPT  DATE  TIMESCRAT2
+INFO
+& if source then
+INFO  ------------------------------------------------------------------------
+INFO  Need to increase the trace length twice to avoid wrap around, 
+INFO  shift the data down so the filter doesn't drag 
+INFO  any noise into the data
+INFO  ------------------------------------------------------------------------
+& sub(@13,i0) 2*tmax
+TRCLEN     0                      NO
+INFO
+THMANI 
+& sub(#1,i0) 2*tmax
+THEXPR TMAX = #1;
+& sub(#1,i0) tmax/2
+THEXPR STATX = #1;
+STAPLYPRE               LMS73 
+INFO  
+INFO  
+FILMAN      TIME        CARDS
+& include source_wavelet
+SIGID DESIG_APPLY
+FILAPL                       0
+SIGLIB            DESIG_APPLY 
+INFO
+INFO  and shift everything back......
+INFO
+THMANI
+& sub(#1,i0) tmax/2
+THEXPR STATX = -#1;
+STAPLYPRE               LMS73 
+INFO
+&sub(@13,i0) tmax
+TRCLEN     0                      NO
+THMANI 
+& sub(#1,i0) tmax
+THEXPR TMAX = #1;
+& endif
+INFO
+INFO  add noise?
+INFO
+& if (noise) then
+& call acqlib:v08:addrnoise(	&
+&	noimod	=> noimod,		&
+&	flow	=> flow,		&
+&	iorlow	=> iorlow,		&
+&	fhigh	=> fhigh,		&
+&	iorhig	=> iorhig,		&
+&	faclev	=> faclev		&
+& )
+& endif
+INFO
+INFO  setup some idents that might be used later
+INFO
+THMANI
+THEXPR XDIST = SQRT((XSHT-XREC)^2+(YSHT-YREC)^2);
+THEXPR XRECST = XREC;
+THEXPR YRECST = YREC;
+THEXPR ZRECST = ZREC;
+THEXPR XSHTST = XSHT;
+THEXPR YSHTST = YSHT;
+THEXPR ZSHTST = ZSHT;
+THEXPR SHOTDP = ZSHT;
+THEXPR RCVRDP = ZREC;
+INFO
+SRTALLSHTLIN SHTPT                    5000    MB
+INFO
+& call io:sipmap_out(sipmap => {                                                    &
+&    data_set => 'pos_lftrc',                                                       &
+&    media => {                                                                     &
+&       pool => POOL,                                                               &
+&       filesize => 100000,                                                         &
+&       nfile => 1                                                                  &
+&    },                                                                             &
+&    montor => {                                                                    &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',      &
+&       'XREC', 'YREC', 'ZREC', 'SHOTDP', 'RCVRDP', 'XSHTST', 'YSHTST', 'XRECST',   &
+&       'YRECST', 'ZSHTST', 'ZRECST', 'SHT', 'DATE', 'TIME', 'SKLPR0', 'SKLPR2',    &
+&       'SKLPR3', 'SKLPR4', 'SCRAT8', 'SCRAT9', 'INSNUM', 'SHTCOD')                 &
+&    }                                                                              &
+& })
+INFO
+INFO  The traces are then output in reciprocal mode for migration with RTM.
+INFO  This allows migration of the ground truth dataset i.e. unblended. 
+INFO
+& 	call acqlib:v08:recipssf()
+INFO
+SRTALLSHTLIN SHTPT                    5000    MB
+INFO
+& call io:sipmap_out(sipmap => {                                                    &
+&    data_set => 'pos_rcp_lftrc',                                                   &
+&    media => {                                                                     &
+&       pool => POOL,                                                               &
+&       filesize => 100000,                                                         &
+&       nfile => 1                                                                  &
+&    },                                                                             &
+&    montor => {                                                                    &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',      &
+&       'XREC', 'YREC', 'ZREC', 'SHOTDP', 'RCVRDP', 'XSHTST', 'YSHTST', 'XRECST',   &
+&       'YRECST', 'ZSHTST', 'ZRECST', 'SHT', 'DATE', 'TIME', 'SKLPR0', 'SKLPR2',    &
+&       'SKLPR3', 'SKLPR4', 'SCRAT8', 'SCRAT9', 'INSNUM', 'SHTCOD')                 &
+&    }                                                                              &
+& })
+INFO
+& call end_sesam_deck()
+&!
+& call end_job()
+& call jpr_validate()

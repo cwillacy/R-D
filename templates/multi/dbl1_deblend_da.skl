@@ -1,0 +1,306 @@
+&!==============================================================================
+&!
+&! =============================================================================
+&! Include files:
+&! =============================================================================
+&!
+& include 'global_parameter_declaration'
+& include 	#######
+&!
+&!==============================================================================
+&! Release dependencies:
+&!==============================================================================
+&!
+& character sip_rel = 'latest64'
+&!
+&  character DISC                = 'ird_ict1'
+&!
+&! ===========================================================================
+&! Survey3d:
+&! ===========================================================================
+&!
+&  character survey3d_rev
+&!
+&  record survey3d_v1_0:survey3d:survey3d survey3d
+&  boolean ok
+&!
+&  survey3d_rev = '000.01'  ! 12.5 x 12.5 meter nominal grid matching central velocity model
+&!
+&  call wizard:read_record(recnam => 'survey3d',      &
+&                          revision => survey3d_rev,  &
+&                          ok => ok)
+&!
+&!===========================================================================
+&! Input characteristics
+&!===========================================================================
+&!
+&  character 	sei_input_a 		= blended_trc_wiz
+&  character 	saf_input_a 		= pos_saf_wiz
+&!
+&! =============================================================================
+&! OUTPUT information
+&! =============================================================================
+&!
+&  character 	output_data_a        	= 'da_deblend'
+&  character 	output_data_b        	= 'da_residual'
+&  integer   	output_data_a_size   	=  30000
+&  character 	output_data_a_title  	= 'Deblended Result'
+&  character 	output_data_a_pool   	=  DISC       
+&  character 	output_data_a_format 	= 'INT16'
+&!
+&!==============================================================================
+&! Montor idents list
+&!==============================================================================
+&!
+&! include 'include/output_montor.list'
+&!
+&!===========================================================================
+&! Input declaration
+&!===========================================================================
+&!
+&!==============================================================================
+&! Local parameters
+&!==============================================================================
+&!
+&!  Parameter for OBNPTY
+&  integer 	digi 		= dt_wiz   		! Digi in msec
+&  integer 	xmin 		= 150050 		! Min xshtst in xyunits
+&  integer 	xmax		= 210950  		! Max xshtst in xyunits
+&  integer 	xinc 		= 50    		! Nominal shot spacing in x direction
+&  integer 	ymin 		= 160020  		! Min yshtst in xyunits
+&  integer 	ymax 		= 202620  		! Max yshtst in xyunits
+&  integer 	yinc 		= 100      		! Nominal shot spacing in y direction.
+&  integer 	nshot 		= dbl_nshot_wiz 	! Number of thousand shots in survey
+&  integer 	fmax 		= dbl_fmax_wiz  	! Max freq in subbands hz 
+&  real 	pmax 		= dbl_pmax_wiz  	! Max dip to be modeled in units of sec/xyunit
+&  integer 	mxblnd 		= dbl_mxblnd_wiz        ! Max number of blended traces on which a given shot can appear
+&  integer      nwavit          = dbl_nwavit_wiz   	! Number of wavelet iterations per dip 
+&  integer 	xywindow 	= dbl_xywindow_wiz      ! Half width of OBNPTY window in XYUNITs
+&  integer 	twindow 	= dbl_twindow_wiz	! Half width of OBNPTY time window in TUNITS
+&  integer 	ndip 		= dbl_ndip_wiz		! Number of Dips in the final results
+&  integer 	niters 		= 0 			! Number of outer loops
+&!
+&  integer      nwindx          = round(float(xywindow)/float(xinc))
+&  		nwindx 		= (nwindx/2)*2
+&  integer 	nwindy 		= round(float(xywindow)/float(yinc))  
+&         	nwindy 		= (nwindy/2)*2
+&  integer 	nwindt		= round(float(twindow)/float(digi))
+&  		nwindt 		= (nwindt/2)*2
+&  integer 	nskipx 		= nwindx/2
+&  integer 	nskipy 		= nwindy/2
+&  integer 	nskipt 		= nwindt/2
+&!
+&  integer      tmax_in 	= tout_wiz
+&!
+&! Muting paramters
+&  real 	vel_water 		= 1500.
+&  real 	vel_refrac 		= 4500.
+&  integer 	intercept_da 		= 550
+&  integer      intercept_refrac 	= 1000
+&  real         p_z  		
+&  p_z = (vel_refrac^2.-vel_water^2.)^0.5/(vel_water*vel_refrac)*1000.
+&!
+&! ========================================================================
+&! Code stuff
+&! ========================================================================
+&!
+& character privsrc1 = $FILFND('/glb/data/ict1/jobpro/jpproj_hou/eptr_ai/obnpty_dev/OBNPTY_respository/v11/build/liboperation.a')
+& character privsrc3 = $FILFND('/glb/data/ict1/jobpro/jpproj_hou/eptr_ai/obnpty_dev/OBNPTY_respository/v8/odf_obnpty.dat')
+&!
+&  integer   	memory_per_cpu_in_mb
+&  integer   	cpu_per_host
+&  integer   	n_work_node
+&  character 	architecture
+&!
+&!
+&  call sys_config:get_system_config(       &
+&     chk_system   => 'sc40any'             &
+&    ,worknodes    => n_work_node           &
+&    ,cpu_per_host => cpu_per_host          &
+&    ,maxmem_mb    => memory_per_cpu_in_mb  )
+&!
+&!==============================================================================
+&! SIPMAP Begins Here 
+&!==============================================================================
+&  call begin_parallel(N_COMPNODE => n_work_node,  &
+&                      N_IONODE => 1)
+&!
+&  call begin_job(RELEASE => 'latest')
+&!
+&  call jcl_get_file(REMOTE_NAME => privsrc1,         &
+&                    LOCAL_NAME => 'libobnpty.a',  &
+&                    CLASS => 'BINARY')
+&!
+&  call jcl_get_file(REMOTE_NAME => privsrc3,         &
+&                    LOCAL_NAME => 'odf_obnpty.dat')
+&!
+OMP_NUM_THREADS=40
+export OMP_NUM_THREADS
+&!
+&  call begin_sesam_deck()
+&!
+&!==============================================================================
+&! Time Info  
+&!==============================================================================
+&!
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => saf_input_a,                &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+SQMANISELECT
+SAFIRAACCEPT RECPT
+& sub(#1,i0) $recpt
+SFOR12          #1                      #1
+SQMANI  EXPR
+SQEXPR XSHTST = XSHT; YSHTST = YSHT; ZSHTST = ZSHT;
+SQEXPR XRECST = XREC; YRECST = YREC; ZRECST = ZREC;
+INFO  ========================================================================
+INFO  Compute first arrival and put to BLKINI 
+INFO  ========================================================================
+INFO  First make sure the use of correct units
+HHCORR
+HHCHANXYUNIT     0 ZUNIT     0 TUNIT     0
+SQMANI  EXPR
+SQEXPR XDIST = SQRT((XSHT-XREC)^2.+(YSHT-YREC)^2.+(ZSHT-ZREC)^2.);
+INFO  Direct arrival
+&  sub(#1,f0) vel_water, (#2,i0) intercept_da
+SQEXPR SCRAT0 = XDIST*1000./#1-REAL(#2);
+INFO  Refraction
+&  sub(#1,f0) p_z
+SQEXPR SCRAT1 = (ZREC-ZSHT)*#1;
+&  sub(#1,f0) vel_refrac 
+SQEXPR SCRAT2 = SQRT((XREC-XSHT)^2.+(YREC-YSHT)^2.)/#1*1000.;
+&  sub(#1,i0) intercept_refrac
+SQEXPR SCRAT3 = SCRAT1+SCRAT2-REAL(#1);
+INFO  Take the minimum between DA and refraction
+SQEXPR BLKINI = SCRAT0 MIN SCRAT3;
+SQEXPR BLKINI = 0.;
+SQEXPR BLKST1 = 0.;
+INFO  ========================================================================
+INFO  Sort the firing time 
+INFO  ========================================================================
+SRTALL  DATE  TIME                    2000 MEMMB
+DSCOUT                  shot_sorted.saf
+SQSAF
+SAFID BLEND           
+CON
+INFO
+&   call io:sipmap_in(sipmap => {               &
+&      data_set => sei_input_a                  &
+&   },                                          &
+&                     mode => 'DECLARE+CARDS')
+&!
+SRTALL  DATE  TIME                    2000 MEMMB
+THMANI
+THEXPR XRECST = XREC; YRECST = YREC; ZRECST = ZREC;
+THEXPR XDIST = SQRT((XREC-XSHT)^2+(YREC-YSHT)^2);
+INFO  ========================================================================
+INFO  First-Arrival muting setting 
+INFO  ========================================================================
+THMANI
+THEXPR BLKINI = 0;
+INFO  ========================================================================
+INFO  Firing Time 
+INFO  ========================================================================
+DSCIN                   shot_sorted.saf
+SQSAF                                     NOEXEC
+SAFID BLEND
+INFO  ========================================================================
+INFO  OBNPTY 
+INFO  ========================================================================
+INFO  INFO  7...12....18....24....30....36....42....48....54....60....66....72....78
+INFO  PANID MXINPNMXOUPNMAXSAFMXBLNDMXWMESMXPMES
+&  sub(@13,i6) nshot, (@19,i6) nshot, (@25,i6) nshot, (@31,i6) mxblnd, (@37,i6) tmax_in
+OBNPTY RECPT                         16000
+OBDIRA  ZREC  1450  1000  1500    
+INFO   use shtlin, shtpt attributes from the shot saf to label the output deblended data.
+OBIDNTSHTLIN SHTPT
+INFO  SCNAMFWAVAMFENGINCIDPEXP
+OBNOIS   2.5   2.5  0.08  0.15
+&  sub(@7,i6) nwindt, (@13,i6) nskipt
+TDIMEN   
+&  sub(@19,i6) xinc, (@25,i6) nwindx, (@31,i6) nskipx
+XDIMEN
+&  sub(#1,i0) xmin
+PARAM    Xmin = #1                                                            
+&  sub(#2,i0) xmax
+PARAM    Xmax = #2
+&  sub(@19,i6) yinc, (@25,i6) nwindy, (@31,i6) nskipy
+YDIMEN
+&  sub(#1,i0) ymin
+PARAM    Ymin = #1                                                            
+&  sub(#2,i0) ymax
+PARAM    Ymax = #2
+DIPPIK   0.5
+TRNODE
+&  sub(@7, f6) -pmax, (@13,f6) pmax
+&  sub(@19,f6) -pmax, (@25,f6) pmax
+&  sub(@37,i6) fmax, (@31,i6) ndip, (@43,i6) nwavit, (@49,i6) niters
+TRANSF
+SAFLIB            BLEND
+DSCOUT                  deblended.ssf                                         
+MEDCTL FILE_SIZE=60GB
+SIPMAP
+CON
+DSCIN                   deblended.ssf                                         
+SIPMAP
+TRARAN
+THDIRAACCEPTSUBTYP
+THOR12           0                       0
+SRTALLSHTLIN SHTPT                     500 MEMMB
+INFO  ========================================================================
+INFO  Output the main data:
+INFO  ========================================================================
+&!
+& call io:sipmap_out(sipmap => {        &
+&    data_set => output_data_a,         &
+&    media => {                         &
+&       title => output_data_a_title,   &
+&       pool => output_data_a_pool,     &
+&       filesize => 60000,              &
+&       nfile => 1,                     &
+&       format => output_data_a_format  &
+&    },                                 &
+&    montor => {                        &
+&       sidt => ('ALL')                 &
+&    }                                  &
+& })
+CON
+INFO  ========================================================================
+INFO  Residual data
+INFO  ========================================================================
+DSCIN                   deblended.ssf                                         
+SIPMAP
+TRARAN
+THDIRAACCEPTSUBTYP
+THOR12           1                       1
+INFO
+SRTALLSHTLIN SHTPT                     500 MEMMB
+INFO  ========================================================================
+INFO  Output the main data:
+INFO  ========================================================================
+&!
+& call io:sipmap_out(sipmap => {        &
+&    data_set => output_data_b,         &
+&    media => {                         &
+&       title => output_data_a_title,   &
+&       pool => output_data_a_pool,     &
+&       filesize => 60000,              &
+&       nfile => 1,                     &
+&       format => output_data_a_format  &
+&    },                                 &
+&    montor => {                        &
+&       sidt => ('ALL')                 &
+&    }                                  &
+& })
+INFO
+INFO  ========================================================================
+INFO  End of job stuff
+INFO  ========================================================================
+INFO
+&  call end_sesam_deck(OBJLIB => 'libobnpty.a',  &
+&                      UNAME => 'OBNPTY')
+&  call end_job(SEQ_HOST => 'ionode1')
+&  call end_parallel()
+&  call jpr_validate()

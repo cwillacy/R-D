@@ -1,0 +1,209 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  Split SAF geometry files for normal geometry 
+&!
+&!  This skeleton will:
+&!  1) use the converted saf files to create the full acquisition geometry in saf format
+&!  2) (optional) interpolate the ZREC from a horizon using the interpz slang module
+&!  3) (optional) create mirror geometry 
+&!  4) (optional) create ssf traces for modelling 
+&!
+&!  AUTHOR(S) : C. Willacy Mar 2021
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ------------------------------
+&!     |pre-modelling 1 - SPS to SAF|
+&!     ------------------------------
+&!            |
+&!     -----------------------------------
+&!     |pre-modelling 2 - normal geometry|
+&!     -----------------------------------
+&!            |
+&!     ----------------------------------------
+&!     |pre-modelling 3 - reciprocal geometry |
+&!     ----------------------------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     --------------------------------------
+&!     |data blending 1 - continuous traces |
+&!     --------------------------------------
+&!            |
+&!     -----------------------------------------
+&!     |data blending 2 - discontinuous traces |
+&!     -----------------------------------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = pool_wiz
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+& character 	input_saf	= orig_geom_wiz
+& character 	input_ssf 	= orig_ssf_wiz
+& boolean 	gen_trc		= ssf_wiz	! boolean switch to output ssf trace data	
+& integer	shtcod_split	= shtcod_wiz	! shot code to split output
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+& call begin_sesam_deck()
+&!
+INFO
+STLIST  OPER  OPER   RUN
+INFO
+INFO  high frequency grid selection
+INFO
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => input_saf,                  &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+SQMANISELECT
+SAFIRAREJECTSHTCOD
+& sub(@7,f0) float(shtcod_split)
+& sub(@31,f0) float(shtcod_split)
+SFOR12                     0.0
+INFO
+& call io:sqsaf_out(sqsaf => {                                                   &
+&    data_set => 'hfsplit_saf',                                                  &
+&    safid => 'HF',                                                              &
+&    media => {                                                                  &
+&       pool => POOL,                                                            &
+&       filesize => 100000,                                                      &
+&       nfile => 1                                                               &
+&    },                                                                          &
+&    montor => {                                                                 &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',   &
+&       'XREC', 'YREC', 'ZREC', 'DATE', 'TIME', 'SKLPR0', 'XDIST', 'FLAG',       &
+&       'SKLPR4', 'SKLPR5', 'SHT', 'RECST', 'INSNUM', 'SHTCOD')                  &
+&    }                                                                           &
+& })
+INFO
+& if (gen_trc) then
+CON
+& call io:sipmap_in(sipmap => {               &
+&    data_set => input_ssf                    &
+& },                                          &
+&                   mode => 'DECLARE+CARDS')
+INFO
+TRARAN
+THDIRAREJECTSHTCOD
+& sub(@7,i12) shtcod_split
+& sub(@31,i12) shtcod_split
+THOR12                       0            
+INFO
+& call io:sipmap_out(sipmap => {                                                  &
+&    data_set => 'sps_pre_hftrc',                                                 &
+&    media => {                                                                   &
+&       pool => POOL,                                                             &
+&       filesize => 100000,                                                       &
+&       nfile => 1                                                                &
+&    },                                                                           &
+&    montor => {                                                                  &
+&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT')           &
+&    }                                                                            &
+& })
+INFO
+& endif
+CON
+INFO
+INFO  low frequency grid selection
+INFO
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => input_saf,                  &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+SQMANISELECT
+SAFIRAACCEPTSHTCOD
+& sub(@7,f0) float(shtcod_split)
+& sub(@31,f0) float(shtcod_split)
+SFOR12                     0.0
+INFO
+& call io:sqsaf_out(sqsaf => {                                                   &
+&    data_set => 'lfsplit_saf',                                                  &
+&    safid => 'LF',                                                              &
+&    media => {                                                                  &
+&       pool => POOL,                                                            &
+&       filesize => 100000,                                                      &
+&       nfile => 1                                                               &
+&    },                                                                          &
+&    montor => {                                                                 &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',   &
+&       'XREC', 'YREC', 'ZREC', 'DATE', 'TIME', 'SKLPR0', 'XDIST', 'FLAG',       &
+&       'SKLPR4', 'SKLPR5', 'SHT', 'RECST', 'INSNUM', 'SHTCOD')                  &
+&    }                                                                           &
+& })
+INFO
+& if (gen_trc) then
+CON
+& call io:sipmap_in(sipmap => {               &
+&    data_set => input_ssf                    &
+& },                                          &
+&                   mode => 'DECLARE+CARDS')
+INFO
+TRARAN
+THDIRAACCEPTSHTCOD
+& sub(@7,i12) shtcod_split
+& sub(@31,i12) shtcod_split
+THOR12                       0            
+INFO
+& call io:sipmap_out(sipmap => {                                                  &
+&    data_set => 'sps_pre_lftrc',                                                 &
+&    media => {                                                                   &
+&       pool => POOL,                                                             &
+&       filesize => 100000,                                                       &
+&       nfile => 1                                                                &
+&    },                                                                           &
+&    montor => {                                                                  &
+&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT')           &
+&    }                                                                            &
+& })
+INFO
+& endif
+& call end_sesam_deck()
+&!
+& call end_job()
+& call jpr_validate()

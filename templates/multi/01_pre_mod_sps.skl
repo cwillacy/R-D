@@ -1,0 +1,201 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  Convert SPS geometry files to SAF 
+&!
+&!  This skeleton will:
+&!  1) convert SPS source file to saf format
+&!  2) convert SPS receiver file to saf format
+&!  3) convert SPS relational file to saf format
+&!  4) (optional) shift the coordinates origin 
+&!
+&!  AUTHOR(S) : C. Willacy Mar 2021
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ------------------------------
+&!     |pre-modelling 1 - SPS to SAF|
+&!     ------------------------------
+&!            |
+&!     -----------------------------------
+&!     |pre-modelling 2 - normal geometry|
+&!     -----------------------------------
+&!            |
+&!     ----------------------------------------
+&!     |pre-modelling 3 - reciprocal geometry |
+&!     ----------------------------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     --------------------------------------
+&!     |data blending 1 - continuous traces |
+&!     --------------------------------------
+&!            |
+&!     -----------------------------------------
+&!     |data blending 2 - discontinuous traces |
+&!     -----------------------------------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = pool_wiz
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE SPS GEOMETRY FILE FROM BORIS' PYTHON TOOL & ADJUST SORT SIZE AS NEEDED 
+&!
+& character 	source_input 		= spssrc_wiz 
+& character 	receiver_input 		= spsrec_wiz 
+& character 	relational_input 	= spsrel_wiz
+& integer	sqsort_maxrec		= sqsort_wiz		! SQSORT maxrec size  
+& integer	srtall_maxsize		= srtall_wiz		! SRTALL maxsiz size 
+&!
+&!....2) DO YOU WANT TO SHIFT THE COORDINATE ORIGIN?
+&! 	- if yes, then set x0 and y0 to non-zero values to shift the data.
+&!
+& boolean 	xyshift			= xyshift_wiz 		! boolean switch to apply coordinate shift   
+& integer 	x0 			= x0_wiz  		! X value to shift by 
+& integer 	y0 			= y0_wiz		! Y value to shift by
+&!
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+&! copy the SPS files
+&!
+&  call jcl_get_file(REMOTE_NAME => source_input,   	&
+&                    LOCAL_NAME => 'source_input',  	&
+&                    CLASS => 'BINARY')
+&!
+&  call jcl_get_file(REMOTE_NAME => receiver_input,   	&
+&                    LOCAL_NAME => 'receiver_input',  	&
+&                    CLASS => 'BINARY')
+&!
+&  call jcl_get_file(REMOTE_NAME => relational_input,   &
+&                    LOCAL_NAME => 'relational_input',  &
+&                    CLASS => 'BINARY')
+&!
+& call begin_sesam_deck()
+&!
+INFO
+INFO  --------------------------------------------------------------------------
+INFO  SOURCE FILE
+INFO  --------------------------------------------------------------------------
+INFO  import the SPS source file and convert it to SAF
+INFO
+& call acqlib:v08:src2saf(				&
+&		filename	=> source_input 	&
+& )
+INFO
+INFO  shift origin ?
+INFO
+& if (xyshift) then
+SQMANI
+& sub(#1,i0) x0
+SQEXPR XSHT = XSHT + #1.; 
+& sub(#1,i0) y0
+SQEXPR YSHT = YSHT + #1.;
+& endif
+INFO
+& call io:sqsaf_out(sqsaf => {                                                  &
+&    data_set => 'sps_s',                                                       &
+&    safid => 'SAF_S',                                                          &
+&    media => {                                                                 &
+&       pool => POOL,                                                           &
+&       nfile => 1                                                              &
+&    },                                                                         &
+&    montor => {                                                                &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'SKLPR0', 'DATE',   &
+&       'SKLPR2', 'SKLPR3', 'SKLPR4', 'TIME', 'INSNUM', 'SHTCOD')               &
+&    }                                                                          &
+& })
+CON
+INFO  --------------------------------------------------------------------------
+INFO  RECEIVER FILE
+INFO  --------------------------------------------------------------------------
+INFO  import the SPS receiver file and convert it to SAF
+INFO
+& call acqlib:v08:rec2saf(filename => receiver_input)
+INFO
+INFO  shift origin ?
+INFO
+& if xyshift then
+SQMANI
+& sub(#1,i0) x0
+SQEXPR XREC = XREC + #1.;
+& sub(#1,i0) y0 
+SQEXPR YREC = YREC + #1.; 
+& endif
+INFO
+& call io:sqsaf_out(sqsaf => {                                        &
+&    data_set => 'sps_r',                                             &
+&    safid => 'SAF_R',                                                &
+&    media => {                                                       &
+&       pool => POOL,                                                 &
+&       nfile => 1                                                    &
+&    },                                                               &
+&    montor => {                                                      &
+&       sidt => ('RECLIN', 'RECPT', 'XREC', 'YREC', 'ZREC', 'RECST')  &
+&    }                                                                &
+& })
+CON
+INFO  --------------------------------------------------------------------------
+INFO  RELATIONAL FILE
+INFO  --------------------------------------------------------------------------
+INFO  import the SPS relational file and convert it to SAF
+INFO
+& call acqlib:v08:rel2saf(filename => relational_input)
+INFO
+SQMANI
+SQEXPR CHNEND = GRPEND;
+INFO
+& call io:sqsaf_out(sqsaf => {                 &
+&    data_set => 'sps_x',                      &
+&    safid => 'SAF_X',                         &
+&    media => {                                &
+&       pool => POOL,                          &
+&       nfile => 1                             &
+&    },                                        &
+&    montor => {                               &
+&       sidt => ('SHTLIN', 'SHTPT', 'RECLIN')  &
+&    }                                         &
+& })
+INFO
+& call end_sesam_deck()
+&!
+& call end_job()
+& call jpr_validate()

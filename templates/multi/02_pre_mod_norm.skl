@@ -1,0 +1,252 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  Merge SAF geometry files for normal geometry 
+&!
+&!  This skeleton will:
+&!  1) use the converted saf files to create the full acquisition geometry in saf format
+&!  2) (optional) interpolate the ZREC from a horizon using the interpz slang module
+&!  3) (optional) create mirror geometry 
+&!  4) (optional) create ssf traces for modelling 
+&!
+&!  AUTHOR(S) : C. Willacy Feb 2021
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ------------------------------
+&!     |pre-modelling 1 - SPS to SAF|
+&!     ------------------------------
+&!            |
+&!     -----------------------------------
+&!     |pre-modelling 2 - normal geometry|
+&!     -----------------------------------
+&!            |
+&!     ----------------------------------------
+&!     |pre-modelling 3 - reciprocal geometry |
+&!     ----------------------------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     --------------------------------------
+&!     |data blending 1 - continuous traces |
+&!     --------------------------------------
+&!            |
+&!     -----------------------------------------
+&!     |data blending 2 - discontinuous traces |
+&!     -----------------------------------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = pool_wiz
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE SPS GEOMETRY FILES FROM BORIS' PYTHON TOOL & ADJUST SORT SIZE AS NEEDED 
+&!
+& character 	source_input 		= safsrc_wiz 
+& character 	receiver_input 		= safrec_wiz
+& character 	relational_input 	= safrel_wiz
+& integer	sqsort_maxrec		= sqsort_wiz 		! SQSORT maxrec size  
+& boolean 	gen_trc			= ssf_wiz 		! boolean switch to output ssf trace data	
+& integer	srtall_maxsize		= srtall_wiz		! SRTALL maxsiz size 
+&!
+&!....2) DO YOU WANT TO UPDATE ZREC WITH THE TRUE WATER BOTTOM DEPTHS?
+&! 	- if yes then set the following parameter to true, false otherwise
+&!
+& boolean 	waterbottom		= interp_wiz 	! boolean switch to apply node depth interpolation  
+& character 	waterbottom_saf 	= horsaf_wiz    ! horizon SAF file to use for node interpolation 
+&!
+&!....3) DO YOU WANT TO APPLY MIRROR DEPTH SHIFTS FOR ZREC AND ZSHT? 
+&! 	- if yes then set the following parameter to true, false otherwise
+&!
+& boolean 	mirror			= mirr_wiz    	! boolean switch to create mirror geometry
+& real	 	mirr_zshift 		= mirrz_wiz		! vertical shift to position mirror model so that it starts at z0 
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+&! copy the SPS files
+&!
+&!
+& if (waterbottom) then
+&  call jcl_get_file(REMOTE_NAME => waterbottom_saf,    &
+&                    LOCAL_NAME => 'waterbottom_saf',   &
+&                    CLASS => 'BINARY')
+& endif
+&!
+& call begin_sesam_deck()
+&!
+INFO
+STLIST  OPER  OPER   RUN
+INFO
+& if (waterbottom) then
+INFO
+INFO  prep the water bottom horizon if needed
+INFO
+DSCIN                   waterbottom_saf                                     
+SQSAF
+INFO
+SQMANI
+SQEXPR XREC = XREC;
+SQEXPR YREC = YREC;
+SQEXPR ZREC = ZREC;
+INFO
+& sub(@67,i6) sqsort_maxrec
+SQSORT  XREC   ASC  YREC   ASC  
+INFO
+DSCOUT                  waterbottom.saf                                       
+SQSAF
+& endif
+CON
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+DSCOUT                  receiver.saf                                          
+SQSAF
+INFO
+CON
+INFO
+INFO  --------------------------------------------------------------------------
+INFO  CREATE THE MERGED GEOMETRY
+INFO  --------------------------------------------------------------------------
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => relational_input,           &
+&    exec => 'NOEXEC'                        &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+& call io:sqsaf_in(sqsaf => {                &
+&    data_set => source_input,               &
+&    exec => 'NOEXEC'                        &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')
+INFO
+INFO  bring in the ranged receiver
+INFO
+DSCIN                   receiver.saf                                          
+SQSAF                                     NOEXEC
+INFO
+INFO  merge the SPS source, receiver and relational files and convert to SAF
+INFO
+& call acqlib:v08:sps_merge(sqsort_maxrec => sqsort_maxrec, &
+&				ident => false &
+& )
+INFO
+INFO  add real node depths?
+INFO
+& if (waterbottom) then
+& call acqlib:v08:interpz(wbot => 'waterbottom.saf',       &
+&                         smooth => 0.001,                 &
+&                         sqsort_maxrec => sqsort_maxrec)
+& endif
+INFO
+& sub(@67,i6) sqsort_maxrec
+SQSORT  XSHT        YSHT        XREC        YREC      FULSRTMEMFIT 
+INFO
+INFO  calc offset
+INFO
+SQMANI
+SQEXPR XDIST = SQRT((XSHT-XREC)^2.+(YSHT-YREC)^2.);
+SQEXPR FLAG = 0.;
+INFO
+INFO  if mirror then also store the zshift
+INFO
+SQMANI
+SQEXPR SKLPR5 = 0.0;
+INFO
+INFO  apply mirror zshift?
+INFO
+& if (mirror) then
+SQMANI
+& sub(#1,f0) mirr_zshift
+SQEXPR ZSHTST = ZSHT + #1; 
+& sub(#1,f0) mirr_zshift
+SQEXPR ZRECST = #1 - ZREC;
+SQEXPR SKLPR4 = ZSHTST;
+SQEXPR SKLPR5 = ZRECST;
+SQEXPR FLAG = 1.;
+& endif
+INFO
+& call io:sqsaf_out(sqsaf => {                                                   &
+&    data_set => 'sps_pre_saf',                                                  &
+&    safid => 'GEOM',                                                            &
+&    media => {                                                                  &
+&       pool => POOL,                                                            &
+&       filesize => 100000,                                                      &
+&       nfile => 1                                                               &
+&    },                                                                          &
+&    montor => {                                                                 &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',   &
+&       'XREC', 'YREC', 'ZREC', 'DATE', 'TIME', 'SKLPR0', 'XDIST', 'FLAG',       &
+&       'SKLPR4', 'SKLPR5', 'SHT', 'RECST', 'INSNUM', 'SHTCOD')                  &
+&    }                                                                           &
+& })
+& if (gen_trc) then
+DSCOUT                  merge.saf                                             
+SQSAF
+CON
+DSCIN                   merge.saf                                             
+SQSAF
+INFO
+INFO  convert saf to ssf traces
+INFO
+& call acqlib:v08:saf2trc()
+INFO
+& call io:sipmap_out(sipmap => {                                         &
+&    data_set => 'sps_pre_trc',                                          &
+&    media => {                                                          &
+&       pool => POOL,                                                    &
+&       filesize => 100000,                                              &
+&       nfile => 1                                                       &
+&    },                                                                  &
+&    montor => {                                                         &
+&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT')  &
+&    }                                                                   &
+& })
+INFO
+& endif
+INFO
+& call end_sesam_deck()
+&!
+& call end_job()
+& call jpr_validate()

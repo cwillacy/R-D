@@ -1,0 +1,359 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : Generate some standard qc images for the pre-modelling workflow output  
+&!
+&!  This skeleton will:
+&!  1) Generate qc images from the SAF geometry files generated in the pre_modelling skl 
+&!
+&!  AUTHOR(S) : C. Willacy Oct 2020
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ---------------
+&!     |pre-modelling|
+&!     ---------------
+&!            |
+&!     ------------------
+&!     |pre-modelling qc|
+&!     ------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     ----------------
+&!     |data blending |
+&!     ----------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = 'ird_ict1'
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+mkdir -p $IMAGE_DIR 
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE SAF GEOMETRY FILES GENERATED IN A PREVIOUS RUN OF THE PRE-MODELLING SKL 
+&!
+& character	input_saf		= orig_geom_wiz
+& boolean 	reciprocity		= recip_wiz		! boolean switch to apply reciprocity 
+& character	input_recip_saf		= recip_geom_wiz
+& integer	sqsort_maxrec		= sqsort_wiz		! SQSORT maxrec size  
+& character	waterbottom_saf		= horsaf_wiz 
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call io:sqsaf_in(sqsaf => {          &
+&    data_set => input_saf,            &
+&    safid => 'INPUT',                 &
+&    exec => 'EXEC'                    &
+& },                                   &
+&                  mode => 'DECLARE')
+&!
+&  integer       xrecmin = $MINID(input_saf,'XREC')
+&  integer       xrecmax = $MAXID(input_saf,'XREC')
+&  integer       yrecmin = $MINID(input_saf,'YREC')
+&  integer       yrecmax = $MAXID(input_saf,'YREC')
+&  integer       xshtmin = $MINID(input_saf,'XSHT')
+&  integer       xshtmax = $MAXID(input_saf,'XSHT')
+&  integer       yshtmin = $MINID(input_saf,'YSHT')
+&  integer       yshtmax = $MAXID(input_saf,'YSHT')
+&  integer       datemin = $MINID(input_saf,'DATE')
+&  integer       datemax = $MAXID(input_saf,'DATE')
+&  integer       timemin = $MINID(input_saf,'TIME')
+&  integer       timemax = $MAXID(input_saf,'TIME')
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+& call begin_sesam_deck()
+&!
+INFO
+STLIST  OPER  OPER   RUN
+INFO
+& call io:sqsaf_in(sqsaf => {        &
+&    data_set => input_saf,          &
+&    safid => 'INPUT',               &
+&    exec => 'EXEC'                  &
+& },                                 &
+&                  mode => 'CARDS')
+INFO
+PARSTRIN
+INFO  --------------------------------------------------------------------------
+INFO  create the image for the source and receiver plot
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(					  	&
+&		xvar1		=> 'XREC', 				&
+&		yvar1		=> 'YREC', 				&
+&		col1 		=> 'BLUE',	 			&
+&		symb1		=> 'FILL_CIRCLE', 			&
+&		size		=> 2.0,					&
+&		second 		=> true, 				&
+&		xvar2 		=> 'XSHT', 				&
+&		yvar2 		=> 'YSHT', 				&
+&		col2 		=> 'RED', 				&
+&		symb2		=> 'CROSS',	 			&
+&		filename 	=> $jobnm+'_'+'0_geom.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		timestamp	=> true,				&
+&		size2		=> 0.2,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 1000, 				&
+&		title		=> 'Shot & Receiver Geometry' 		&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the image for the shtlin/reclin 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTLIN', 				&
+&		yvar1		=> 'RECLIN', 				&
+&		col1 		=> 'STEELBLUE',	 			&
+&		symb1		=> 'FILL_CIRCLE',			&
+&		filename 	=> $jobnm+'_'+'1_lines.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'SHTLIN',				&
+&		ylabel 		=> 'RECLIN',				&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title		=> 'Line Geometry' 			&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the image for the shtpt/recpt 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT', 				&
+&		yvar1		=> 'RECPT', 				&
+&		col1 		=> 'CYAN',	 			&
+&		symb1		=> 'FILL_CIRCLE',			&
+&		filename 	=> $jobnm+'_'+'2_points.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'SHTPT',				&
+&		ylabel 		=> 'RECPT',				&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title		=> 'Point Geometry' 			&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create a histogram of the XDIST ident
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:plthist(						&
+&		hvar		=> 'XDIST',				&
+&		nbin		=> 25,					&
+&		col1 		=> 'GREEN',	 			&
+&		filename 	=> $jobnm+'_'+'4_hist_xdist.png',	&
+&		path	 	=> IMAGE_DIR,	 			&
+&		xlabel 		=> 'Offset (m)',			&
+&		ylabel 		=> 'Occurence',				&
+&		timestamp	=> true,				&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Offset Distribution'		&
+& )
+STOP
+PARSTRNEXT
+INFO  calculate the bin fold
+INFO  XSHT, YSHT, XREC, YREC must exist the header 
+INFO
+& call acqlib:v08:sqbin(	&
+&		xbin => 25., 	&
+&		ybin => 25.	&
+& )
+INFO  --------------------------------------------------------------------------
+INFO  create map for the bin fold
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltmap(						&
+&		xvar 		=> 'XBINC',				&
+&		yvar 		=> 'YBINC',				&
+&		mvar 		=> 'LSMULT',				&
+&		col1 		=> 'RAINBOW',	 			&
+&		filename 	=> $jobnm+'_'+'3_foldmap.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		clabel 		=> 'Multiplicity',			&
+&		timestamp	=> true,				&
+&		showgrid	=> true,				&
+&		drawbox1  	=> true,				&
+&		box1_xmin  	=> xrecmin,				&
+&		box1_ymin  	=> yrecmin,				&
+&		box1_xmax  	=> xrecmax,				&
+&		box1_ymax  	=> yrecmax,				&
+&		drawbox2  	=> true,				&
+&		box2_xmin  	=> xshtmin,				&
+&		box2_ymin  	=> yshtmin,				&
+&		box2_xmax  	=> xshtmax,				&
+&		box2_ymax  	=> yshtmax,				&
+&		cbartitle	=> 'Fold',				&
+&		xsize		=> 1100,				&
+&		ysize		=> 1000, 				&
+&		title		=> 'Fold Map'		 		&
+& )
+STOP
+PARSTRNEXT
+INFO
+INFO  select near offsets
+INFO
+SQMANISELECT
+SAFIRAACCEPT XDIST
+SFOR12         0.0          1.       1000.
+INFO  calculate the bin fold
+INFO  XSHT, YSHT, XREC, YREC must exist in the header 
+INFO
+& call acqlib:v08:sqbin(	&
+&		xbin => 25., 	&
+&		ybin => 25.	&
+& )
+INFO  --------------------------------------------------------------------------
+INFO  create map for the bin fold
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltmap(						&
+&		xvar 		=> 'XBINC',				&
+&		yvar 		=> 'YBINC',				&
+&		mvar 		=> 'LSMULT',				&
+&		col1 		=> 'RAINBOW',	 			&
+&		filename 	=> $jobnm+'_'+'near_foldmap.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		clabel 		=> 'Multiplicity',			&
+&		timestamp	=> true,				&
+&		showgrid	=> true,				&
+&		drawbox1  	=> true,				&
+&		box1_xmin  	=> xrecmin,				&
+&		box1_ymin  	=> yrecmin,				&
+&		box1_xmax  	=> xrecmax,				&
+&		box1_ymax  	=> yrecmax,				&
+&		drawbox2  	=> true,				&
+&		box2_xmin  	=> xshtmin,				&
+&		box2_ymin  	=> yshtmin,				&
+&		box2_xmax  	=> xshtmax,				&
+&		box2_ymax  	=> yshtmax,				&
+&		cbartitle	=> 'Fold',				&
+&		xsize		=> 1100,				&
+&		ysize		=> 1000, 				&
+&		title		=> 'Fold Map <=1000m'	 		&
+& )
+STOP
+PARSTRNEXT
+INFO
+INFO  select near offsets
+INFO
+SQMANISELECT
+SAFIRAACCEPT XDIST
+SFOR12      15000.          1.      25000.
+INFO  calculate the bin fold
+INFO  XSHT, YSHT, XREC, YREC must exist the header 
+INFO
+& call acqlib:v08:sqbin(	&
+&		xbin => 25., 	&
+&		ybin => 25.	&
+& )
+INFO  --------------------------------------------------------------------------
+INFO  create map for the bin fold
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltmap(						&
+&		xvar 		=> 'XBINC',				&
+&		yvar 		=> 'YBINC',				&
+&		mvar 		=> 'LSMULT',				&
+&		col1 		=> 'RAINBOW',	 			&
+&		filename 	=> $jobnm+'_'+'far_foldmap.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		clabel 		=> 'Multiplicity',			&
+&		timestamp	=> true,				&
+&		showgrid	=> true,				&
+&		drawbox1  	=> true,				&
+&		box1_xmin  	=> xrecmin,				&
+&		box1_ymin  	=> yrecmin,				&
+&		box1_xmax  	=> xrecmax,				&
+&		box1_ymax  	=> yrecmax,				&
+&		drawbox2  	=> true,				&
+&		box2_xmin  	=> xshtmin,				&
+&		box2_ymin  	=> yshtmin,				&
+&		box2_xmax  	=> xshtmax,				&
+&		box2_ymax  	=> yshtmax,				&
+&		cbartitle	=> 'Fold',				&
+&		xsize		=> 1100,				&
+&		ysize		=> 1000, 				&
+&		title		=> 'Fold Map 15000 - 25000.' 		&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  calculate the source to receiver azimuth
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:calcazi(	&
+& )
+INFO
+INFO  create the image for the azimuth 
+INFO
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'AZITNA', 				&
+&		yvar1 		=> 'XDIST', 				&
+&		cvary1		=> true,				&
+&		zvar1		=> 'SHTLIN',				&
+&		symb1		=> 'CROSS',				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'10_azimuth.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Azimuth (degrees)',			&
+&		ylabel 		=> 'Offset (m)',			&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		cbartitle 	=> 'SHTLIN',				&
+&		title 		=> 'Azimuth versus Offset'		&
+& )
+PARSTROUT
+INFO
+& call end_sesam_deck(addstr => '-d7sec 4608')
+&!
+& call end_job()
+& call jpr_validate()

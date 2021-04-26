@@ -1,0 +1,253 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : Generate some standard qc images for the pre-modelling workflow output  
+&!
+&!  This skeleton will:
+&!  1) Generate qc images from the SAF geometry files generated in the pre_modelling skl 
+&!
+&!  AUTHOR(S) : C. Willacy Oct 2020
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ---------------
+&!     |pre-modelling|
+&!     ---------------
+&!            |
+&!     ------------------
+&!     |pre-modelling qc|
+&!     ------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     ----------------
+&!     |data blending |
+&!     ----------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+&!
+& character 	POOL = 'ird_ict1'
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+mkdir -p $IMAGE_DIR 
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE SAF GEOMETRY FILES GENERATED IN A PREVIOUS RUN OF THE PRE-MODELLING SKL 
+&!
+& character	input_saf		= orig_geom_wiz
+& boolean 	reciprocity		= recip_wiz		! boolean switch to apply reciprocity 
+& character	input_recip_saf		= recip_geom_wiz
+& integer	sqsort_maxrec		= sqsort_wiz 		! SQSORT maxrec size  
+& character	waterbottom_saf		= horsaf_wiz 
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call io:sqsaf_in(sqsaf => {          &
+&    data_set => input_saf,            &
+&    safid => 'INPUT',                 &
+&    exec => 'EXEC'                    &
+& },                                   &
+&                  mode => 'DECLARE')
+&!
+&  integer       xrecmin = $MINID(input_saf,'XREC')
+&  integer       xrecmax = $MAXID(input_saf,'XREC')
+&  integer       yrecmin = $MINID(input_saf,'YREC')
+&  integer       yrecmax = $MAXID(input_saf,'YREC')
+&  integer       xshtmin = $MINID(input_saf,'XSHT')
+&  integer       xshtmax = $MAXID(input_saf,'XSHT')
+&  integer       yshtmin = $MINID(input_saf,'YSHT')
+&  integer       yshtmax = $MAXID(input_saf,'YSHT')
+&  integer       datemin = $MINID(input_saf,'DATE')
+&  integer       datemax = $MAXID(input_saf,'DATE')
+&  integer       timemin = $MINID(input_saf,'TIME')
+&  integer       timemax = $MAXID(input_saf,'TIME')
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+& call begin_sesam_deck()
+&!
+INFO
+STLIST  OPER  OPER   RUN
+INFO
+& call io:sqsaf_in(sqsaf => {        &
+&    data_set => input_saf,          &
+&    safid => 'INPUT',               &
+&    exec => 'EXEC'                  &
+& },                                 &
+&                  mode => 'CARDS')
+INFO
+PARSTRIN
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for shot hours 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT', 				&
+&		yvar1 		=> 'SKLPR2', 				&
+&		col1 		=> 'SALMON',	 			&
+&		symb1		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'5_time_hours.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time (hours)',			&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Shooting Time - Hours Component'	&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for shot minutes 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT', 				&
+&		yvar1 		=> 'SKLPR3', 				&
+&		col1 		=> 'BLUE',	 			&
+&		symb1		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'6_time_mins.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time (min)',			&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Shooting Time - Minutes Component'	&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for shot seconds 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT', 				&
+&		yvar1 		=> 'SKLPR4', 				&
+&		col1 		=> 'GRAY',	 			&
+&		symb1		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'7_time_sec.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time (sec)',			&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Shooting Time - Seconds Component'	&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for shot time fractions of a second
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT', 				&
+&		yvar1 		=> 'SKLPR0', 				&
+&		cvary1 		=> true,				&
+&		zvar1 		=> 'SHTPT',				&
+&		symb1		=> 'CROSS',				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'8_time_fract.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time (sec x1000000)',		&
+&		timestamp	=> true,				&
+&		cbartitle	=> 'SHTPT',				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Shooting Time - Fractions Component'&
+& )
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for the total shooting time from the DATE ident 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'SHTPT',				&
+&		yvar1 		=> 'DATE', 				&
+&		col1 		=> 'BLUE',	 			&
+&		symb1 		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'9_time_full.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time(s)',		        	&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Total Shooting Time'		&
+& )
+INFO
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for the total shooting time from the DATE ident 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'DATE',				&
+&		yvar1 		=> 'TIME', 				&
+&		cvary1 		=> true,				&
+&		zvar1 		=> 'DATE',				&
+&		symb1 		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'14_date_vs_time.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'DATE',				&
+&		ylabel 		=> 'TIME',		        	&
+&		xmin		=> datemin,				&
+&		xmax		=> datemax,				&
+&		ymin		=> timemin,				&
+&		ymax		=> timemax,				&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Date vs Time QC'			&
+& )
+INFO
+PARSTROUT 
+INFO
+& call end_sesam_deck(addstr => '-d7sec 4608')
+&!
+& call end_job()
+& call jpr_validate()

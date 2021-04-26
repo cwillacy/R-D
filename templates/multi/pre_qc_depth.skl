@@ -1,0 +1,234 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : Generate some standard qc images for the pre-modelling workflow output  
+&!
+&!  This skeleton will:
+&!  1) Generate qc images from the SAF geometry files generated in the pre_modelling skl 
+&!
+&!  AUTHOR(S) : C. Willacy Oct 2020
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ---------------
+&!     |pre-modelling|
+&!     ---------------
+&!            |
+&!     ------------------
+&!     |pre-modelling qc|
+&!     ------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     ----------------
+&!     |data blending |
+&!     ----------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	'dev.v9-simwiz_include.inc'
+&!
+& character 	POOL = 'ird_ict1'
+&!
+&!==============================================================================
+&! SIPMAP dependencies:
+&!==============================================================================
+&!
+& character 	sip_rel 		= 'latest'
+& character 	IMAGE_DIR 		= $DATA_DIR + '/qcimages/' + $JOBTYP 
+& sub(#1,a0) 	IMAGE_DIR
+export IMAGE_DIR=#1
+mkdir -p $IMAGE_DIR 
+&!
+&!==============================================================================
+&! User Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE SAF GEOMETRY FILES GENERATED IN A PREVIOUS RUN OF THE PRE-MODELLING SKL 
+&!
+& character	input_saf		= orig_geom_wiz		! normal saf geometry file
+& boolean 	reciprocity		= recip_wiz 		! boolean switch to apply reciprocity 
+& character	input_recip_saf		= recip_geom_wiz	! reciprocal saf geometry file
+& integer	sqsort_maxrec		= sqsort_wiz 		! SQSORT maxrec size  
+& boolean 	waterbottom		= interp_wiz 		! boolean switch to apply node depth interpolation 
+& character	waterbottom_saf		= horsaf_wiz		! waterbottom saf file 
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+&!
+& integer 	mem_per_core_mb
+&!
+& call io:sqsaf_in(sqsaf => {          &
+&    data_set => input_saf,            &
+&    safid => 'INPUT',                 &
+&    exec => 'EXEC'                    &
+& },                                   &
+&                  mode => 'DECLARE')
+&!
+&  integer       xrecmin = $MINID(input_saf,'XREC')
+&  integer       xrecmax = $MAXID(input_saf,'XREC')
+&  integer       yrecmin = $MINID(input_saf,'YREC')
+&  integer       yrecmax = $MAXID(input_saf,'YREC')
+&  integer       xshtmin = $MINID(input_saf,'XSHT')
+&  integer       xshtmax = $MAXID(input_saf,'XSHT')
+&  integer       yshtmin = $MINID(input_saf,'YSHT')
+&  integer       yshtmax = $MAXID(input_saf,'YSHT')
+&  integer       datemin = $MINID(input_saf,'DATE')
+&  integer       datemax = $MAXID(input_saf,'DATE')
+&  integer       timemin = $MINID(input_saf,'TIME')
+&  integer       timemax = $MAXID(input_saf,'TIME')
+&!
+& call sys_config:get_system_config(chk_system => 'linux_fe',      &
+&                                   maxmem_mb => mem_per_core_mb)
+&!
+& call begin_job(RELEASE => sip_rel)   !SIPMAP release to use
+&!
+INFO
+INFO  create local copy of waterbottom saf
+INFO
+& if (waterbottom) then
+&  call jcl_get_file(REMOTE_NAME => waterbottom_saf,  &
+&                    LOCAL_NAME => 'wb_saf',          &
+&                    CLASS => 'BINARY')
+& endif
+&!
+& call begin_sesam_deck()
+&!
+INFO  --------------------------------------------------------------------------
+INFO  plot the reciprocal shots and receiver positions and receiver depths
+INFO  --------------------------------------------------------------------------
+& call io:sqsaf_in(sqsaf => {      &
+&    data_set => input_recip_saf,  &
+&    safid => 'INPUT',             &
+&    exec => 'EXEC'                &
+& })
+INFO
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'XSHT', 				&
+&		yvar1		=> 'YSHT', 				&
+&		cvary1		=> true,				&
+&		col1		=> 'RAINBOW', 				&
+&		zvar1		=> 'ZSHT', 				&
+&		size 	 	=> 2.0, 				&
+&		symb1		=> 'FILL_CIRCLE',			&
+&		second		=> true,				&
+&		xvar2		=> 'XREC', 				&
+&		yvar2		=> 'YREC', 				&
+&		cvary2		=> false,				&
+&		col2		=> 'GRAY', 				&
+&		symb2		=> 'FILL_CIRCLE',			&
+&		filename 	=> $jobnm+'_'+'11_zrec_rcp.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		timestamp	=> true,				&
+&		size2		=> 0.2,					&
+&		xsize		=> 1100,				&
+&		ysize		=> 1000, 				&
+&		cbartitle	=> 'Node Depth (m)',		        &
+&		title		=> 'Reciprocal Shot Depths'		&
+& )
+INFO
+&!
+& if (waterbottom) then
+CON
+INFO
+DSCIN                   wb_saf                                       
+SQSAF
+INFO
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'XREC', 				&
+&		yvar1		=> 'YREC', 				&
+&		cvary1		=> true,				&
+&		col1		=> 'RAINBOW', 				&
+&		zvar1		=> 'ZREC', 				&
+&		size 	 	=> 1.0, 				&
+&		symb1		=> 'FILL_SQUARE',			&
+&		filename 	=> $jobnm+'_'+'12_wbot.png',		&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		timestamp	=> true,				&
+&		showgrid	=> true,				&
+&		drawbox1  	=> true,				&
+&		box1_xmin  	=> xrecmin,				&
+&		box1_ymin  	=> yrecmin,				&
+&		box1_xmax  	=> xrecmax,				&
+&		box1_ymax  	=> yrecmax,				&
+&		drawbox2  	=> true,				&
+&		box2_xmin  	=> xshtmin,				&
+&		box2_ymin  	=> yshtmin,				&
+&		box2_xmax  	=> xshtmax,				&
+&		box2_ymax  	=> yshtmax,				&
+&		xsize		=> 1100,				&
+&		ysize		=> 1000, 				&
+&		cbartitle	=> 'Depth (m)',				&
+&		title		=> 'Water Bottom Depth (m)'		&
+& )
+INFO
+CON
+INFO  --------------------------------------------------------------------------
+INFO  plot the local waterbottom horizon
+INFO  --------------------------------------------------------------------------
+DSCIN                   wb_saf                                       
+SQSAF
+INFO
+& call acqlib:v08:pltscat(						&
+&		xvar1		=> 'XREC', 				&
+&		yvar1		=> 'YREC', 				&
+&		cvary1		=> true,				&
+&		col1		=> 'RAINBOW', 				&
+&		zvar1		=> 'ZREC', 				&
+&		size 	 	=> 1.0, 				&
+&		symb1		=> 'FILL_SQUARE',			&
+&		filename 	=> $jobnm+'_'+'14_wbot_zoom.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'X Coordinate',			&
+&		ylabel 		=> 'Y Coordinate',			&
+&		timestamp	=> true,				&
+&		showgrid	=> true,				&
+&		drawbox1  	=> true,				&
+&		box1_xmin  	=> xrecmin,				&
+&		box1_ymin  	=> yrecmin,				&
+&		box1_xmax  	=> xrecmax,				&
+&		box1_ymax  	=> yrecmax,				&
+&		drawbox2  	=> true,				&
+&		box2_xmin  	=> xshtmin,				&
+&		box2_ymin  	=> yshtmin,				&
+&		box2_xmax  	=> xshtmax,				&
+&		box2_ymax  	=> yshtmax,				&
+&		xmin		=> xshtmin,				&
+&		xmax		=> xshtmax,				&
+&		ymin		=> yshtmin,				&
+&		ymax		=> yshtmax,				&
+&		cmin		=> 500,					&
+&		cmax		=> 1750,				&
+&		xsize		=> 1300,				&
+&		ysize		=> 1000, 				&
+&		cbartitle	=> 'Depth (m)',				&
+&		title		=> 'Water Bottom Depth (m)'		&
+& )
+INFO
+& endif
+INFO
+& call end_sesam_deck(addstr => '-d7sec 4608')
+&!
+& call end_job()
+& call jpr_validate()

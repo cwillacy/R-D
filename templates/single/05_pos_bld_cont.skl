@@ -1,0 +1,204 @@
+&!==============================================================================
+&!
+&!  VERSION: SimWiz v01
+&!  FUNCTION : convert synthetic data to continuous recording
+&!             Assume that first record start from time 0
+&!
+&!  This skeleton will:
+&!  1) Create blended continuous records 
+&!  2) (Optional) apply random noise  
+&!
+&!  AUTHOR(S)   : C. Willacy & G. Chang, Mar 2021 
+&!
+&!  WORKFLOW CONTEXT:
+&!     ------------------------------
+&!     |create SPS acquisition files|
+&!     ------------------------------
+&!            |
+&!     ------------------------------
+&!     |pre-modelling 1 - SPS to SAF|
+&!     ------------------------------
+&!            |
+&!     -----------------------------------
+&!     |pre-modelling 2 - normal geometry|
+&!     -----------------------------------
+&!            |
+&!     ----------------------------------------
+&!     |pre-modelling 3 - reciprocal geometry |
+&!     ----------------------------------------
+&!            |
+&!     -------------------------------------
+&!     |synthetic modelling (FWI or RTMIG) |
+&!     -------------------------------------
+&!            |
+&!     -----------------
+&!     |post-modelling |
+&!     -----------------
+&!            |
+&!     --------------------------------------
+&!     |data blending 1 - continuous traces |
+&!     --------------------------------------
+&!            |
+&!     -----------------------------------------
+&!     |data blending 2 - discontinuous traces |
+&!     -----------------------------------------
+&!            |
+&!     -------------------
+&!     |data de-blending |
+&!     -------------------
+&!
+&!==============================================================================
+&!
+& include 	'global_parameter_declaration'
+& include 	#######
+& character 	POOL 		= pool_wiz
+&
+&!==============================================================================
+&! Options for the skeleton.
+&!==============================================================================
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!//////////////////////////////////////////////////////////////////////////////
+&!
+&!....1) DEFINE THE POST IDENTED TRACES & THE ACQUISITION GEOMETRY  FILE 
+&!
+& character  	input_data 	= post_norm_wiz 		! modelled ssf trace input   
+& character  	input_sqsaf 	= orig_geom_wiz  		! original acquisition geometry file   
+& integer	srtall_maxsize	= srtall_wiz			! SRTALL maxsiz size 
+&!
+&!....2) SPECIFIY THE INPUT and OUTPUT TRACE LENGTHS 
+&!
+& integer  	tmax 		= tmax_wiz		! length of input trace
+& integer  	tmax_cont	= tout_wiz		! length of output trace (i.e. piece of continous record); must be a multiple of 1000
+& integer  	wavelet_t0 	= t0_wiz 		! where on the trace is t0? Was it moved down for modelling
+& integer  	dt 	 	= dt_wiz		! sampling of trace
+&!
+&!....3) DO YOU WANT ADD RANDOM NOISE TO THE BLENDED OUTPUT DATA? 
+&! 	- if yes then set the following parameter to true, false otherwise
+&!
+& boolean 	noise	 	= pos_noise_wiz		! switch to add random noise 
+& character 	noimod	 	= noiseapp_wiz 		! noise mode
+& real	 	faclev	 	= faclev_wiz  		! noise level depending on mode
+& real	 	flow	 	= flow_wiz  		! -3dB frequency of low freqeuncy slope (Hz)
+& real	 	fhigh	 	= fhigh_wiz  		! -3dB frequency of high frequency slope (Hz)
+& integer	iorlow	 	= iorlow_wiz		! order of low frequency slope
+& integer	iorhig	 	= iorhig_wiz 		! order of high frequency slope
+&!
+&!//////////////////////////////////////////////////////////////////////////////
+&!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+&!==============================================================================
+& record io:std_io:sipmap_in input_record = {  &
+&    data_set => input_data                    &
+& }
+&!
+& record io:std_io:sqsaf_in input_record_sqsaf = {  &
+&    data_set => input_sqsaf,                       &
+&    exec => 'EXEC'                                 &
+& }
+&!
+& call io:sipmap_in(sipmap => input_record,  &
+&                   mode => 'DECLARE')
+&!
+& call io:sqsaf_in(sqsaf => input_record_sqsaf,  &
+&                  mode => 'DECLARE')
+&!
+& character sip_rel   = 'latest'
+&
+& call begin_job(RELEASE => sip_rel)
+& call begin_sesam_deck()
+&!
+INFO
+INFO  input shots from orginal (norm) geometry
+INFO
+& call io:sipmap_in(sipmap => input_record ,  &
+&                   mode   => 'CARDS')
+INFO  --------------------------------------------------------------------------
+INFO  Blend the synthetic modelled data 
+INFO  This will convert the discontinuous modelled records
+INFO  to continuous data which is then cropped to a new 
+INFO  output trace length. 
+INFO  --------------------------------------------------------------------------
+& call acqlib:v08:dis2cont(			&
+&		wavelet_t0 	=> wavelet_t0,		&
+&		tmax_in  	=> tmax,		&
+&		tmax_cont 	=> tmax_cont,		&
+&		dt 	 	=> dt			&
+& )
+INFO  
+INFO  add noise?
+INFO
+& if (noise) then
+& call acqlib:v08:addrnoise(	&
+&	noimod	=> noimod,		&
+&	flow	=> flow,		&
+&	iorlow	=> iorlow,		&
+&	fhigh	=> fhigh,		&
+&	iorhig	=> iorhig,		&
+&	faclev	=> faclev		&
+& )
+& endif
+INFO
+& call io:sipmap_out(sipmap => {                                                    &
+&    data_set => 'blended_cont_trc',                                                &
+&    media => {                                                                     &
+&       pool => POOL,                                                               &
+&       filesize => 100000,                                                         &
+&       nfile => 1                                                                  &
+&    },                                                                             &
+&    montor => {                                                                    &
+&       sidt => ('SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT',    &
+&       'DATE', 'TIME', 'SHTLIN', 'RECLIN', 'RECPT', 'XDIST', 'XSHTST', 'YSHTST',   &
+&       'ZSHTST', 'XRECST', 'YRECST', 'ZRECST', 'SHOTDP', 'RCVRDP', 'INSNUM',       &
+&       'SHTCOD')                                                                   &
+&    }                                                                              &
+& })
+INFO
+CON
+INFO
+INFO  --------------------------------------------------------------------------
+INFO  create a post blending saf file so that it can be used directly
+INFO  in the deblending skeleton
+INFO  --------------------------------------------------------------------------
+INFO
+&!
+& call io:sqsaf_in(sqsaf => input_record_sqsaf,  &
+&                  mode => 'CARDS')
+INFO
+INFO  prepare post saf geometry.
+INFO  - if mirror was applied use shifted depths 
+INFO  - FLAG is set in the pre-mod skl so this is taken care of
+INFO
+SQMANI
+SQEXPR ZSHT = SKLPR4; 
+SQEXPR ZREC = SKLPR5; 
+SAFPRAACCEPT  FLAG      
+SFOR12         1.0         0.0         1.0
+INFO
+INFO  output post blended saf ready for deblending
+INFO
+SQUTIL  KEEP
+SAFSETSHTLIN SHTPT  XSHT  YSHT   SHTRECLIN RECPT  XREC  YREC  ZREC  ZSHT  DATE
+SAFSET  TIME XDISTSHTCOD
+INFO
+& sub(@31,i12) srtall_maxsize
+SRTALL  DATE  TIME                         MEMMB
+INFO
+& call io:sqsaf_out(sqsaf => {                                                   &
+&    data_set => 'sps_pos_blend_saf',                                            &
+&    safid => 'BLEND',                                                           &
+&    media => {                                                                  &
+&       pool => POOL,                                                            &
+&       filesize => 1000000,                                                     &
+&       nfile => 1                                                               &
+&    },                                                                          &
+&    montor => {                                                                 &
+&       sidt => ('SHTLIN', 'SHTPT', 'XSHT', 'YSHT', 'ZSHT', 'RECLIN', 'RECPT',   &
+&       'XREC', 'YREC', 'ZREC', 'DATE', 'TIME', 'XDIST', 'SHTCOD')               &
+&    }                                                                           &
+& })
+INFO
+&!
+& call end_sesam_deck()
+&!
+& call end_job()
+&!
+& call jpr_validate(ignoresuspect => 'no')
