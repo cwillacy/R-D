@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="img">
+    <file>img/folder-open-line.svg</file>
+  </qresource>
+</RCC>

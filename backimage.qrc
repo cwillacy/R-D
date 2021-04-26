@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="backimage">
+    <file>survey design.jpg</file>
+  </qresource>
+</RCC>

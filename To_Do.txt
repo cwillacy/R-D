@@ -1,0 +1,19 @@
+Items To Do
+-----------
+
+To code
+- generate data for migration (also clean-up dependancies)
+- Blending: recip invrecip true/false
+
+To Test
+- deblending skeletons
+
+Known issues
+- loss of right border with spacer
+- parameter type checking (there is none!)
+
+
+
+
+
+
