@@ -168,14 +168,14 @@ SQSAF                                     NOEXEC
 INFO
 INFO  merge the SPS source, receiver and relational files and convert to SAF
 INFO
-& call acqlib:v08:sps_merge(sqsort_maxrec => sqsort_maxrec, &
+& call acqlib:cur:sps_merge(sqsort_maxrec => sqsort_maxrec, &
 &				ident => false &
 & )
 INFO
 INFO  add real node depths?
 INFO
 & if (waterbottom) then
-& call acqlib:v08:interpz(wbot => 'waterbottom.saf',       &
+& call acqlib:cur:interpz(wbot => 'waterbottom.saf',       &
 &                         smooth => 0.001,                 &
 &                         sqsort_maxrec => sqsort_maxrec)
 & endif
@@ -230,7 +230,7 @@ SQSAF
 INFO
 INFO  convert saf to ssf traces
 INFO
-& call acqlib:v08:saf2trc()
+& call acqlib:cur:saf2trc()
 INFO
 & call io:sipmap_out(sipmap => {                                         &
 &    data_set => 'sps_pre_trc',                                          &

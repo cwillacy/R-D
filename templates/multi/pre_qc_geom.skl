@@ -115,7 +115,7 @@ PARSTRIN
 INFO  --------------------------------------------------------------------------
 INFO  create the image for the source and receiver plot
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltscat(					  	&
+& call acqlib:cur:pltscat(					  	&
 &		xvar1		=> 'XREC', 				&
 &		yvar1		=> 'YREC', 				&
 &		col1 		=> 'BLUE',	 			&
@@ -141,7 +141,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the image for the shtlin/reclin 
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltscat(						&
+& call acqlib:cur:pltscat(						&
 &		xvar1		=> 'SHTLIN', 				&
 &		yvar1		=> 'RECLIN', 				&
 &		col1 		=> 'STEELBLUE',	 			&
@@ -161,7 +161,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the image for the shtpt/recpt 
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltscat(						&
+& call acqlib:cur:pltscat(						&
 &		xvar1		=> 'SHTPT', 				&
 &		yvar1		=> 'RECPT', 				&
 &		col1 		=> 'CYAN',	 			&
@@ -181,7 +181,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create a histogram of the XDIST ident
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:plthist(						&
+& call acqlib:cur:plthist(						&
 &		hvar		=> 'XDIST',				&
 &		nbin		=> 25,					&
 &		col1 		=> 'GREEN',	 			&
@@ -199,14 +199,14 @@ PARSTRNEXT
 INFO  calculate the bin fold
 INFO  XSHT, YSHT, XREC, YREC must exist the header 
 INFO
-& call acqlib:v08:sqbin(	&
+& call acqlib:cur:sqbin(	&
 &		xbin => 25., 	&
 &		ybin => 25.	&
 & )
 INFO  --------------------------------------------------------------------------
 INFO  create map for the bin fold
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltmap(						&
+& call acqlib:cur:pltmap(						&
 &		xvar 		=> 'XBINC',				&
 &		yvar 		=> 'YBINC',				&
 &		mvar 		=> 'LSMULT',				&
@@ -244,14 +244,14 @@ SFOR12         0.0          1.       1000.
 INFO  calculate the bin fold
 INFO  XSHT, YSHT, XREC, YREC must exist in the header 
 INFO
-& call acqlib:v08:sqbin(	&
+& call acqlib:cur:sqbin(	&
 &		xbin => 25., 	&
 &		ybin => 25.	&
 & )
 INFO  --------------------------------------------------------------------------
 INFO  create map for the bin fold
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltmap(						&
+& call acqlib:cur:pltmap(						&
 &		xvar 		=> 'XBINC',				&
 &		yvar 		=> 'YBINC',				&
 &		mvar 		=> 'LSMULT',				&
@@ -289,14 +289,14 @@ SFOR12      15000.          1.      25000.
 INFO  calculate the bin fold
 INFO  XSHT, YSHT, XREC, YREC must exist the header 
 INFO
-& call acqlib:v08:sqbin(	&
+& call acqlib:cur:sqbin(	&
 &		xbin => 25., 	&
 &		ybin => 25.	&
 & )
 INFO  --------------------------------------------------------------------------
 INFO  create map for the bin fold
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:pltmap(						&
+& call acqlib:cur:pltmap(						&
 &		xvar 		=> 'XBINC',				&
 &		yvar 		=> 'YBINC',				&
 &		mvar 		=> 'LSMULT',				&
@@ -328,12 +328,12 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  calculate the source to receiver azimuth
 INFO  --------------------------------------------------------------------------
-& call acqlib:v08:calcazi(	&
+& call acqlib:cur:calcazi(	&
 & )
 INFO
 INFO  create the image for the azimuth 
 INFO
-& call acqlib:v08:pltscat(						&
+& call acqlib:cur:pltscat(						&
 &		xvar1		=> 'AZITNA', 				&
 &		yvar1 		=> 'XDIST', 				&
 &		cvary1		=> true,				&
