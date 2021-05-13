@@ -117,7 +117,7 @@ INFO  SOURCE FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS source file and convert it to SAF
 INFO
-& call acqlib:v08:src2saf(				&
+& call acqlib:cur:src2saf(				&
 &		filename	=> source_input 	&
 & )
 INFO
@@ -149,7 +149,7 @@ INFO  RECEIVER FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS receiver file and convert it to SAF
 INFO
-& call acqlib:v08:rec2saf(filename => receiver_input)
+& call acqlib:cur:rec2saf(filename => receiver_input)
 INFO
 INFO  shift origin ?
 INFO
@@ -178,7 +178,7 @@ INFO  RELATIONAL FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS relational file and convert it to SAF
 INFO
-& call acqlib:v08:rel2saf(filename => relational_input)
+& call acqlib:cur:rel2saf(filename => relational_input)
 INFO
 SQMANI
 SQEXPR CHNEND = GRPEND;
