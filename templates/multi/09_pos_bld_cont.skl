@@ -183,7 +183,7 @@ INFO
 SRTALL  DATE  TIME                         MEMMB
 INFO
 & call io:sqsaf_out(sqsaf => {                                                   &
-&    data_set => 'sps_pos_blend_saf',                                            &
+&    data_set => 'pos_blend_saf',                                                &
 &    safid => 'BLEND',                                                           &
 &    media => {                                                                  &
 &       pool => POOL,                                                            &

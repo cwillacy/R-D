@@ -35,8 +35,8 @@
 &! Input characteristics
 &!===========================================================================
 &!
-&  character 	sei_input_a 		= 'agd.70-da_residual'
-&  character 	sei_input_b 		= 'agd.70-da_deblend'
+&  character 	sei_input_a 		= da_residual_trc_wiz
+&  character 	sei_input_b 		= da_deblend_trc_wiz
 &  character 	saf_input_a 		= pos_saf_wiz
 &!
 &! =============================================================================
@@ -64,13 +64,19 @@
 &! Local parameters
 &!==============================================================================
 &!
+&   call io:sipmap_in(sipmap => {               &
+&      data_set => sei_input_a                  &
+&   },                                          &
+&                     mode => 'DECLARE')
+&!
 &!  Parameter for OBNPTY
+&!
 &  integer 	digi 		= dt_wiz   		! Digi in msec
-&  integer 	xmin 		= 150050 		! Min xshtst in xyunits
-&  integer 	xmax		= 210950  		! Max xshtst in xyunits
+&  integer 	xmin 		= $MINID(sei_input_a,'XSHTST') 		! Min xshtst in xyunits
+&  integer 	xmax		= $MAXID(sei_input_a,'XSHTST')  		! Max xshtst in xyunits
 &  integer 	xinc 		= 50    		! Nominal shot spacing in x direction
-&  integer 	ymin 		= 160020  		! Min yshtst in xyunits
-&  integer 	ymax 		= 202620  		! Max yshtst in xyunits
+&  integer 	ymin 		= $MINID(sei_input_a,'YSHTST')  		! Min yshtst in xyunits
+&  integer 	ymax 		= $MAXID(sei_input_a,'YSHTST')  		! Max yshtst in xyunits
 &  integer 	yinc 		= 100      		! Nominal shot spacing in y direction.
 &  integer 	nshot 		= dbl_nshot_wiz 	! Number of thousand shots in survey
 &  integer 	fmax 		= dbl_fmax_wiz  	! Max freq in subbands hz 
@@ -191,7 +197,7 @@ INFO
 &   call io:sipmap_in(sipmap => {               &
 &      data_set => sei_input_a                  &
 &   },                                          &
-&                     mode => 'DECLARE+CARDS')
+&                     mode => 'CARDS')
 &!
 SRTALL  DATE  TIME                    2000 MEMMB
 THMANI

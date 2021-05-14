@@ -6,6 +6,7 @@
 &!
 & include 'global_parameter_declaration'
 & include 	#######
+& character 	POOL 		= pool_wiz
 &!
 &!==============================================================================
 &! Release dependencies:
@@ -34,9 +35,9 @@
 &! Input characteristics
 &!===========================================================================
 &!
-&  character 	sei_input_a 		= 'agd.70-da_residual'
-&  character 	sei_input_b 		= 'agd.70-da_deblend'
-&  character 	saf_input_a 		= 'age.52-sps_post_blend_saf'
+&  character 	sei_input_a 		= da_residual_trc_wiz
+&  character 	sei_input_b 		= da_deblend_trc_wiz
+&  character 	saf_input_a 		= pos_saf_wiz
 &!
 &! =============================================================================
 &! OUTPUT information
@@ -46,7 +47,7 @@
 &  character 	output_data_b        	= 'fd_residual'
 &  integer   	output_data_a_size   	=  30000
 &  character 	output_data_a_title  	= 'deblended result'
-&  character 	output_data_a_pool   	=  DISC       
+&  character 	output_data_a_pool   	=  pool_wiz       
 &  character 	output_data_a_format 	= 'INT16'
 &!
 &!==============================================================================
@@ -63,13 +64,19 @@
 &! Local parameters
 &!==============================================================================
 &!
+&   call io:sipmap_in(sipmap => {               &
+&      data_set => sei_input_a                  &
+&   },                                          &
+&                     mode => 'DECLARE')
+&!
 &!  Parameter for OBNPTY
+&!
 &  integer 	digi 		= dt_wiz   		! Digi in msec
-&  integer 	xmin 		= 150050 		! Min xshtst in xyunits
-&  integer 	xmax		= 210950  		! Max xshtst in xyunits
+&  integer 	xmin 		= $MINID(sei_input_a,'XSHTST') 		! Min xshtst in xyunits
+&  integer 	xmax		= $MAXID(sei_input_a,'XSHTST')  		! Max xshtst in xyunits
 &  integer 	xinc 		= 50    		! Nominal shot spacing in x direction
-&  integer 	ymin 		= 160020  		! Min yshtst in xyunits
-&  integer 	ymax 		= 202620  		! Max yshtst in xyunits
+&  integer 	ymin 		= $MINID(sei_input_a,'YSHTST')  		! Min yshtst in xyunits
+&  integer 	ymax 		= $MAXID(sei_input_a,'YSHTST')  		! Max yshtst in xyunits
 &  integer 	yinc 		= 100      		! Nominal shot spacing in y direction.
 &  integer 	nshot 		= dbl_nshot_wiz 	! Number of thousand shots in survey
 &  integer 	fmax 		= dbl_fmax_wiz  	! Max freq in subbands hz 
@@ -91,9 +98,9 @@
 &  integer 	nskipy 		= nwindy/2
 &  integer 	nskipt 		= nwindt/2
 &!
-&  integer      tmax_in 	= 32000
+&  integer      tmax_in 	= tout_wiz
 &!
-&! Muting paramters
+&! Muting parameters
 &  real 	vel_water 		= 1500.
 &  real 	vel_refrac 		= 4500.
 &  integer 	intercept_da 		= 550
@@ -190,7 +197,7 @@ INFO
 &   call io:sipmap_in(sipmap => {               &
 &      data_set => sei_input_a                  &
 &   },                                          &
-&                     mode => 'DECLARE+CARDS')
+&                     mode => 'CARDS')
 &!
 SRTALL  DATE  TIME                    2000 MEMMB
 THMANI
@@ -274,6 +281,7 @@ INFO  Combined with DA
 INFO  ========================================================================
 DSCIN                   da.ssf
 DSCIN                   noda.ssf
+
 SIPMAP
 SRTALLSHTLIN SHTPT                    5000 MEMMB
 SORBADSUBTYP
