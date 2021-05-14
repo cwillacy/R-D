@@ -35,8 +35,8 @@
 &! Input characteristics
 &!===========================================================================
 &!
-&  character 	sei_input_a 		= 'agd.70-da_residual'
-&  character 	sei_input_b 		= 'agd.70-da_deblend'
+&  character 	sei_input_a 		= da_residual_trc_wiz
+&  character 	sei_input_b 		= da_deblend_trc_wiz
 &  character 	saf_input_a 		= pos_saf_wiz
 &!
 &! =============================================================================
