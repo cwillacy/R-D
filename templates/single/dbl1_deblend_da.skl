@@ -63,23 +63,29 @@
 &! Local parameters
 &!==============================================================================
 &!
+&   call io:sipmap_in(sipmap => {               &
+&      data_set => sei_input_a                  &
+&   },                                          &
+&                     mode => 'DECLARE')
+&!
 &!  Parameter for OBNPTY
-&  integer 	digi 		= dt_wiz   		    ! Digi in msec
-&  integer 	xmin 		= 150050 		    ! Min xshtst in xyunits
-&  integer 	xmax		= 210950  		    ! Max xshtst in xyunits
-&  integer 	xinc 		= 50    		    ! Nominal shot spacing in x direction
-&  integer 	ymin 		= 160020  		    ! Min yshtst in xyunits
-&  integer 	ymax 		= 202620  		    ! Max yshtst in xyunits
-&  integer 	yinc 		= 100      		    ! Nominal shot spacing in y direction.
-&  integer 	nshot 		= dbl_nshot_wiz 	! Number of thousand shots in survey
-&  integer 	fmax 		= dbl_fmax_wiz  	! Max freq in subbands hz 
-&  real 	pmax 		= dbl_pmax_wiz  	! Max dip to be modeled in units of sec/xyunit
-&  integer 	mxblnd 		= dbl_mxblnd_wiz    ! Max number of blended traces on which a given shot can appear
-&  integer  nwavit      = dbl_nwavit_wiz   	! Number of wavelet iterations per dip 
-&  integer 	xywindow 	= dbl_xywindow_wiz  ! Half width of OBNPTY window in XYUNITs
-&  integer 	twindow 	= dbl_twindow_wiz	! Half width of OBNPTY time window in TUNITS
-&  integer 	ndip 		= dbl_ndip_wiz		! Number of Dips in the final results
-&  integer 	niters 		= 0 			    ! Number of outer loops
+&!
+&  integer 	digi 		  = dt_wiz   			                ! Digi in msec
+&  integer 	xmin 		  = $MINID(sei_input_a,'XSHTST') 	! Min xshtst in xyunits
+&  integer 	xmax		  = $MAXID(sei_input_a,'XSHTST')	! Max xshtst in xyunits
+&  integer 	xinc 		  = 50    			                  ! Nominal shot spacing in x direction
+&  integer 	ymin 		  = $MINID(sei_input_a,'YSHTST') 	! Min yshtst in xyunits
+&  integer 	ymax 		  = $MAXID(sei_input_a,'YSHTST')	! Max yshtst in xyunits
+&  integer 	yinc 		  = 100      			                ! Nominal shot spacing in y direction.
+&  integer 	nshot 	  = dbl_nshot_wiz 		            ! Number of thousand shots in survey
+&  integer 	fmax 		  = dbl_fmax_wiz  		            ! Max freq in subbands hz 
+&  real 	  pmax 		  = dbl_pmax_wiz  		            ! Max dip to be modeled in units of sec/xyunit
+&  integer 	mxblnd 	  = dbl_mxblnd_wiz    		        ! Max number of blended traces on which a given shot can appear
+&  integer  nwavit    = dbl_nwavit_wiz   		          ! Number of wavelet iterations per dip 
+&  integer 	xywindow 	= dbl_xywindow_wiz  		        ! Half width of OBNPTY window in XYUNITs
+&  integer 	twindow 	= dbl_twindow_wiz		            ! Half width of OBNPTY time window in TUNITS
+&  integer 	ndip 		  = dbl_ndip_wiz			            ! Number of Dips in the final results
+&  integer 	niters 		= 0 				                    ! Number of outer loops
 &!
 &  integer      nwindx          = round(float(xywindow)/float(xinc))
 &  		nwindx 		= (nwindx/2)*2
@@ -190,7 +196,7 @@ INFO
 &   call io:sipmap_in(sipmap => {               &
 &      data_set => sei_input_a                  &
 &   },                                          &
-&                     mode => 'DECLARE+CARDS')
+&                     mode => 'CARDS')
 &!
 SRTALL  DATE  TIME                    2000 MEMMB
 THMANI
