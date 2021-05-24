@@ -10,7 +10,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 #----------------------------------------------------------------------
 #  SETUP PAGE
 #----------------------------------------------------------------------
-def PageSetup(self,Wizard,icons,tipstyle,groupstyle):
+def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
+        
     self.wizardPage2 = QtWidgets.QWizardPage()
     self.wizardPage2.setSubTitle("")
     self.wizardPage2.setObjectName("wizardPage2")
@@ -45,7 +46,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle):
     self.comboBox.setSizePolicy(sizePolicy)
     self.comboBox.setCurrentText("")
     self.comboBox.setObjectName("comboBox")
-    self.comboBox.setFixedWidth(90)      
+    self.comboBox.setFixedWidth(135)      
     self.horizontalLayout_2.addWidget(self.comboBox)
     self.comboBox.addItem("OBN")
     #self.comboBox.addItem("Streamer")
@@ -71,7 +72,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle):
     self.comboBox_2.setSizePolicy(sizePolicy)
     self.comboBox_2.setCurrentText("")
     self.comboBox_2.setObjectName("comboBox_2")
-    self.comboBox_2.setFixedWidth(90)
+    self.comboBox_2.setFixedWidth(135)
  
     self.horizontalLayout_8.addWidget(self.comboBox_2)
     self.comboBox_2.addItem("Single")
@@ -178,12 +179,13 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle):
     self.comboBox_pool.setSizePolicy(sizePolicy)
     self.comboBox_pool.setCurrentText("")
     self.comboBox_pool.setObjectName("comboBox_pool")
-    self.comboBox_pool.setFixedWidth(90) 
+    self.comboBox_pool.setFixedWidth(135) 
     self.horizontalLayout_pool.addWidget(self.comboBox_pool)
-    self.comboBox_pool.addItem("ird_ict1")
-    self.comboBox_pool.addItem("sgsjpdata1")
-    self.comboBox_pool.addItem("sgsjpdata2")
-    self.comboBox_pool.addItem("sgsjpdata3")
+       
+        
+    for element in storage:
+        self.comboBox_pool.addItem(element)
+    
     self.comboBox_pool.setToolTip("jobpro data pool to use for workflow run")
     self.comboBox_pool.setStyleSheet(tipstyle)
     self.comboBox_pool.activated[str].connect(self.changestate_pool)
