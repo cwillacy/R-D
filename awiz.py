@@ -31,7 +31,7 @@ import page_output
 class Ui_Wizard(object):
 
     def setupUi(self, Wizard):
-        global df, debug, Dialog, icons, tipstyle, groupstyle
+        global df, debug, Dialog, icons, tipstyle, groupstyle, storage
         
         # switch on debug mode
         debug=False
@@ -102,6 +102,18 @@ class Ui_Wizard(object):
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
 
+
+        storage = ["ird_ict1","sgsjpdata1","sgsjpdata2","sgsjpdata3","copydata","eptnmx","eptnobackup","eptram11scr_dyna", \
+               "eptram11scratch","eptram12scratch","eptram13scratch","eptram14scratch","eptram15scratch","eptram16scratch", \
+                   "eptram17scratch","eptram19scratch","eptram4scratch","eptram6scratch","eptram8scratch","epw0034_a5_3590h", \
+                       "epw0034_a5_3592b3","epw_scr_3592b3","epw_tc_v3590h","epwjpdata1","epwreg5scratch","hou_hsm_ua",\
+                           "hou_scr_gsp","hou_ua_usc_export","hou_vdisk_gsp","hou_vdisk_ua","hou_vt_ept","hou_vt_gsp",\
+                               "hou_vt_train","hou_vt_ua","hougdc_vt_ept","ird_ict1_dyna","sasnobackup","sgs_trd_3590b",\
+                                   "sgs_trd_3590e","sgs_trd_3590h","sgs_trd_3592a2","sgs_trd_3592a3","sgs_trd_3592b2",\
+                                       "sgs_trd_3592b3","sgsgdc_tc_v3590h"]
+
+        storage.sort()  
+
         if debug:
             print(df)
 
@@ -113,7 +125,7 @@ class Ui_Wizard(object):
         #----------------------------------------------------------------------
         #  PAGE 2
         #----------------------------------------------------------------------
-        page_setup.PageSetup(self,Wizard,icons,tipstyle,groupstyle)
+        page_setup.PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage)
                                
         #----------------------------------------------------------------------
         #  PAGE 3
@@ -367,14 +379,7 @@ class Ui_Wizard(object):
         #---------------------POOL---------------------
         val = df.loc[36,"VALUE"]
 
-        if val == "sgsjpdata1":
-            index=1
-        elif val == "sgsjpdata2":
-            index=2
-        elif val == "sgsjpdata3":
-            index=3
-        else:
-            index=0
+        index = storage.index(val)
        
         self.comboBox_pool.setCurrentIndex(index)  
         
