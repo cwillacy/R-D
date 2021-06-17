@@ -222,7 +222,8 @@ INFO
 & })
 INFO
 & if (gen_trc) then
-DSCOUT                  merge.saf                                             
+DSCOUT                  merge.saf 
+MEDCTLFILE_SIZE=10GB
 SQSAF
 CON
 DSCIN                   merge.saf                                             
