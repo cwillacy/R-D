@@ -115,7 +115,7 @@ INFO
 & call io:sqsaf_in(sqsaf => input_record_sqsaf,  &
 &                  mode => 'CARDS')
 INFO
-& call acqlib:cur:findcrec(tmax_out => tmax_cont)
+& call acqlib:~~~:findcrec(tmax_out => tmax_cont)
 INFO
 DSCOUT                  sht_recst-*.saf                                               
 SQSAF
@@ -132,7 +132,7 @@ INFO  --------------------------------------------------------------------------
 & call io:sipmap_in(sipmap => input_record ,  &
 &                   mode   => 'CARDS')
 INFO
-& call acqlib:cur:cont2dis(			&
+& call acqlib:~~~:cont2dis(			&
 &		wavelet_t0 	=> wavelet_t0,		&
 &		tmax_in  	=> tmax_cont,		&
 &		tmax_cont 	=> tmax_cont,		&
@@ -158,7 +158,7 @@ SIPMAP
 INFO
 INFO  need to swap trace idents back so that they match the original geometry
 INFO
-& call acqlib:cur:recipssf()
+& call acqlib:~~~:recipssf()
 INFO
 INFO  update to the correct reciprocal depths
 INFO

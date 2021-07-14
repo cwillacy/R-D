@@ -160,7 +160,7 @@ INFO
 INFO
 INFO  need to swap trace idents back so that they match the original geometry
 INFO
-& 	call acqlib:cur:recipssf()
+& 	call acqlib:~~~:recipssf()
 INFO
 & endif
 INFO
@@ -226,7 +226,7 @@ INFO
 INFO  add noise?
 INFO
 & if (noise) then
-& call acqlib:cur:addrnoise(	&
+& call acqlib:~~~:addrnoise(	&
 &	noimod	=> noimod,		&
 &	flow	=> flow,		&
 &	iorlow	=> iorlow,		&
@@ -269,7 +269,7 @@ INFO
 INFO  The traces are then output in reciprocal mode for migration with RTM.
 INFO  This allows migration of the ground truth dataset i.e. unblended. 
 INFO
-& 	call acqlib:cur:recipssf()
+& 	call acqlib:~~~:recipssf()
 INFO
 SRTALLSHTLIN SHTPT                    5000    MB
 INFO

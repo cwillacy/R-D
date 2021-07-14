@@ -117,7 +117,7 @@ INFO  This will convert the discontinuous modelled records
 INFO  to continuous data which is then cropped to a new 
 INFO  output trace length. 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:dis2cont(			&
+& call acqlib:~~~:dis2cont(			&
 &		wavelet_t0 	=> wavelet_t0,		&
 &		tmax_in  	=> tmax,		&
 &		tmax_cont 	=> tmax_cont,		&
@@ -127,7 +127,7 @@ INFO
 INFO  add noise?
 INFO
 & if (noise) then
-& call acqlib:cur:addrnoise(	&
+& call acqlib:~~~:addrnoise(	&
 &	noimod	=> noimod,		&
 &	flow	=> flow,		&
 &	iorlow	=> iorlow,		&

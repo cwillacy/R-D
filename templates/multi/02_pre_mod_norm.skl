@@ -78,6 +78,7 @@ export IMAGE_DIR=#1
 & integer	sqsort_maxrec		= sqsort_wiz 		! SQSORT maxrec size  
 & boolean 	gen_trc			= ssf_wiz 		! boolean switch to output ssf trace data	
 & integer	srtall_maxsize		= srtall_wiz		! SRTALL maxsiz size 
+& boolean	reident 		= reident_wiz		! re-calculate key idents
 &!
 &!....2) DO YOU WANT TO UPDATE ZREC WITH THE TRUE WATER BOTTOM DEPTHS?
 &! 	- if yes then set the following parameter to true, false otherwise
@@ -168,14 +169,14 @@ SQSAF                                     NOEXEC
 INFO
 INFO  merge the SPS source, receiver and relational files and convert to SAF
 INFO
-& call acqlib:cur:sps_merge(sqsort_maxrec => sqsort_maxrec, &
-&				ident => false &
+& call acqlib:~~~:sps_merge(sqsort_maxrec => sqsort_maxrec, 	&
+&				ident => reident 		&
 & )
 INFO
 INFO  add real node depths?
 INFO
 & if (waterbottom) then
-& call acqlib:cur:interpz(wbot => 'waterbottom.saf',       &
+& call acqlib:~~~:interpz(wbot => 'waterbottom.saf',       &
 &                         smooth => 0.001,                 &
 &                         sqsort_maxrec => sqsort_maxrec)
 & endif
@@ -231,7 +232,7 @@ SQSAF
 INFO
 INFO  convert saf to ssf traces
 INFO
-& call acqlib:cur:saf2trc()
+& call acqlib:~~~:saf2trc()
 INFO
 & call io:sipmap_out(sipmap => {                                         &
 &    data_set => 'sps_pre_trc',                                          &

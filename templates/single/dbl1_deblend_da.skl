@@ -218,7 +218,7 @@ INFO  OBNPTY
 INFO  ========================================================================
 INFO  INFO  7...12....18....24....30....36....42....48....54....60....66....72....78
 INFO  PANID MXINPNMXOUPNMAXSAFMXBLNDMXWMESMXPMES
-&  sub(@13,i6) nshot, (@19,i6) nshot, (@25,i6) nshot, (@31,i6) mxblnd, (@37,i6) tmax_in
+&  sub(@13,i6) nshot, (@19,i6) nshot, (@25,i6) nshot, (@31,i6) mxblnd
 OBNPTY RECPT                         16000
 OBDIRA  ZREC  1450  1000  1500    
 INFO   use shtlin, shtpt attributes from the shot saf to label the output deblended data.

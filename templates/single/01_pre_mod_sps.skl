@@ -84,7 +84,18 @@ export IMAGE_DIR=#1
 & boolean 	xyshift			= xyshift_wiz 		! boolean switch to apply coordinate shift   
 & integer 	x0 			= x0_wiz  		! X value to shift by 
 & integer 	y0 			= y0_wiz		! Y value to shift by
-&!
+&!-------------------
+&!  PARAMETER SUMMARY
+&!-------------------
+&! source_input 	= spssrc_wiz 
+&! receiver_input 	= spsrec_wiz 
+&! relational_input 	= spsrel_wiz
+&! sqsort_maxrec	= sqsort_wiz		
+&! srtall_maxsize	= srtall_wiz		
+&! xyshift		= xyshift_wiz 		 
+&! x0 			= x0_wiz  		
+&! y0 			= y0_wiz		
+&!//////////////////////////////////////////////////////////////////////////////
 &!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 &!==============================================================================
 &!
@@ -117,7 +128,7 @@ INFO  SOURCE FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS source file and convert it to SAF
 INFO
-& call acqlib:cur:src2saf(				&
+& call acqlib:~~~:src2saf(				&
 &		filename	=> source_input 	&
 & )
 INFO
@@ -149,7 +160,7 @@ INFO  RECEIVER FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS receiver file and convert it to SAF
 INFO
-& call acqlib:cur:rec2saf(filename => receiver_input)
+& call acqlib:~~~:rec2saf(filename => receiver_input)
 INFO
 INFO  shift origin ?
 INFO
@@ -178,7 +189,7 @@ INFO  RELATIONAL FILE
 INFO  --------------------------------------------------------------------------
 INFO  import the SPS relational file and convert it to SAF
 INFO
-& call acqlib:cur:rel2saf(filename => relational_input)
+& call acqlib:~~~:rel2saf(filename => relational_input)
 INFO
 SQMANI
 SQEXPR CHNEND = GRPEND;
