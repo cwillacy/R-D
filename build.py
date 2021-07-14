@@ -193,6 +193,30 @@ def buildinclude(self,df):
      file.write('& character da_residual_trc_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-da_residual' + '\'' + '\n')    
      file.write('& character da_deblend_trc_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-da_deblend' + '\'' + '\n')
       
+     if str(df.loc[47,"VALUE"]) == 'True':       
+          file.write('& boolean reident_wiz = True \n')
+     else:
+          file.write('& boolean reident_wiz = False \n')
+         
+     if str(df.loc[48,"VALUE"]) == 'True':       
+          file.write('& boolean dev_wiz = True \n')
+     else:
+          file.write('& boolean dev_wiz = False \n')
+            
+     mystring = '& character description_wiz = ' 
+     
+     mystring = mystring + '\'' 
+     
+     mystring2 = str(df.loc[49,"VALUE"]).replace('\n','\\n')
+     
+     mystring = mystring + mystring2
+     
+     mystring = mystring + '\''
+     
+     file.write(mystring)    
+     
+     #file.write('& character description_wiz = ' + '\"' + str(df.loc[49,"VALUE"]) + '\"' + '\n') 
+          
      file.close()
      return
  
@@ -223,9 +247,20 @@ def buildskl_single(self,df,skl):
       
    with open(fullpath,'r') as f:
        for line in f:
-           file.write(line.replace('#######',include_file))
+           if '#######' in line:
+               file.write(line.replace('#######',include_file))
+           elif '~~~' in line:
+               if str(df.loc[48,"VALUE"]) == 'True':   
+                   file.write(line.replace('~~~','dev'))
+               else:
+                   file.write(line.replace('~~~','cur'))    
+           else:
+               file.write(line)
    
    file.close()
+   
+     
+   
    return
 
 #------------------------------------------------------------------------------

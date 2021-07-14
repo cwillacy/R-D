@@ -120,7 +120,40 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.comboBox_2.activated[str].connect(self.changestate_srctype)
     self.lineEdit_shtcod.textChanged[str].connect(self.changestate_shtcod) 
 
+    #-------------
+    self.horizontalLayout_reident = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_reident.setObjectName("horizontalLayout_reident")
+    self.label_reident = QtWidgets.QLabel(self.groupBox_2)
+    self.label_reident.setObjectName("label_reident")
+    self.label_reident.setText("Re-Ident:")
+    self.horizontalLayout_reident.addWidget(self.label_reident)
+    self.checkBox_reident = QtWidgets.QCheckBox(self.groupBox_2)
+    self.checkBox_reident.setText("")
+    self.checkBox_reident.setChecked(False)
+    self.checkBox_reident.setObjectName("checkBox_reident")
+    self.horizontalLayout_reident.addWidget(self.checkBox_reident)
+    self.checkBox_reident.setToolTip("re-calculate the key survey idents")
+    self.checkBox_reident.setStyleSheet(tipstyle)
+    self.verticalLayout.addLayout(self.horizontalLayout_reident)
+    self.checkBox_reident.clicked.connect(self.changestate_reident)
         
+    #-------------
+    self.horizontalLayout_dev = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_dev.setObjectName("horizontalLayout_dev")
+    self.label_dev = QtWidgets.QLabel(self.groupBox_2)
+    self.label_dev.setObjectName("label_dev")
+    self.label_dev.setText("Use development library:")
+    self.horizontalLayout_dev.addWidget(self.label_dev)
+    self.checkBox_dev = QtWidgets.QCheckBox(self.groupBox_2)
+    self.checkBox_dev.setText("")
+    self.checkBox_dev.setChecked(False)
+    self.checkBox_dev.setObjectName("checkBox_dev")
+    self.horizontalLayout_dev.addWidget(self.checkBox_dev)
+    self.checkBox_dev.setToolTip("build with the development version of AcqLib")
+    self.checkBox_dev.setStyleSheet(tipstyle)
+    self.verticalLayout.addLayout(self.horizontalLayout_dev)
+    self.checkBox_dev.clicked.connect(self.changestate_dev)
+    
     #-------------
     
     self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 1, 1)

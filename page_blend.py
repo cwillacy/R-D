@@ -50,7 +50,9 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.verticalLayout_blend2.addLayout(self.horizontalLayout_blend)       
     self.lineEdit_tmax.setToolTip("trace length for the modelled data in ms")
     self.lineEdit_tmax.setStyleSheet(tipstyle)
-    self.lineEdit_tmax.textChanged[str].connect(self.changestate_tmax)
+    self.lineEdit_tmax.editingFinished.connect(self.changestate_tmax)
+
+    #self.lineEdit_tmax.textChanged[str].connect(self.changestate_tmax)
     spacerItem_tmax = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_blend.addItem(spacerItem_tmax)
     

@@ -39,7 +39,7 @@ class Ui_Wizard(object):
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
         
         Wizard.setObjectName("Wizard")
-        Wizard.setFixedSize(850, 525)
+        Wizard.setFixedSize(850, 575)
         Wizard.setAutoFillBackground(False) # switch off window resizing
         Wizard.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         Wizard.setWizardStyle(QtWidgets.QWizard.MacStyle)
@@ -94,10 +94,11 @@ class Ui_Wizard(object):
                                        'IORHIG','TMAX','DT','TOUT','T0','OUTDIR','SSF','QCGEOM','QCTIME',
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
-                                       'NWAVIT'],
+                                       'NWAVIT','REIDENT','VERSION','DESC'],
                 'VALUE': ['OBN','Single',0,000.00,'','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
-                          4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3]
+                          4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
+                          'False','']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -408,6 +409,24 @@ class Ui_Wizard(object):
             self.lineEdit_dbl5b.setDisabled(True)   
             self.lineEdit_dbl6a.setDisabled(True)  
             
+        #---------------------REIDENT---------------------
+        val = df.loc[47,"VALUE"]
+        if val == 'True':
+            self.checkBox_reident.setChecked(True)  
+        else:
+            self.checkBox_reident.setChecked(False) 
+            
+        #---------------------VERSION---------------------
+        val = df.loc[48,"VALUE"]
+        if val == 'True':
+            self.checkBox_dev.setChecked(True)  
+        else:
+            self.checkBox_dev.setChecked(False) 
+            
+        #---------------------DESCRIPTION---------------------
+        val = df.loc[49,"VALUE"]
+        self.textBox.setPlainText(val)
+            
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
     #----------------------------------------------------------------------
@@ -622,6 +641,31 @@ class Ui_Wizard(object):
         if debug:
             print(df)     
  
+
+    def changestate_reident(self):
+        global debug
+        
+        if (self.checkBox_reident.isChecked()):
+            df.loc[df['PARAMETER'] == 'REIDENT', 'VALUE'] = 'True'
+
+        else:
+            df.loc[df['PARAMETER'] == 'REIDENT', 'VALUE'] = 'False'
+            
+        if debug:
+            print(df) 
+ 
+    def changestate_dev(self):
+        global debug
+        
+        if (self.checkBox_dev.isChecked()):
+            df.loc[df['PARAMETER'] == 'VERSION', 'VALUE'] = 'True'
+
+        else:
+            df.loc[df['PARAMETER'] == 'VERSION', 'VALUE'] = 'False'
+            
+        if debug:
+            print(df)     
+ 
     
     def changestate_wbsaf(self,text):
         global df, debug
@@ -671,6 +715,16 @@ class Ui_Wizard(object):
         if debug:
             print(df)  
      
+        
+    def changestate_desc(self):
+        global df, debug
+   
+        textboxValue = self.textBox.toPlainText() 
+   
+        df.loc[df['PARAMETER'] == 'DESC', 'VALUE'] = textboxValue
+        if debug:
+            print(df) 
+            
     def changestate_spssrc(self,text):
         global df, debug
    
@@ -783,10 +837,30 @@ class Ui_Wizard(object):
         if debug:
             print(df)     
  
-    def changestate_tmax(self,text):
+    # def make_float(num):
+    #  return float(num.translate({0x2c: '.', 0xa0: None, 0x2212: '-'}))   
+ 
+    def changestate_tmax(self):
         global df, debug
    
+        text = self.lineEdit_tmax.text()
+        print(text)
+   
         df.loc[df['PARAMETER'] == 'TMAX', 'VALUE'] = text
+                 
+        # # check for zero trace length
+        if float(text.translate({0x2c: '.', 0xa0: None, 0x2212: '-'})) <= 0:
+             print('error')
+             
+             msg = QMessageBox()
+             msg.setIcon(QMessageBox.Critical)
+             msg.setText("The trace length cannot be zero or negative!")
+             msg.setWindowTitle("Invalid Entry")
+             msg.setStandardButtons(QMessageBox.Ok)
+             msg.exec()
+        else:
+             print('ok')
+               
         if debug:
             print(df)      
  
@@ -794,6 +868,8 @@ class Ui_Wizard(object):
         global df, debug
    
         df.loc[df['PARAMETER'] == 'DT', 'VALUE'] = text
+
+        
         if debug:
             print(df)    
  
