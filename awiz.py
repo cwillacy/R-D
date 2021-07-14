@@ -34,7 +34,7 @@ class Ui_Wizard(object):
         global df, debug, Dialog, icons, tipstyle, groupstyle, storage
         
         # switch on debug mode
-        debug=False
+        debug=True
         
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
         
