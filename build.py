@@ -289,8 +289,16 @@ def buildskl_multi(self,df,skl):
     file = open(fullpath_skl,'w')        
        
     with open(fullpath,'r') as f:
-        for line in f:
-            file.write(line.replace('#######',include_file))
+       for line in f:
+           if '#######' in line:
+               file.write(line.replace('#######',include_file))
+           elif '~~~' in line:
+               if str(df.loc[48,"VALUE"]) == 'True':   
+                   file.write(line.replace('~~~','dev'))
+               else:
+                   file.write(line.replace('~~~','cur'))    
+           else:
+               file.write(line)
     
     file.close()
     return

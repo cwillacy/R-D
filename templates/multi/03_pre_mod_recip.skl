@@ -241,9 +241,10 @@ INFO
 &       filesize => 100000,                                                       &
 &       nfile => 1                                                                &
 &    },                                                                           &
-&    montor => {                                                                  &
-&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT')           &
-&    }                                                                            &
+&    montor => {                                                                    &
+&       sidt => ('XSHT', 'YSHT', 'ZSHT', 'XREC', 'YREC', 'ZREC', 'SHT', 'SHTLIN',   &
+&       'SHTPT', 'RECST')                                                           &
+&    }                                                                              &
 & })
 INFO
 & endif
