@@ -70,10 +70,11 @@ export IMAGE_DIR=#1
 &!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 &!//////////////////////////////////////////////////////////////////////////////
 &!
-& character 	input_saf	= recip_geom_wiz
-& character 	input_ssf 	= recip_ssf_wiz
-& boolean 	gen_trc		= ssf_wiz  		! boolean switch to output ssf trace data	
-& integer	shtcod_split	= shtcod_wiz		! shot code to split output
+& character 	input_saf		= recip_geom_wiz
+& character 	input_ssf 		= recip_ssf_wiz
+& boolean 	gen_trc			= ssf_wiz  		! boolean switch to output ssf trace data	
+& integer	shtcod_split		= shtcod_wiz		! shot code to split output
+& character 	shtcodident_split	= splitident_wiz	! shot code ident to split output
 &!
 &!//////////////////////////////////////////////////////////////////////////////
 &!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -100,7 +101,8 @@ INFO
 &                  mode => 'DECLARE+CARDS')
 INFO
 SQMANISELECT
-SAFIRAREJECTSHTCOD
+& sub(@13,a0) shtcodident_split
+SAFIRAREJECT
 & sub(@7,f0) float(shtcod_split)
 & sub(@31,f0) float(shtcod_split)
 SFOR12                     0.0
@@ -128,7 +130,8 @@ CON
 &                   mode => 'DECLARE+CARDS')
 INFO
 TRARAN
-THDIRAREJECTSHTCOD
+& sub(@13,a0) shtcodident_split
+THDIRAREJECT
 & sub(@7,i12) shtcod_split
 & sub(@31,i12) shtcod_split
 THOR12                       0            
@@ -157,7 +160,8 @@ INFO
 &                  mode => 'DECLARE+CARDS')
 INFO
 SQMANISELECT
-SAFIRAACCEPTSHTCOD
+& sub(@13,a0) shtcodident_split
+SAFIRAACCEPT
 & sub(@7,f0) float(shtcod_split)
 & sub(@31,f0) float(shtcod_split)
 SFOR12                     0.0
@@ -185,7 +189,8 @@ CON
 &                   mode => 'DECLARE+CARDS')
 INFO
 TRARAN
-THDIRAACCEPTSHTCOD
+& sub(@13,a0) shtcodident_split
+THDIRAACCEPT
 & sub(@7,i12) shtcod_split
 & sub(@31,i12) shtcod_split
 THOR12                       0            

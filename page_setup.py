@@ -82,7 +82,40 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     spacerItem1 = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_8.addItem(spacerItem1)
     self.verticalLayout.addLayout(self.horizontalLayout_8)
-          
+    #------------     
+    self.horizontalLayout_splitident = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_splitident.setObjectName("horizontalLayout_splitident")
+    #self.horizontalLayout_2c.addItem(spacerItem)
+    self.verticalLayout.addLayout(self.horizontalLayout_splitident)
+    
+    self.horizontalLayout_splitident2 = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_splitident2.setObjectName("horizontalLayout_splitident2")
+    
+    self.label_splitident = QtWidgets.QLabel(self.groupBox_2)
+    self.label_splitident.setObjectName("label_splitident")
+    self.label_splitident.setText("Source split ident:")
+    self.lineEdit_splitident = QtWidgets.QLineEdit(self.groupBox_2)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.lineEdit_splitident.sizePolicy().hasHeightForWidth())
+    self.lineEdit_splitident.setSizePolicy(sizePolicy)
+    self.lineEdit_splitident.setMaximumSize(QtCore.QSize(75, 16777215))
+    self.lineEdit_splitident.setBaseSize(QtCore.QSize(0, 0))
+    self.lineEdit_splitident.setObjectName("lineEdit_splitident")
+    self.lineEdit_splitident.setMaxLength(6)
+    self.lineEdit_splitident.setText("")
+    self.lineEdit_splitident.setDisabled(True)
+    self.lineEdit_splitident.setToolTip("enter the shot code corresponding to the low-frequency source")
+    self.lineEdit_splitident.setStyleSheet(tipstyle)
+    self.horizontalLayout_splitident2.addWidget(self.label_splitident)
+    self.horizontalLayout_splitident2.addWidget(self.lineEdit_splitident)
+    spacerItem_splitident = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+    self.horizontalLayout_splitident2.addItem(spacerItem_splitident)
+    self.verticalLayout.addLayout(self.horizontalLayout_splitident2)
+
+    self.lineEdit_splitident.textChanged[str].connect(self.changestate_splitident)
+    
     #------------
     self.horizontalLayout_2c = QtWidgets.QHBoxLayout()
     self.horizontalLayout_2c.setObjectName("horizontalLayout_2c")
@@ -94,7 +127,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     
     self.label_9c = QtWidgets.QLabel(self.groupBox_2)
     self.label_9c.setObjectName("label_9c")
-    self.label_9c.setText("SHTCOD for second source:")
+    self.label_9c.setText("Source split value:")
     self.lineEdit_shtcod = QtWidgets.QLineEdit(self.groupBox_2)
     sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     sizePolicy.setHorizontalStretch(0)

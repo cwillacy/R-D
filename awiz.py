@@ -94,11 +94,11 @@ class Ui_Wizard(object):
                                        'IORHIG','TMAX','DT','TOUT','T0','OUTDIR','SSF','QCGEOM','QCTIME',
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
-                                       'NWAVIT','REIDENT','VERSION','DESC'],
+                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT'],
                 'VALUE': ['OBN','Single',0,000.00,'','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
-                          'False','']
+                          'False','','']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -190,12 +190,18 @@ class Ui_Wizard(object):
         if val == "Single":
             index=0
             self.lineEdit_shtcod.setDisabled(True)
+            self.lineEdit_splitident.setDisabled(True)
         else:
             index=1
             self.lineEdit_shtcod.setDisabled(False)
+            self.lineEdit_splitident.setDisabled(False)
             
        
-        self.comboBox_2.setCurrentIndex(index)        
+        self.comboBox_2.setCurrentIndex(index)
+
+        #---------------------SPLITIDENT---------------------
+        val = df.loc[50,"VALUE"]
+        self.lineEdit_splitident.setText(val)        
         #---------------------SHTCOD---------------------
         val = df.loc[2,"VALUE"]
         self.lineEdit_shtcod.setText(val)
@@ -693,8 +699,10 @@ class Ui_Wizard(object):
         
         if (text == "Mixed"):
              self.lineEdit_shtcod.setDisabled(False)
+             self.lineEdit_splitident.setDisabled(False)
         else:
              self.lineEdit_shtcod.setDisabled(True)
+             self.lineEdit_splitident.setDisabled(True)
    
         df.loc[df['PARAMETER'] == 'SRCTYPE', 'VALUE'] = text
         
@@ -706,7 +714,14 @@ class Ui_Wizard(object):
    
         df.loc[df['PARAMETER'] == 'SHTCOD', 'VALUE'] = text
         if debug:
-            print(df)          
+            print(df)  
+            
+    def changestate_splitident(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'SPLITIDENT', 'VALUE'] = text
+        if debug:
+            print(df) 
         
     def changestate_jobrev(self,text):
         global df, debug

@@ -202,7 +202,9 @@ def buildinclude(self,df):
           file.write('& boolean dev_wiz = True \n')
      else:
           file.write('& boolean dev_wiz = False \n')
-            
+ 
+     file.write('& character splitident_wiz = ' + '\'' + str(df.loc[50,"VALUE"]) + '\'' + '\n')
+           
      mystring = '& character description_wiz = ' 
      
      mystring = mystring + '\'' 
@@ -213,7 +215,9 @@ def buildinclude(self,df):
      
      mystring = mystring + '\''
      
-     file.write(mystring)    
+     file.write(mystring) 
+     
+
      
      #file.write('& character description_wiz = ' + '\"' + str(df.loc[49,"VALUE"]) + '\"' + '\n') 
           
