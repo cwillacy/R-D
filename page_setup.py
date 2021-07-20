@@ -85,7 +85,6 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     #------------     
     self.horizontalLayout_splitident = QtWidgets.QHBoxLayout()
     self.horizontalLayout_splitident.setObjectName("horizontalLayout_splitident")
-    #self.horizontalLayout_2c.addItem(spacerItem)
     self.verticalLayout.addLayout(self.horizontalLayout_splitident)
     
     self.horizontalLayout_splitident2 = QtWidgets.QHBoxLayout()
@@ -106,7 +105,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.lineEdit_splitident.setMaxLength(6)
     self.lineEdit_splitident.setText("")
     self.lineEdit_splitident.setDisabled(True)
-    self.lineEdit_splitident.setToolTip("enter the shot code corresponding to the low-frequency source")
+    self.lineEdit_splitident.setToolTip("enter an ident that can be used for splitting of the sources")
     self.lineEdit_splitident.setStyleSheet(tipstyle)
     self.horizontalLayout_splitident2.addWidget(self.label_splitident)
     self.horizontalLayout_splitident2.addWidget(self.lineEdit_splitident)
@@ -140,7 +139,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.lineEdit_shtcod.setMaxLength(6)
     self.lineEdit_shtcod.setText("")
     self.lineEdit_shtcod.setDisabled(True)
-    self.lineEdit_shtcod.setToolTip("enter the shot code corresponding to the low-frequency source")
+    self.lineEdit_shtcod.setToolTip("enter the ident code corresponding to the low-frequency source")
     self.lineEdit_shtcod.setStyleSheet(tipstyle)
     self.horizontalLayout_8c.addWidget(self.label_9c)
     self.horizontalLayout_8c.addWidget(self.lineEdit_shtcod)

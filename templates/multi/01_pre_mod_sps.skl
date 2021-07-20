@@ -131,6 +131,8 @@ SQEXPR XSHT = XSHT + #1.;
 SQEXPR YSHT = YSHT + #1.;
 & endif
 INFO
+SRTALLSHTLIN SHTPT                     100 MEMMB
+INFO
 & call io:sqsaf_out(sqsaf => {                                                  &
 &    data_set => 'sps_s',                                                       &
 &    safid => 'SAF_S',                                                          &
