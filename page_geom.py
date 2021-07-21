@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #  GEOMETRY PAGE
 #----------------------------------------------------------------------
-def PageGeom(self,Wizard,icons,tipstyle,groupstyle):  
+def PageGeom(self,Wizard,icons,tipstyle,groupstyle,labelstyle):  
 
     self.wizardPage4 = QtWidgets.QWizardPage()
     self.wizardPage4.setObjectName("wizardPage4")
@@ -30,6 +30,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_3.setObjectName("horizontalLayout_3")
     self.label_4 = QtWidgets.QLabel(self.groupBox_5)
     self.label_4.setObjectName("label_4")
+    self.label_4.setStyleSheet(labelstyle)
     self.label_4.setText("Create mirror geometry?:")
     self.horizontalLayout_3.addWidget(self.label_4)
     self.checkBox = QtWidgets.QCheckBox(self.groupBox_5)
@@ -44,6 +45,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_4.setObjectName("horizontalLayout_4")
     self.label_5 = QtWidgets.QLabel(self.groupBox_5)
     self.label_5.setObjectName("label_5")
+    self.label_5.setStyleSheet(labelstyle)
     self.label_5.setText("Mirror depth shift:")       
     self.horizontalLayout_4.addWidget(self.label_5)
     self.lineEdit_3 = QtWidgets.QLineEdit(self.groupBox_5)
@@ -66,6 +68,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_5.setObjectName("horizontalLayout_5")
     self.label_6 = QtWidgets.QLabel(self.groupBox_5)
     self.label_6.setObjectName("label_6")
+    self.label_6.setStyleSheet(labelstyle)
     self.label_6.setText("Apply reciprocity?:")
     self.horizontalLayout_5.addWidget(self.label_6)
     self.checkBox_2 = QtWidgets.QCheckBox(self.groupBox_5)
@@ -94,6 +97,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_15.setObjectName("horizontalLayout_15")
     self.label_16 = QtWidgets.QLabel(self.groupBox_7)
     self.label_16.setObjectName("label_16")
+    self.label_16.setStyleSheet(labelstyle)
     self.label_16.setText("Interpolate node depths?:")
     self.horizontalLayout_15.addWidget(self.label_16)
     self.checkBox_5 = QtWidgets.QCheckBox(self.groupBox_7)
@@ -110,6 +114,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle):
     self.label_17 = QtWidgets.QLabel(self.groupBox_7)
     self.label_17.setBaseSize(QtCore.QSize(0, 0))
     self.label_17.setObjectName("label_17")
+    self.label_17.setStyleSheet(labelstyle)
     self.label_17.setText("Horizon SAF:")
     self.horizontalLayout_16.addWidget(self.label_17)
     self.lineEdit_10 = QtWidgets.QLineEdit(self.groupBox_7)

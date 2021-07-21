@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QPlainTextEdit
 #----------------------------------------------------------------------
 #  INTRO PAGE
 #----------------------------------------------------------------------
-def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
+def PageIntro(self,Wizard,icons,tipstyle,groupstyle,labelstyle,lineeditstyle):
 
     self.wizardPage1 = QtWidgets.QWizardPage()
     self.wizardPage1.setTitle("Introduction")
@@ -22,6 +22,17 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
     self.groupBox_3in = QtWidgets.QGroupBox(self.wizardPage1)
     font = QtGui.QFont()
     font.setPointSize(12)
+    
+    welcomestyle = str("QLabel {\n"
+                 "  color: blue;\n"
+                 "  font-size: 18px;\n"
+                 "}")   
+    
+    funcstyle = str("QLabel {\n"
+                 "  color: black;\n"
+                 "  font-size: 14px;\n"
+                 "}")  
+        
     self.groupBox_3in.setFont(font)
     self.groupBox_3in.setStyleSheet(groupstyle)
     self.groupBox_3in.setObjectName("groupBox_3in")
@@ -30,27 +41,44 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
     self.verticalLayout_3in.setObjectName("verticalLayout_3in")
     self.horizontalLayout_9in = QtWidgets.QHBoxLayout()
     self.horizontalLayout_9in.setObjectName("horizontalLayout_9in")
+    
+    self.verticalLayout_lside = QtWidgets.QVBoxLayout()
+    self.verticalLayout_lside.setObjectName("verticalLayout_lside")
+    self.verticalLayout_rside = QtWidgets.QVBoxLayout()
+    self.verticalLayout_rside.setObjectName("verticalLayout_rside")
+
     self.label = QtWidgets.QLabel(self.groupBox_3in)
-    self.label.setBaseSize(QtCore.QSize(0, 0))
     self.label.setObjectName("label")
-    self.label.setWordWrap(True)
-    self.label.setText("<html><head/><body><p><span style=\" font-size:12pt; color:#0000ff;\">Welcome to SimWiz</span></<br/></p><p><span style=\" color:#000000;\">The wizard builds \
-                           skeletons that provide the following functions:</span></p><p>- Convert SPS to SAF format</p><p>- Create a merged acquisition \
-                               geometry</p><p>- Generate ssf traces for modelling</p><p>- Updating of trace idents post modelling</p><p>- Blending the \
-                                   data</p><p>- Deblending the \
-                                   data</p><p>- Data QC</p></body></html>")
-                                   
+    self.label.setStyleSheet(welcomestyle)
+    self.label.setWordWrap(True)                                                                   
+    self.label.setText("Welcome to SimWiz")
+    #self.label.setFixedWidth(155)               
     self.label.setAlignment(Qt.AlignTop)
-    self.horizontalLayout_9in.addWidget(self.label)            
+    self.verticalLayout_lside.addWidget(self.label)  
+    
+    self.label_func = QtWidgets.QLabel(self.groupBox_3in)
+    self.label_func.setObjectName("label_func")
+    self.label_func.setStyleSheet(funcstyle)
+    self.label_func.setText("Wizard functions:\n- SPS to SAF conversion\n- Build geometry\n- Generate SSF traces\n- Ident updating\n- Blending\n- Deblending")
+    self.label_func.setAlignment(Qt.AlignVCenter)  
+    self.label_func.setWordWrap(True)      
+    self.verticalLayout_lside.addWidget(self.label_func)   
+         
     self.label_r = QtWidgets.QLabel(self.groupBox_3in)
     self.label_r.setBaseSize(QtCore.QSize(0, 0))
-    self.label_r.setObjectName("label")        
-    self.label_r.setPixmap(QtGui.QPixmap('img/side-bar2.png'))
+    self.label_r.setObjectName("label_r")       
+    self.label_r.setPixmap(QtGui.QPixmap('img/side-bar4.png'))
     self.label_r.setAlignment(Qt.AlignTop)
-    self.horizontalLayout_9in.addWidget(self.label_r)         
+    
+    self.verticalLayout_rside.addWidget(self.label_r)     
+    self.horizontalLayout_9in.addLayout(self.verticalLayout_lside)  
+    self.horizontalLayout_9in.addLayout(self.verticalLayout_rside)        
+
     self.verticalLayout_3in.addLayout(self.horizontalLayout_9in)        
     self.verticalLayout_2in.addWidget(self.groupBox_3in) 
-       
+   
+    #------------------
+    
     self.groupBox_4in = QtWidgets.QGroupBox(self.wizardPage1)
     font = QtGui.QFont()
     font.setPointSize(12)
@@ -66,11 +94,13 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
     self.label_in = QtWidgets.QLabel(self.groupBox_4in)
     self.label_in.setBaseSize(QtCore.QSize(0, 0))
     self.label_in.setObjectName("label_in")
+    self.label_in.setStyleSheet(labelstyle)
     self.label_in.setText("Load Parameters:")  
-    self.label_in.setFixedWidth(135)              
+    self.label_in.setFixedWidth(155)              
     self.horizontalLayout_12in.addWidget(self.label_in)       
     self.lineEdit_5in = QtWidgets.QLineEdit(self.groupBox_4in)
     self.lineEdit_5in.setObjectName("lineEdit_5in")
+    #self.lineEdit_5in.setStyleSheet(lineeditstyle)
     self.lineEdit_5in.setText('')
     self.horizontalLayout_12in.addWidget(self.lineEdit_5in)       
     self.lineEdit_5in.setToolTip("enter a previous SimWiz configuration file")
@@ -89,8 +119,9 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
     self.label_desc = QtWidgets.QLabel(self.groupBox_4in)
     self.label_desc.setBaseSize(QtCore.QSize(0, 0))
     self.label_desc.setObjectName("label_desc")
+    self.label_desc.setStyleSheet(labelstyle)
     self.label_desc.setText("Description:")  
-    self.label_desc.setFixedWidth(135)              
+    self.label_desc.setFixedWidth(155)              
     self.horizontalLayout_desc.addWidget(self.label_desc) 
 
     self.textBox = QPlainTextEdit(self.wizardPage1)   
