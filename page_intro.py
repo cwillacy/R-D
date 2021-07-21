@@ -57,7 +57,7 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle):
     self.groupBox_4in.setFont(font)
     self.groupBox_4in.setStyleSheet(groupstyle)
     self.groupBox_4in.setObjectName("groupBox_4in")
-    self.groupBox_4in.setTitle("Open Previous Wizard Setup")
+    self.groupBox_4in.setTitle("Open Wizard Configuration File")
     self.verticalLayout_4in = QtWidgets.QVBoxLayout(self.groupBox_4in)
     self.verticalLayout_4in.setObjectName("verticalLayout_4in")
     self.horizontalLayout_12in = QtWidgets.QHBoxLayout()

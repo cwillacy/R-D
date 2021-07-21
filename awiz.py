@@ -11,6 +11,7 @@ from PyQt5.QtCore import QDir
 from PyQt5.QtGui import QIcon
 import pandas as pd
 import os
+import platform
 import build
 import helpgui
 import sidebar
@@ -94,11 +95,11 @@ class Ui_Wizard(object):
                                        'IORHIG','TMAX','DT','TOUT','T0','OUTDIR','SSF','QCGEOM','QCTIME',
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
-                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT'],
+                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME'],
                 'VALUE': ['OBN','Single',0,000.00,'','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
-                          'False','','']
+                          'False','','','']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -432,19 +433,41 @@ class Ui_Wizard(object):
         #---------------------DESCRIPTION---------------------
         val = df.loc[49,"VALUE"]
         self.textBox.setPlainText(val)
+         
+        #---------------------WIZNAME---------------------
+        val = df.loc[51,"VALUE"]    
+        self.lineEdit_filename.setText(val) 
             
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
     #----------------------------------------------------------------------
     def openFileNameDialog_in(self):
         global df, debug
+        
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\user")
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+        else:
+            #MYDIR = (r"user/")
+            # check to see if directory exists
+            MYDIR = os.path.expanduser('~/SimWiz-store/user')
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+              
         self.dialog_in = QFileDialog()
         self.dialog_in.setWindowTitle('Open SimWiz Parameter File')
         self.dialog_in.setFileMode(QFileDialog.AnyFile)
         self.dialog_in.setFilter(QDir.Files)
         self.dialog_in.setNameFilters(['SimWiz (*.csv)','All files (*.*)'])    
         self.dialog_in.setWindowIcon(QtGui.QIcon(icons[3]))
-        self.dialog_in.setDirectory(r"user/")
+        self.dialog_in.setDirectory(MYDIR)
         if self.dialog_in.exec_():
             file_name = self.dialog_in.selectedFiles()
             if debug:
@@ -727,6 +750,15 @@ class Ui_Wizard(object):
         global df, debug
    
         df.loc[df['PARAMETER'] == 'JOBREV', 'VALUE'] = text
+        
+        filename = str(df.loc[51,"VALUE"])
+    
+        if filename != '':
+            self.lineEdit_filename.setText(filename)      
+        else:
+            defname = str(df.loc[3,"VALUE"]) + "-simwiz"
+            self.lineEdit_filename.setText(defname)
+        
         if debug:
             print(df)  
      
@@ -908,6 +940,14 @@ class Ui_Wizard(object):
         df.loc[df['PARAMETER'] == 'OUTDIR', 'VALUE'] = text
         if debug:
             print(df)       
+        
+    def changestate_filename(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'WIZNAME', 'VALUE'] = text
+        if debug:
+            print(df)           
+        
         
     def changestate_ssf(self,text):
         global df, debug
@@ -1179,8 +1219,29 @@ class Ui_Wizard(object):
         global df, debug, Dialog
         
         # save pandas dataframe with wizard parameters
-        filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv" 
-        fullpath = os.path.join(r'user',filename)
+        #filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv"
+        
+        filename = str(df.loc[51,"VALUE"]) + ".csv"
+        
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\user")
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+   
+            fullpath = os.path.join(MYDIR,filename)
+        else:
+            # check to see if directory exists
+            MYDIR = os.path.expanduser('~/SimWiz-store/user')
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+            
+            fullpath = os.path.join(MYDIR,filename)
        
         # first check to see if the file exists
         if os.path.isfile(fullpath):           

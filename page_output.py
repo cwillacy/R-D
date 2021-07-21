@@ -35,7 +35,8 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_6.setObjectName("horizontalLayout_6")
     self.label_7 = QtWidgets.QLabel(self.groupBox_6)
     self.label_7.setObjectName("label_7")
-    self.label_7.setText("Output skl directory:")       
+    self.label_7.setText("Output skl directory:")  
+    self.label_7.setFixedWidth(200)      
     self.horizontalLayout_6.addWidget(self.label_7)
     self.lineEdit_4 = QtWidgets.QLineEdit(self.groupBox_6)
     self.lineEdit_4.setObjectName("lineEdit_4")
@@ -46,6 +47,32 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.pushButton_2.setIcon(QIcon(icons[3]))
     self.horizontalLayout_6.addWidget(self.pushButton_2)
     self.verticalLayout_8.addLayout(self.horizontalLayout_6)
+    
+    self.horizontalLayout_filename = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_filename.setObjectName("horizontalLayout_filename")
+    self.label_filename = QtWidgets.QLabel(self.groupBox_6)
+    self.label_filename.setObjectName("label_filename")
+    self.label_filename.setText("Wizard filename:")  
+    self.label_filename.setFixedWidth(200)      
+    self.horizontalLayout_filename.addWidget(self.label_filename)
+    self.lineEdit_filename = QtWidgets.QLineEdit(self.groupBox_6)
+    self.lineEdit_filename.setObjectName("lineEdit_filename")
+    self.lineEdit_filename.textChanged[str].connect(self.changestate_filename)
+    
+    filename = str(df.loc[51,"VALUE"])
+    
+    if filename != '':
+        self.lineEdit_filename.setText(filename)      
+    else:
+        defname = str(df.loc[3,"VALUE"]) + "-simwiz"
+        self.lineEdit_filename.setText(defname)
+    
+    self.horizontalLayout_filename.addWidget(self.lineEdit_filename)
+    
+    spacerItem_filename = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
+    self.horizontalLayout_filename.addItem(spacerItem_filename)
+    
+    self.verticalLayout_8.addLayout(self.horizontalLayout_filename)
     
     self.lineEdit_4.setToolTip("output directory where the skeletons will be written")
     self.lineEdit_4.setStyleSheet(tipstyle) 
@@ -77,6 +104,8 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.checkBox_3.setStyleSheet(tipstyle) 
     self.checkBox_3.clicked.connect(self.changestate_ssf)
     self.verticalLayout_7.addWidget(self.groupBox_9)
+    
+    
     
     self.groupBox_8 = QtWidgets.QGroupBox(self.wizardPage8)
     font = QtGui.QFont()

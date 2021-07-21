@@ -85,7 +85,7 @@
 &!      - note that this will remove the reciprocity that was applied in the pre-modelling
 &!	  skeleton, i.e. back to the orginal geometry
 &!
-& boolean 	invreciprocity 	= true  ! boolean switch to remove previously applied reciprocity
+& boolean 	invreciprocity 	= recip_wiz  ! boolean switch to remove previously applied reciprocity
 &!
 &!....4) DO YOU WANT TO ADD RANDOM NOISE TO THE DATA? 
 &! 	- if yes then set the following parameter to true, false otherwise

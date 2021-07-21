@@ -70,7 +70,7 @@
 &! 	- if yes then set the following parameter to true, false otherwise
 &!	- this might be needed for migration
 &!
-& boolean 	reciprocity	 	= true   
+& boolean 	reciprocity	 	= recip_wiz   
 &!
 &!//////////////////////////////////////////////////////////////////////////////
 &!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
