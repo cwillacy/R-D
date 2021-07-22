@@ -11,6 +11,7 @@ from PyQt5.QtCore import QDir
 from PyQt5.QtGui import QIcon
 import pandas as pd
 import os
+import platform
 import build
 import helpgui
 import sidebar
@@ -34,12 +35,12 @@ class Ui_Wizard(object):
         global df, debug, Dialog, icons, tipstyle, groupstyle, storage
         
         # switch on debug mode
-        debug=False
+        debug=True
         
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
         
         Wizard.setObjectName("Wizard")
-        Wizard.setFixedSize(850, 525)
+
         Wizard.setAutoFillBackground(False) # switch off window resizing
         Wizard.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         Wizard.setWizardStyle(QtWidgets.QWizard.MacStyle)
@@ -47,9 +48,83 @@ class Ui_Wizard(object):
         #Wizard.setWindowIcon(QtGui.QIcon('img/draw-bezier-curves_32x32.png'))
         #Wizard.setWindowIcon(QtGui.QIcon("img/nepomuk_32x32.png"))
         Wizard.setWindowIcon(QtGui.QIcon(icons[0]))
-                             
+ 
+        # create pandas data frame to hold any user env settings
+        myconfig = {'PARAMETER': ['LABELTEXTSIZE','LABELTEXTCOLOR','WINWIDTH','WINHEIGHT','SIDETEXTSIZE'],'VALUE': ['12','black','850','575','12']}   
+        myenv = pd.DataFrame(myconfig, columns=['PARAMETER','VALUE'])   
+         
+        # check for env file
+      
+        if platform.system() == 'Windows':
+            # check to see if file exists
+            MYFILE = (r"c:\apps\SimWiz-store\simwiz_env.csv")
+            CHECK_FILE = os.path.exists(MYFILE)
+            
+            if not CHECK_FILE:
+                if debug:
+                    print('running with no env file')
+            else:
+                if debug:
+                    print('running with an env file')   
+                    
+                # read the contents of the env file
+                myenv = pd.read_csv(str(MYFILE),keep_default_na=False)
+
+        else:
+           # check to see if file exists
+            MYFILE = os.path.expanduser('~/SimWiz-store/simwiz_env.csv')
+            CHECK_FILE = os.path.exists(MYFILE)   
+            
+            if not CHECK_FILE:
+                if debug:
+                    print('running with no env file')
+            else:
+                if debug:
+                    print('running with an env file') 
+                    
+                # read the contents of the env file
+                myenv = pd.read_csv(str(MYFILE),keep_default_na=False)
+                      
+           
+        labeltextsize = str(myenv.loc[0,"VALUE"])
+        labeltextcolor = str(myenv.loc[1,"VALUE"])
+        winwidth = int(myenv.loc[2,"VALUE"])
+        winheight = int(myenv.loc[3,"VALUE"])
+        sidetextsize = str(myenv.loc[4,"VALUE"])   
+                     
+        Wizard.setFixedSize(winwidth, winheight)
+  
+        # button style        
+        side_style = str("QPushButton {\n"
+                         " text-align:left;"
+                         "  color: black;\n"
+                         "  font-size: " + sidetextsize + "px;\n"
+                         " background-color: #4000FF99;"
+                         "}")
+             
+        tipstyle = str("QToolTip {\n"
+                       "background-color: black; \n"
+                       "color: white;\n" 
+                       "border: black solid 1px\n"
+                       "}")      
+   
+        groupstyle = str("QGroupBox {\n"
+                         "  color: maroon;\n"
+                         "  font-size: 12px;\n"
+                         "}")   
+        
+        labelstyle = str("QLabel {\n"
+                         "  color: " + labeltextcolor + ";\n"
+                         "  font-size: " + labeltextsize + "px;\n"
+                         "}")   
+        
+        lineeditstyle = str("QLineEdit {\n"
+                         "  color: blue;\n"
+                         "  font-size: 12px;\n"
+                         "}")      
+                 
         #-----------build the side bar workflow selector--------------   
-        sidebar.sideBar(self,icons,Wizard)  
+        sidebar.sideBar(self,icons,Wizard,side_style)  
 
         #-------style selection---------
         #Wizard.setWizardStyle(QtWidgets.QWizard.ClassicStyle)
@@ -75,17 +150,7 @@ class Ui_Wizard(object):
         
         done = Wizard.button(QtWidgets.QWizard.FinishButton)
         done.clicked.connect(self.done)
-  
-        tipstyle = str("""QToolTip { 
-                       background-color: black; 
-                       color: white; 
-                       border: black solid 1px
-                       }""")      
-   
-        groupstyle = str("QGroupBox {\n"
-                         "  color: maroon;\n"
-                         "  font-size: 12px;\n"
-                         "}")   
+
                 
         
         data = {'PARAMETER': ['ATYPE','SRCTYPE','SHTCOD','JOBREV','SPSSRC','SPSREC','SPSREL',
@@ -94,10 +159,11 @@ class Ui_Wizard(object):
                                        'IORHIG','TMAX','DT','TOUT','T0','OUTDIR','SSF','QCGEOM','QCTIME',
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
-                                       'NWAVIT'],
+                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME'],
                 'VALUE': ['OBN','Single',0,000.00,'','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
-                          4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3]
+                          4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
+                          'False','','','']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -120,42 +186,42 @@ class Ui_Wizard(object):
         #----------------------------------------------------------------------
         #  PAGE 1
         #----------------------------------------------------------------------
-        page_intro.PageIntro(self,Wizard,icons,tipstyle,groupstyle)
+        page_intro.PageIntro(self,Wizard,icons,tipstyle,groupstyle,labelstyle,lineeditstyle)
         
         #----------------------------------------------------------------------
         #  PAGE 2
         #----------------------------------------------------------------------
-        page_setup.PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage)
+        page_setup.PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage,labelstyle)
                                
         #----------------------------------------------------------------------
         #  PAGE 3
         #----------------------------------------------------------------------
-        page_import.PageImport(self,Wizard,icons,tipstyle,groupstyle)
+        page_import.PageImport(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
 
         #----------------------------------------------------------------------
         #  PAGE 4
         #----------------------------------------------------------------------
-        page_geom.PageGeom(self,Wizard,icons,tipstyle,groupstyle)
+        page_geom.PageGeom(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
     
         #----------------------------------------------------------------------
         #  PAGE 5
         #----------------------------------------------------------------------
-        page_noise.PageNoise(self,Wizard,icons,tipstyle,groupstyle)
+        page_noise.PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
                       
         #----------------------------------------------------------------------
         #  PAGE 6
         #----------------------------------------------------------------------
-        page_blend.PageBlend(self,Wizard,icons,df,tipstyle,groupstyle)
+        page_blend.PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
 
         #----------------------------------------------------------------------
         #  PAGE 7
         #----------------------------------------------------------------------
-        page_deblend.PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle)
+        page_deblend.PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
                 
         #----------------------------------------------------------------------
         #  PAGE 8
         #----------------------------------------------------------------------
-        page_output.PageOutput(self,Wizard,icons,df,tipstyle,groupstyle)
+        page_output.PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
                        
         self.pushButton_2.clicked.connect(self.openFileNameDialog_out_dir)
         self.pushButton_3.clicked.connect(self.openFileNameDialog_sps_src)
@@ -189,12 +255,18 @@ class Ui_Wizard(object):
         if val == "Single":
             index=0
             self.lineEdit_shtcod.setDisabled(True)
+            self.lineEdit_splitident.setDisabled(True)
         else:
             index=1
             self.lineEdit_shtcod.setDisabled(False)
+            self.lineEdit_splitident.setDisabled(False)
             
        
-        self.comboBox_2.setCurrentIndex(index)        
+        self.comboBox_2.setCurrentIndex(index)
+
+        #---------------------SPLITIDENT---------------------
+        val = df.loc[50,"VALUE"]
+        self.lineEdit_splitident.setText(val)        
         #---------------------SHTCOD---------------------
         val = df.loc[2,"VALUE"]
         self.lineEdit_shtcod.setText(val)
@@ -408,18 +480,58 @@ class Ui_Wizard(object):
             self.lineEdit_dbl5b.setDisabled(True)   
             self.lineEdit_dbl6a.setDisabled(True)  
             
+        #---------------------REIDENT---------------------
+        val = df.loc[47,"VALUE"]
+        if val == 'True':
+            self.checkBox_reident.setChecked(True)  
+        else:
+            self.checkBox_reident.setChecked(False) 
+            
+        #---------------------VERSION---------------------
+        val = df.loc[48,"VALUE"]
+        if val == 'True':
+            self.checkBox_dev.setChecked(True)  
+        else:
+            self.checkBox_dev.setChecked(False) 
+            
+        #---------------------DESCRIPTION---------------------
+        val = df.loc[49,"VALUE"]
+        self.textBox.setPlainText(val)
+         
+        #---------------------WIZNAME---------------------
+        val = df.loc[51,"VALUE"]    
+        self.lineEdit_filename.setText(val) 
+            
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
     #----------------------------------------------------------------------
     def openFileNameDialog_in(self):
         global df, debug
+        
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\user")
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+        else:
+            #MYDIR = (r"user/")
+            # check to see if directory exists
+            MYDIR = os.path.expanduser('~/SimWiz-store/user')
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+              
         self.dialog_in = QFileDialog()
         self.dialog_in.setWindowTitle('Open SimWiz Parameter File')
         self.dialog_in.setFileMode(QFileDialog.AnyFile)
         self.dialog_in.setFilter(QDir.Files)
         self.dialog_in.setNameFilters(['SimWiz (*.csv)','All files (*.*)'])    
         self.dialog_in.setWindowIcon(QtGui.QIcon(icons[3]))
-        self.dialog_in.setDirectory(r"user/")
+        self.dialog_in.setDirectory(MYDIR)
         if self.dialog_in.exec_():
             file_name = self.dialog_in.selectedFiles()
             if debug:
@@ -622,6 +734,31 @@ class Ui_Wizard(object):
         if debug:
             print(df)     
  
+
+    def changestate_reident(self):
+        global debug
+        
+        if (self.checkBox_reident.isChecked()):
+            df.loc[df['PARAMETER'] == 'REIDENT', 'VALUE'] = 'True'
+
+        else:
+            df.loc[df['PARAMETER'] == 'REIDENT', 'VALUE'] = 'False'
+            
+        if debug:
+            print(df) 
+ 
+    def changestate_dev(self):
+        global debug
+        
+        if (self.checkBox_dev.isChecked()):
+            df.loc[df['PARAMETER'] == 'VERSION', 'VALUE'] = 'True'
+
+        else:
+            df.loc[df['PARAMETER'] == 'VERSION', 'VALUE'] = 'False'
+            
+        if debug:
+            print(df)     
+ 
     
     def changestate_wbsaf(self,text):
         global df, debug
@@ -649,8 +786,10 @@ class Ui_Wizard(object):
         
         if (text == "Mixed"):
              self.lineEdit_shtcod.setDisabled(False)
+             self.lineEdit_splitident.setDisabled(False)
         else:
              self.lineEdit_shtcod.setDisabled(True)
+             self.lineEdit_splitident.setDisabled(True)
    
         df.loc[df['PARAMETER'] == 'SRCTYPE', 'VALUE'] = text
         
@@ -662,15 +801,43 @@ class Ui_Wizard(object):
    
         df.loc[df['PARAMETER'] == 'SHTCOD', 'VALUE'] = text
         if debug:
-            print(df)          
+            print(df)  
+            
+    def changestate_splitident(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'SPLITIDENT', 'VALUE'] = text
+        if debug:
+            print(df) 
         
     def changestate_jobrev(self,text):
         global df, debug
    
         df.loc[df['PARAMETER'] == 'JOBREV', 'VALUE'] = text
+        
+        filename = str(df.loc[51,"VALUE"])
+        
+        print('filename=',filename)
+    
+        if filename != '':
+            self.lineEdit_filename.setText(filename)      
+        else:
+            defname = str(df.loc[3,"VALUE"]) + "-simwiz"
+            self.lineEdit_filename.setText(defname)
+        
         if debug:
             print(df)  
      
+        
+    def changestate_desc(self):
+        global df, debug
+   
+        textboxValue = self.textBox.toPlainText() 
+   
+        df.loc[df['PARAMETER'] == 'DESC', 'VALUE'] = textboxValue
+        if debug:
+            print(df) 
+            
     def changestate_spssrc(self,text):
         global df, debug
    
@@ -783,10 +950,30 @@ class Ui_Wizard(object):
         if debug:
             print(df)     
  
-    def changestate_tmax(self,text):
+    # def make_float(num):
+    #  return float(num.translate({0x2c: '.', 0xa0: None, 0x2212: '-'}))   
+ 
+    def changestate_tmax(self):
         global df, debug
    
+        text = self.lineEdit_tmax.text()
+        print(text)
+   
         df.loc[df['PARAMETER'] == 'TMAX', 'VALUE'] = text
+                 
+        # # check for zero trace length
+        if float(text.translate({0x2c: '.', 0xa0: None, 0x2212: '-'})) <= 0:
+             print('error')
+             
+             msg = QMessageBox()
+             msg.setIcon(QMessageBox.Critical)
+             msg.setText("The trace length cannot be zero or negative!")
+             msg.setWindowTitle("Invalid Entry")
+             msg.setStandardButtons(QMessageBox.Ok)
+             msg.exec()
+        else:
+             print('ok')
+               
         if debug:
             print(df)      
  
@@ -794,6 +981,8 @@ class Ui_Wizard(object):
         global df, debug
    
         df.loc[df['PARAMETER'] == 'DT', 'VALUE'] = text
+
+        
         if debug:
             print(df)    
  
@@ -817,6 +1006,14 @@ class Ui_Wizard(object):
         df.loc[df['PARAMETER'] == 'OUTDIR', 'VALUE'] = text
         if debug:
             print(df)       
+        
+    def changestate_filename(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'WIZNAME', 'VALUE'] = text
+        if debug:
+            print(df)           
+        
         
     def changestate_ssf(self,text):
         global df, debug
@@ -1088,8 +1285,29 @@ class Ui_Wizard(object):
         global df, debug, Dialog
         
         # save pandas dataframe with wizard parameters
-        filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv" 
-        fullpath = os.path.join(r'user',filename)
+        #filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv"
+        
+        filename = str(df.loc[51,"VALUE"]) + ".csv"
+        
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\user")
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+   
+            fullpath = os.path.join(MYDIR,filename)
+        else:
+            # check to see if directory exists
+            MYDIR = os.path.expanduser('~/SimWiz-store/user')
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+            
+            fullpath = os.path.join(MYDIR,filename)
        
         # first check to see if the file exists
         if os.path.isfile(fullpath):           

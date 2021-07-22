@@ -120,7 +120,7 @@ INFO  --------------------------------------------------------------------------
 &    exec => 'EXEC'                &
 & })
 INFO
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'XSHT', 				&
 &		yvar1		=> 'YSHT', 				&
 &		cvary1		=> true,				&
@@ -153,7 +153,7 @@ INFO
 DSCIN                   wb_saf                                       
 SQSAF
 INFO
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'XREC', 				&
 &		yvar1		=> 'YREC', 				&
 &		cvary1		=> true,				&
@@ -190,7 +190,7 @@ INFO  --------------------------------------------------------------------------
 DSCIN                   wb_saf                                       
 SQSAF
 INFO
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'XREC', 				&
 &		yvar1		=> 'YREC', 				&
 &		cvary1		=> true,				&

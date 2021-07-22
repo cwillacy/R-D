@@ -115,7 +115,7 @@ PARSTRIN
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for shot hours 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'SHTPT', 				&
 &		yvar1 		=> 'SKLPR2', 				&
 &		col1 		=> 'SALMON',	 			&
@@ -136,7 +136,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for shot minutes 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'SHTPT', 				&
 &		yvar1 		=> 'SKLPR3', 				&
 &		col1 		=> 'BLUE',	 			&
@@ -157,7 +157,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for shot seconds 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'SHTPT', 				&
 &		yvar1 		=> 'SKLPR4', 				&
 &		col1 		=> 'GRAY',	 			&
@@ -178,7 +178,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for shot time fractions of a second
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'SHTPT', 				&
 &		yvar1 		=> 'SKLPR0', 				&
 &		cvary1 		=> true,				&
@@ -201,7 +201,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for the total shooting time from the DATE ident 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'SHTPT',				&
 &		yvar1 		=> 'DATE', 				&
 &		col1 		=> 'BLUE',	 			&
@@ -223,7 +223,7 @@ PARSTRNEXT
 INFO  --------------------------------------------------------------------------
 INFO  create the scatter plot for the total shooting time from the DATE ident 
 INFO  --------------------------------------------------------------------------
-& call acqlib:cur:pltscat(						&
+& call acqlib:~~~:pltscat(						&
 &		xvar1		=> 'DATE',				&
 &		yvar1 		=> 'TIME', 				&
 &		cvary1 		=> true,				&

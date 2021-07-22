@@ -10,7 +10,7 @@ from PyQt5 import QtGui, QtWidgets
 #----------------------------------------------------------------------
 #  BLEND
 #----------------------------------------------------------------------
-def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):   
+def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):   
     self.wizardPage_blend = QtWidgets.QWizardPage()
     self.wizardPage_blend.setObjectName("wizardPage6")
     self.wizardPage_blend.setTitle("Post-Modelling Data Blending")
@@ -36,6 +36,7 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_blend.setObjectName("horizontalLayout_blend")
     self.label_tmax = QtWidgets.QLabel(self.groupBox_blend)
     self.label_tmax.setObjectName("label_tmax")
+    self.label_tmax.setStyleSheet(labelstyle)
     self.label_tmax.setText("Input data trace length:")       
     self.horizontalLayout_blend.addWidget(self.label_tmax)
     self.lineEdit_tmax = QtWidgets.QLineEdit(self.groupBox_blend)
@@ -50,7 +51,9 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.verticalLayout_blend2.addLayout(self.horizontalLayout_blend)       
     self.lineEdit_tmax.setToolTip("trace length for the modelled data in ms")
     self.lineEdit_tmax.setStyleSheet(tipstyle)
-    self.lineEdit_tmax.textChanged[str].connect(self.changestate_tmax)
+    self.lineEdit_tmax.editingFinished.connect(self.changestate_tmax)
+
+    #self.lineEdit_tmax.textChanged[str].connect(self.changestate_tmax)
     spacerItem_tmax = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_blend.addItem(spacerItem_tmax)
     
@@ -58,6 +61,7 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_dt.setObjectName("horizontalLayout_dt")
     self.label_dt = QtWidgets.QLabel(self.groupBox_blend)
     self.label_dt.setObjectName("label_dt")
+    self.label_dt.setStyleSheet(labelstyle)
     self.label_dt.setText("Input data sample interval:")
     self.horizontalLayout_dt.addWidget(self.label_dt)
     self.lineEdit_dt = QtWidgets.QLineEdit(self.groupBox_blend)
@@ -80,6 +84,7 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_tout.setObjectName("horizontalLayout_tout")
     self.label_tout = QtWidgets.QLabel(self.groupBox_blend)
     self.label_tout.setObjectName("label_tout")
+    self.label_tout.setStyleSheet(labelstyle)
     self.label_tout.setText("Output data trace length:")
     self.horizontalLayout_tout.addWidget(self.label_tout)
     self.lineEdit_tout = QtWidgets.QLineEdit(self.groupBox_blend)
@@ -102,6 +107,7 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_t0.setObjectName("horizontalLayout_t0")
     self.label_t0 = QtWidgets.QLabel(self.groupBox_blend)
     self.label_t0.setObjectName("label_t0")
+    self.label_t0.setStyleSheet(labelstyle)
     self.label_t0.setText("Start time of wavelet:")
     self.horizontalLayout_t0.addWidget(self.label_t0)
     self.lineEdit_t0 = QtWidgets.QLineEdit(self.groupBox_blend)

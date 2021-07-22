@@ -6,7 +6,7 @@ Created on Sun Mar 21 10:52:43 2021
 """
 
 import os
-from sys import platform
+import platform
 
 #------------------------------------------------------------------------------
 #
@@ -85,15 +85,34 @@ def buildmain(self, df, debug, fullpath):
 def buildinclude(self,df):
 
      filename = str(df.loc[3,"VALUE"]) + "-simwiz_include.inc" 
-
+     
      mypath = str(df.loc[27,"VALUE"])
+     fullpath = os.path.join(mypath,filename)
      
-     print('mypath=',mypath)
-     
-     if not mypath:
-         fullpath = os.path.join(r'skeletons',filename)
+     if not mypath:  
+        # check which os we are on
+        if platform.system() == 'Windows':
+           # check to see if directory exists
+           MYDIR = (r"c:\apps\SimWiz-store\skeletons")
+           CHECK_FOLDER = os.path.isdir(MYDIR)
+           if not CHECK_FOLDER:
+               os.makedirs(MYDIR)
+      
+           fullpath = os.path.join(MYDIR,filename)
+        else:
+            MYDIR = os.path.expanduser('~/SimWiz-store/skeletons')            
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+            if not CHECK_FOLDER:
+               os.makedirs(MYDIR)
+            
+            fullpath = os.path.join(MYDIR,filename)
+               
      else:
          fullpath = os.path.join(mypath,filename)
+     
+    
+     print('mypath=',mypath)
+    
 
      file = open(fullpath,'w')
      file.write("&!---------------------------------------------\n")
@@ -193,6 +212,30 @@ def buildinclude(self,df):
      file.write('& character da_residual_trc_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-da_residual' + '\'' + '\n')    
      file.write('& character da_deblend_trc_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-da_deblend' + '\'' + '\n')
       
+     if str(df.loc[47,"VALUE"]) == 'True':       
+          file.write('& boolean reident_wiz = True \n')
+     else:
+          file.write('& boolean reident_wiz = False \n')
+         
+     if str(df.loc[48,"VALUE"]) == 'True':       
+          file.write('& boolean dev_wiz = True \n')
+     else:
+          file.write('& boolean dev_wiz = False \n')
+ 
+     file.write('& character splitident_wiz = ' + '\'' + str(df.loc[50,"VALUE"]) + '\'' + '\n')
+           
+     mystring = '& character description_wiz = ' 
+     
+     mystring = mystring + '\'' 
+     
+     mystring2 = str(df.loc[49,"VALUE"]).replace('\n','\\n')
+     
+     mystring = mystring + mystring2
+     
+     mystring = mystring + '\''
+     
+     file.write(mystring) 
+          
      file.close()
      return
  
@@ -206,26 +249,45 @@ def buildskl_single(self,df,skl):
    filename = skl
    include_file = '\'' + str(df.loc[3,"VALUE"]) + '-simwiz_include.inc' + '\'' 
    
-   if platform == 'linux':
+   if platform.system() == 'Linux':
        fullpath = os.path.join(r'templates/single',filename)
    else:
        fullpath = os.path.join(r'templates\single',filename)
   
    filename_skl = str(df.loc[3,"VALUE"]) + '-' + filename
    mypath = str(df.loc[27,"VALUE"])
-      
-   if not mypath:
-       fullpath_skl = os.path.join(r'skeletons',filename_skl)
+   
+   if not mypath:  
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\skeletons")
+            fullpath_skl = os.path.join(MYDIR,filename_skl)
+        else:
+            MYDIR = os.path.expanduser('~/SimWiz-store/skeletons')
+            fullpath_skl = os.path.join(MYDIR,filename_skl)
+              
    else:
-       fullpath_skl = os.path.join(mypath,filename_skl)
+         fullpath_skl = os.path.join(mypath,filename_skl)   
 
    file = open(fullpath_skl,'w')        
       
    with open(fullpath,'r') as f:
        for line in f:
-           file.write(line.replace('#######',include_file))
+           if '#######' in line:
+               file.write(line.replace('#######',include_file))
+           elif '~~~' in line:
+               if str(df.loc[48,"VALUE"]) == 'True':   
+                   file.write(line.replace('~~~','dev'))
+               else:
+                   file.write(line.replace('~~~','cur'))    
+           else:
+               file.write(line)
    
    file.close()
+   
+     
+   
    return
 
 #------------------------------------------------------------------------------
@@ -238,24 +300,39 @@ def buildskl_multi(self,df,skl):
     filename = skl
     include_file = '\'' + str(df.loc[3,"VALUE"]) + '-simwiz_include.inc' + '\'' 
     
-    if platform == 'linux':
+    if platform.system() == 'Linux':
         fullpath = os.path.join(r'templates/multi',filename)
     else:
         fullpath = os.path.join(r'templates\multi',filename)
    
     filename_skl = str(df.loc[3,"VALUE"]) + '-' + filename
     mypath = str(df.loc[27,"VALUE"])
-       
-    if not mypath:
-       fullpath_skl = os.path.join(r'skeletons',filename_skl)
+ 
+    if not mypath:  
+         # check which os we are on
+         if platform.system() == 'Windows':
+             # check to see if directory exists
+             MYDIR = (r"c:\apps\SimWiz-store\skeletons")
+             fullpath_skl = os.path.join(MYDIR,filename_skl)
+         else:
+            MYDIR = os.path.expanduser('~/SimWiz-store/skeletons')
+            fullpath_skl = os.path.join(MYDIR,filename_skl)              
     else:
-       fullpath_skl = os.path.join(mypath,filename_skl)
+          fullpath_skl = os.path.join(mypath,filename_skl)  
       
     file = open(fullpath_skl,'w')        
        
     with open(fullpath,'r') as f:
-        for line in f:
-            file.write(line.replace('#######',include_file))
+       for line in f:
+           if '#######' in line:
+               file.write(line.replace('#######',include_file))
+           elif '~~~' in line:
+               if str(df.loc[48,"VALUE"]) == 'True':   
+                   file.write(line.replace('~~~','dev'))
+               else:
+                   file.write(line.replace('~~~','cur'))    
+           else:
+               file.write(line)
     
     file.close()
     return

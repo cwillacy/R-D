@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 #----------------------------------------------------------------------
 #  SETUP PAGE
 #----------------------------------------------------------------------
-def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
+def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage,labelstyle):
         
     self.wizardPage2 = QtWidgets.QWizardPage()
     self.wizardPage2.setSubTitle("")
@@ -36,6 +36,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.horizontalLayout_2.setObjectName("horizontalLayout_2")
     self.label_3 = QtWidgets.QLabel(self.groupBox_2)
     self.label_3.setObjectName("label_3")
+    self.label_3.setStyleSheet(labelstyle)
     self.label_3.setText("Aquisition Type:")
     self.horizontalLayout_2.addWidget(self.label_3)
     self.comboBox = QtWidgets.QComboBox(self.groupBox_2)
@@ -62,6 +63,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.comboBox.activated[str].connect(self.changestate_workflow)
     self.label_9 = QtWidgets.QLabel(self.groupBox_2)
     self.label_9.setObjectName("label_9")
+    self.label_9.setStyleSheet(labelstyle)
     self.label_9.setText("Source Type:")
     self.horizontalLayout_8.addWidget(self.label_9)
     self.comboBox_2 = QtWidgets.QComboBox(self.groupBox_2)
@@ -82,7 +84,40 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     spacerItem1 = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_8.addItem(spacerItem1)
     self.verticalLayout.addLayout(self.horizontalLayout_8)
-          
+    #------------     
+    self.horizontalLayout_splitident = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_splitident.setObjectName("horizontalLayout_splitident")
+    self.verticalLayout.addLayout(self.horizontalLayout_splitident)
+    
+    self.horizontalLayout_splitident2 = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_splitident2.setObjectName("horizontalLayout_splitident2")
+    
+    self.label_splitident = QtWidgets.QLabel(self.groupBox_2)
+    self.label_splitident.setObjectName("label_splitident")
+    self.label_splitident.setStyleSheet(labelstyle)
+    self.label_splitident.setText("Source split ident:")
+    self.lineEdit_splitident = QtWidgets.QLineEdit(self.groupBox_2)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.lineEdit_splitident.sizePolicy().hasHeightForWidth())
+    self.lineEdit_splitident.setSizePolicy(sizePolicy)
+    self.lineEdit_splitident.setMaximumSize(QtCore.QSize(75, 16777215))
+    self.lineEdit_splitident.setBaseSize(QtCore.QSize(0, 0))
+    self.lineEdit_splitident.setObjectName("lineEdit_splitident")
+    self.lineEdit_splitident.setMaxLength(6)
+    self.lineEdit_splitident.setText("")
+    self.lineEdit_splitident.setDisabled(True)
+    self.lineEdit_splitident.setToolTip("enter an ident that can be used for splitting of the sources")
+    self.lineEdit_splitident.setStyleSheet(tipstyle)
+    self.horizontalLayout_splitident2.addWidget(self.label_splitident)
+    self.horizontalLayout_splitident2.addWidget(self.lineEdit_splitident)
+    spacerItem_splitident = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+    self.horizontalLayout_splitident2.addItem(spacerItem_splitident)
+    self.verticalLayout.addLayout(self.horizontalLayout_splitident2)
+
+    self.lineEdit_splitident.textChanged[str].connect(self.changestate_splitident)
+    
     #------------
     self.horizontalLayout_2c = QtWidgets.QHBoxLayout()
     self.horizontalLayout_2c.setObjectName("horizontalLayout_2c")
@@ -94,7 +129,8 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     
     self.label_9c = QtWidgets.QLabel(self.groupBox_2)
     self.label_9c.setObjectName("label_9c")
-    self.label_9c.setText("SHTCOD for second source:")
+    self.label_9c.setStyleSheet(labelstyle)
+    self.label_9c.setText("Source split value:")
     self.lineEdit_shtcod = QtWidgets.QLineEdit(self.groupBox_2)
     sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     sizePolicy.setHorizontalStretch(0)
@@ -107,7 +143,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.lineEdit_shtcod.setMaxLength(6)
     self.lineEdit_shtcod.setText("")
     self.lineEdit_shtcod.setDisabled(True)
-    self.lineEdit_shtcod.setToolTip("enter the shot code corresponding to the low-frequency source")
+    self.lineEdit_shtcod.setToolTip("enter the ident code corresponding to the low-frequency source")
     self.lineEdit_shtcod.setStyleSheet(tipstyle)
     self.horizontalLayout_8c.addWidget(self.label_9c)
     self.horizontalLayout_8c.addWidget(self.lineEdit_shtcod)
@@ -120,7 +156,42 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.comboBox_2.activated[str].connect(self.changestate_srctype)
     self.lineEdit_shtcod.textChanged[str].connect(self.changestate_shtcod) 
 
+    #-------------
+    self.horizontalLayout_reident = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_reident.setObjectName("horizontalLayout_reident")
+    self.label_reident = QtWidgets.QLabel(self.groupBox_2)
+    self.label_reident.setObjectName("label_reident")
+    self.label_reident.setStyleSheet(labelstyle)
+    self.label_reident.setText("Re-Ident:")
+    self.horizontalLayout_reident.addWidget(self.label_reident)
+    self.checkBox_reident = QtWidgets.QCheckBox(self.groupBox_2)
+    self.checkBox_reident.setText("")
+    self.checkBox_reident.setChecked(False)
+    self.checkBox_reident.setObjectName("checkBox_reident")
+    self.horizontalLayout_reident.addWidget(self.checkBox_reident)
+    self.checkBox_reident.setToolTip("re-calculate the key survey idents")
+    self.checkBox_reident.setStyleSheet(tipstyle)
+    self.verticalLayout.addLayout(self.horizontalLayout_reident)
+    self.checkBox_reident.clicked.connect(self.changestate_reident)
         
+    #-------------
+    self.horizontalLayout_dev = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_dev.setObjectName("horizontalLayout_dev")
+    self.label_dev = QtWidgets.QLabel(self.groupBox_2)
+    self.label_dev.setObjectName("label_dev")
+    self.label_dev.setStyleSheet(labelstyle)
+    self.label_dev.setText("Use development library:")
+    self.horizontalLayout_dev.addWidget(self.label_dev)
+    self.checkBox_dev = QtWidgets.QCheckBox(self.groupBox_2)
+    self.checkBox_dev.setText("")
+    self.checkBox_dev.setChecked(False)
+    self.checkBox_dev.setObjectName("checkBox_dev")
+    self.horizontalLayout_dev.addWidget(self.checkBox_dev)
+    self.checkBox_dev.setToolTip("build with the development version of AcqLib")
+    self.checkBox_dev.setStyleSheet(tipstyle)
+    self.verticalLayout.addLayout(self.horizontalLayout_dev)
+    self.checkBox_dev.clicked.connect(self.changestate_dev)
+    
     #-------------
     
     self.gridLayout_2.addWidget(self.groupBox_2, 0, 0, 1, 1)
@@ -138,6 +209,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
     self.horizontalLayout.setObjectName("horizontalLayout")
     self.label_2 = QtWidgets.QLabel(self.groupBox)
     self.label_2.setObjectName("label_2")
+    self.label_2.setStyleSheet(labelstyle)
     self.label_2.setText("JobPro Revision Number: ")
     self.horizontalLayout.addWidget(self.label_2)
     self.lineEdit = QtWidgets.QLineEdit(self.groupBox)
@@ -169,6 +241,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage):
 
     self.label_pool = QtWidgets.QLabel(self.groupBox)
     self.label_pool.setObjectName("label_pool")
+    self.label_pool.setStyleSheet(labelstyle)
     self.label_pool.setText("Data Pool:")
     self.horizontalLayout_pool.addWidget(self.label_pool)
     self.comboBox_pool = QtWidgets.QComboBox(self.groupBox)

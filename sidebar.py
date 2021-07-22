@@ -10,15 +10,7 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #  SIDEBAR FUNCTIONALITY
 #----------------------------------------------------------------------
-def sideBar(self, icons, Wizard):
-
-    # button style        
-    side_style = str("QPushButton {\n"
-" text-align:left;"
-"  color: black;\n"
-"  font-size: 14px;\n"
-" background-color: #4000FF99;"
-"}")
+def sideBar(self, icons, Wizard,side_style):
    
     self.centralwidget = QtWidgets.QWidget()
     self.centralwidget.setObjectName("centralwidget")

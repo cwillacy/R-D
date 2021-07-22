@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #  IMPORT SPS PAGE
 #----------------------------------------------------------------------
-def PageImport(self,Wizard,icons,tipstyle,groupstyle):  
+def PageImport(self,Wizard,icons,tipstyle,groupstyle,labelstyle):  
     
     self.wizardPage3 = QtWidgets.QWizardPage()
     self.wizardPage3.setObjectName("wizardPage3")
@@ -31,6 +31,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     self.label_10 = QtWidgets.QLabel(self.groupBox_3)
     self.label_10.setBaseSize(QtCore.QSize(0, 0))
     self.label_10.setObjectName("label_10")
+    self.label_10.setStyleSheet(labelstyle)
     self.label_10.setText("SPS source:")
     self.label_10.setFixedWidth(125)
     self.horizontalLayout_9.addWidget(self.label_10)
@@ -51,6 +52,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_10.setObjectName("horizontalLayout_10")
     self.label_11 = QtWidgets.QLabel(self.groupBox_3)
     self.label_11.setObjectName("label_11")
+    self.label_11.setStyleSheet(labelstyle)
     self.label_11.setText("SPS receiver:")
     self.label_11.setFixedWidth(125)
     self.horizontalLayout_10.addWidget(self.label_11)
@@ -71,6 +73,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_11.setObjectName("horizontalLayout_11")
     self.label_12 = QtWidgets.QLabel(self.groupBox_3)
     self.label_12.setObjectName("label_12")
+    self.label_12.setStyleSheet(labelstyle)
     self.label_12.setText("SPS relational:")
     self.label_12.setFixedWidth(125)
     self.horizontalLayout_11.addWidget(self.label_12)
@@ -101,6 +104,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_12.setObjectName("horizontalLayout_12")
     self.label_13 = QtWidgets.QLabel(self.groupBox_4)
     self.label_13.setObjectName("label_13")
+    self.label_13.setStyleSheet(labelstyle)
     self.label_13.setText("Apply bulk coordinate shift?:")
     self.horizontalLayout_12.addWidget(self.label_13)
     self.checkBox_4 = QtWidgets.QCheckBox(self.groupBox_4)
@@ -119,6 +123,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     
     self.label_14 = QtWidgets.QLabel(self.groupBox_4)
     self.label_14.setObjectName("label_14")
+    self.label_14.setStyleSheet(labelstyle)
     self.label_14.setText("X0:")        
     spacerItem_14 = QtWidgets.QSpacerItem(95, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
     self.horizontalLayout_13.addItem(spacerItem_14)        
@@ -141,6 +146,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_14.addLayout(self.horizontalLayout_13)
     self.label_15 = QtWidgets.QLabel(self.groupBox_4)
     self.label_15.setObjectName("label_15")
+    self.label_15.setStyleSheet(labelstyle)
     self.label_15.setText("Y0:")
     self.horizontalLayout_14.addWidget(self.label_15)
     self.lineEdit_9 = QtWidgets.QLineEdit(self.groupBox_4)

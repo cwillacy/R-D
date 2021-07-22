@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #   OUTPUT OPTIONS
 #----------------------------------------------------------------------
-def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle): 
+def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle): 
     
     self.wizardPage8 = QtWidgets.QWizardPage()
     self.wizardPage8.setObjectName("wizardPage8")
@@ -35,7 +35,9 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_6.setObjectName("horizontalLayout_6")
     self.label_7 = QtWidgets.QLabel(self.groupBox_6)
     self.label_7.setObjectName("label_7")
-    self.label_7.setText("Output skl directory:")       
+    self.label_7.setStyleSheet(labelstyle)
+    self.label_7.setText("Output skl directory:")  
+    self.label_7.setFixedWidth(200)      
     self.horizontalLayout_6.addWidget(self.label_7)
     self.lineEdit_4 = QtWidgets.QLineEdit(self.groupBox_6)
     self.lineEdit_4.setObjectName("lineEdit_4")
@@ -46,6 +48,33 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.pushButton_2.setIcon(QIcon(icons[3]))
     self.horizontalLayout_6.addWidget(self.pushButton_2)
     self.verticalLayout_8.addLayout(self.horizontalLayout_6)
+    
+    self.horizontalLayout_filename = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_filename.setObjectName("horizontalLayout_filename")
+    self.label_filename = QtWidgets.QLabel(self.groupBox_6)
+    self.label_filename.setObjectName("label_filename")
+    self.label_filename.setStyleSheet(labelstyle)
+    self.label_filename.setText("Wizard filename:")  
+    self.label_filename.setFixedWidth(200)      
+    self.horizontalLayout_filename.addWidget(self.label_filename)
+    self.lineEdit_filename = QtWidgets.QLineEdit(self.groupBox_6)
+    self.lineEdit_filename.setObjectName("lineEdit_filename")
+    self.lineEdit_filename.textChanged[str].connect(self.changestate_filename)
+    
+    filename = str(df.loc[51,"VALUE"])
+    
+    if filename != '':
+        self.lineEdit_filename.setText(filename)      
+    else:
+        defname = str(df.loc[3,"VALUE"]) + "-simwiz"
+        self.lineEdit_filename.setText(defname)
+    
+    self.horizontalLayout_filename.addWidget(self.lineEdit_filename)
+    
+    spacerItem_filename = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
+    self.horizontalLayout_filename.addItem(spacerItem_filename)
+    
+    self.verticalLayout_8.addLayout(self.horizontalLayout_filename)
     
     self.lineEdit_4.setToolTip("output directory where the skeletons will be written")
     self.lineEdit_4.setStyleSheet(tipstyle) 
@@ -65,6 +94,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_7.setObjectName("horizontalLayout_7")
     self.label_8 = QtWidgets.QLabel(self.groupBox_9)
     self.label_8.setObjectName("label_8")
+    self.label_8.setStyleSheet(labelstyle)
     self.label_8.setText("Generate SSF traces?:")       
     self.horizontalLayout_7.addWidget(self.label_8)
     self.checkBox_3 = QtWidgets.QCheckBox(self.groupBox_9)
@@ -77,7 +107,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.checkBox_3.setStyleSheet(tipstyle) 
     self.checkBox_3.clicked.connect(self.changestate_ssf)
     self.verticalLayout_7.addWidget(self.groupBox_9)
-    
+      
     self.groupBox_8 = QtWidgets.QGroupBox(self.wizardPage8)
     font = QtGui.QFont()
     font.setPointSize(12)
@@ -91,6 +121,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_17.setObjectName("horizontalLayout_17")
     self.label_18 = QtWidgets.QLabel(self.groupBox_8)
     self.label_18.setObjectName("label_18")
+    self.label_18.setStyleSheet(labelstyle)
     self.label_18.setText("Geometry displays?")      
     self.horizontalLayout_17.addWidget(self.label_18)
     self.checkBox_6 = QtWidgets.QCheckBox(self.groupBox_8)
@@ -107,6 +138,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_19.setObjectName("horizontalLayout_19")
     self.label_19 = QtWidgets.QLabel(self.groupBox_8)
     self.label_19.setObjectName("label_19")
+    self.label_19.setStyleSheet(labelstyle)
     self.label_19.setText("Timing displays?")        
     self.horizontalLayout_19.addWidget(self.label_19)
     self.checkBox_7 = QtWidgets.QCheckBox(self.groupBox_8)
@@ -123,6 +155,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_20.setObjectName("horizontalLayout_20")
     self.label_20 = QtWidgets.QLabel(self.groupBox_8)
     self.label_20.setObjectName("label_20")
+    self.label_20.setStyleSheet(labelstyle)
     self.label_20.setText("Sensor depth displays?")       
     self.horizontalLayout_20.addWidget(self.label_20)
     self.checkBox_8 = QtWidgets.QCheckBox(self.groupBox_8)
@@ -151,6 +184,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_21.setObjectName("horizontalLayout_21")
     self.label_21 = QtWidgets.QLabel(self.groupBox_perf)
     self.label_21.setObjectName("label_21")
+    self.label_21.setStyleSheet(labelstyle)
     self.label_21.setText("SQSORT maxrec:")       
     self.horizontalLayout_21.addWidget(self.label_21)
     
@@ -180,6 +214,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle):
     self.horizontalLayout_22.setObjectName("horizontalLayout_22")
     self.label_22 = QtWidgets.QLabel(self.groupBox_perf)
     self.label_22.setObjectName("label_22")
+    self.label_22.setStyleSheet(labelstyle)
     self.label_22.setText("SRTALL maxsize:")
     self.horizontalLayout_22.addWidget(self.label_22)
     

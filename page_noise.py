@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #  GEOMETRY PAGE
 #----------------------------------------------------------------------
-def PageNoise(self,Wizard,icons,tipstyle,groupstyle):   
+def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle):   
 
     self.wizardPage5 = QtWidgets.QWizardPage()
     self.wizardPage5.setObjectName("wizardPage5")      
@@ -31,6 +31,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_wavelet.setObjectName("horizontalLayout_wavelet")
     self.label_wavelet = QtWidgets.QLabel(self.groupBox_wavelet)
     self.label_wavelet.setObjectName("label_wavelet")
+    self.label_wavelet.setStyleSheet(labelstyle)
     self.label_wavelet.setText("Convolve data with a wavelet?:")
     self.horizontalLayout_wavelet.addWidget(self.label_wavelet)
     self.checkBox_wavelet = QtWidgets.QCheckBox(self.groupBox_wavelet)
@@ -50,6 +51,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.label_waveload = QtWidgets.QLabel(self.groupBox_wavelet)
     self.label_waveload.setBaseSize(QtCore.QSize(0, 0))
     self.label_waveload.setObjectName("label_waveload")
+    self.label_waveload.setStyleSheet(labelstyle)
     self.label_waveload.setText("WAVSAM File:")
     self.horizontalLayout_waveload.addWidget(self.label_waveload)
     
@@ -85,6 +87,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_3b.setObjectName("horizontalLayout_3b")
     self.label_4b = QtWidgets.QLabel(self.groupBox_5b)
     self.label_4b.setObjectName("label_4b")
+    self.label_4b.setStyleSheet(labelstyle)
     self.label_4b.setText("Add noise to output?:")
     self.horizontalLayout_3b.addWidget(self.label_4b)    
     #spacerItem_5b = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -102,6 +105,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_4b.setObjectName("horizontalLayout_4b")      
     self.label_5b = QtWidgets.QLabel(self.groupBox_5b)
     self.label_5b.setObjectName("label_5b") 
+    self.label_5b.setStyleSheet(labelstyle)
     self.label_5b.setText("Noise mode:")
     self.horizontalLayout_4b.addWidget(self.label_5b)   
     
@@ -111,6 +115,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_3c.setObjectName("horizontalLayout_3c")
     self.label_4c = QtWidgets.QLabel(self.groupBox_5b)
     self.label_4c.setObjectName("label_4c") 
+    self.label_4c.setStyleSheet(labelstyle)
     self.label_4c.setText("Add noise pre- or post-blending?:")
     self.horizontalLayout_3c.addWidget(self.label_4c)   
     spacerItem_4c = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -165,7 +170,8 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     spacerItem_6b = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
     self.horizontalLayout_5b.addItem(spacerItem_6b)       
     self.label_6b = QtWidgets.QLabel(self.groupBox_5b)
-    self.label_6b.setObjectName("label_6b")   
+    self.label_6b.setObjectName("label_6b") 
+    self.label_6b.setStyleSheet(labelstyle)
     self.label_6b.setText("faclev:")         
     self.horizontalLayout_5b.addWidget(self.label_6b)    
     self.lineEdit_faclev = QtWidgets.QLineEdit(self.groupBox_5b)
@@ -192,7 +198,8 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     spacerItem_6c = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
     self.horizontalLayout_5c.addItem(spacerItem_6c)
     self.label_6c = QtWidgets.QLabel(self.groupBox_5b)
-    self.label_6c.setObjectName("label_6c")    
+    self.label_6c.setObjectName("label_6c") 
+    self.label_6c.setStyleSheet(labelstyle)
     self.label_6c.setText("flow:")
     self.horizontalLayout_5c.addWidget(self.label_6c)    
     self.lineEdit_flow = QtWidgets.QLineEdit(self.groupBox_5b)
@@ -218,7 +225,8 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     spacerItem_6d = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
     self.horizontalLayout_5d.addItem(spacerItem_6d)
     self.label_6d = QtWidgets.QLabel(self.groupBox_5b)
-    self.label_6d.setObjectName("label_6d") 
+    self.label_6d.setObjectName("label_6d")
+    self.label_6d.setStyleSheet(labelstyle)
     self.label_6d.setText("iorlow:")        
     self.horizontalLayout_5d.addWidget(self.label_6d)    
     self.lineEdit_iorlow = QtWidgets.QLineEdit(self.groupBox_5b)
@@ -244,7 +252,8 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     spacerItem_6e = QtWidgets.QSpacerItem(25, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
     self.horizontalLayout_5e.addItem(spacerItem_6e)
     self.label_6e = QtWidgets.QLabel(self.groupBox_5b)
-    self.label_6e.setObjectName("label_6e")  
+    self.label_6e.setObjectName("label_6e") 
+    self.label_6e.setStyleSheet(labelstyle)
     self.label_6e.setText("fhigh:")
     self.horizontalLayout_5e.addWidget(self.label_6e)    
     self.lineEdit_fhigh = QtWidgets.QLineEdit(self.groupBox_5b)
@@ -271,6 +280,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle):
     self.horizontalLayout_5f.addItem(spacerItem_6f)
     self.label_6f = QtWidgets.QLabel(self.groupBox_5b)
     self.label_6f.setObjectName("label_6f") 
+    self.label_6f.setStyleSheet(labelstyle)
     self.label_6f.setText("iorhig:")
     self.horizontalLayout_5f.addWidget(self.label_6f)    
     self.lineEdit_iorhig = QtWidgets.QLineEdit(self.groupBox_5b)

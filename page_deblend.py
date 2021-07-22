@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtWidgets
 #----------------------------------------------------------------------
 #   DEBLEND
 #----------------------------------------------------------------------
-def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):          
+def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):          
     self.wizardPage7 = QtWidgets.QWizardPage()
     self.wizardPage7.setObjectName("wizardPage7")
     self.wizardPage7.setTitle('Deblending')
@@ -37,6 +37,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
         
     self.label_dbl = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl.setObjectName("label_dbl")
+    self.label_dbl.setStyleSheet(labelstyle)
     self.label_dbl.setText("Generate deblending skl's?")
     self.label_dbl.setFixedWidth(225)  
     self.horizontalLayout_dbl.addWidget(self.label_dbl)
@@ -55,6 +56,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
 
     self.label_dbl2a = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl2a.setObjectName("label_dbl2a")
+    self.label_dbl2a.setStyleSheet(labelstyle)
     self.label_dbl2a.setText("fmax:")
     self.label_dbl2a.setFixedWidth(100)
     self.lineEdit_dbl2a = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -77,6 +79,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
        
     self.label_dbl2b = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl2b.setObjectName("label_dbl2b")
+    self.label_dbl2b.setStyleSheet(labelstyle)
     self.label_dbl2b.setText("ndip:")
     self.label_dbl2b.setFixedWidth(100)
     self.lineEdit_dbl2b = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -101,6 +104,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
  
     self.label_dbl3a = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl3a.setObjectName("label_dbl3a")
+    self.label_dbl3a.setStyleSheet(labelstyle)
     self.label_dbl3a.setText("pmax:")
     self.label_dbl3a.setFixedWidth(100)
     self.lineEdit_dbl3a = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -123,6 +127,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
     
     self.label_dbl3b = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl3b.setObjectName("label_dbl3b")
+    self.label_dbl3b.setStyleSheet(labelstyle)
     self.label_dbl3b.setText("mxblnd:")
     self.label_dbl3b.setFixedWidth(100)
     self.lineEdit_dbl3b = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -148,6 +153,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
 
     self.label_dbl4a = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl4a.setObjectName("label_dbl4a")
+    self.label_dbl4a.setStyleSheet(labelstyle)
     self.label_dbl4a.setText("xywindow:")
     self.label_dbl4a.setFixedWidth(100)
     self.lineEdit_dbl4a = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -170,6 +176,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
     
     self.label_dbl4b = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl4b.setObjectName("label_dbl4b")
+    self.label_dbl4b.setStyleSheet(labelstyle)
     self.label_dbl4b.setText("twindow:")
     self.label_dbl4b.setFixedWidth(100)
     self.lineEdit_dbl4b = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -194,6 +201,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
 
     self.label_dbl5a = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl5a.setObjectName("label_dbl5a")
+    self.label_dbl5a.setStyleSheet(labelstyle)
     self.label_dbl5a.setText("niters:")
     self.label_dbl5a.setFixedWidth(100)
     self.lineEdit_dbl5a = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -216,6 +224,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
     
     self.label_dbl5b = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl5b.setObjectName("label_dbl5b")
+    self.label_dbl5b.setStyleSheet(labelstyle)
     self.label_dbl5b.setText("nshot:")
     self.label_dbl5b.setFixedWidth(100)
     self.lineEdit_dbl5b = QtWidgets.QLineEdit(self.groupBox_dbl)
@@ -239,6 +248,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle):
 
     self.label_dbl6a = QtWidgets.QLabel(self.groupBox_dbl)
     self.label_dbl6a.setObjectName("label_dbl6a")
+    self.label_dbl6a.setStyleSheet(labelstyle)
     self.label_dbl6a.setText("nwavit:")
     self.label_dbl6a.setFixedWidth(100)
     self.lineEdit_dbl6a = QtWidgets.QLineEdit(self.groupBox_dbl)
