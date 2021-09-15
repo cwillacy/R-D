@@ -190,6 +190,7 @@ INFO
 &    safid => 'SAF_X',                         &
 &    media => {                                &
 &       pool => POOL,                          &
+&       filesize => 100000,                    &
 &       nfile => 1                             &
 &    },                                        &
 &    montor => {                               &
