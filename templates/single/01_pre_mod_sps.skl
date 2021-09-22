@@ -194,6 +194,7 @@ INFO
 & call acqlib:~~~:rel2saf(filename => relational_input)
 INFO
 SQMANI
+SQEXPR CHNBEG = GRPBEG;
 SQEXPR CHNEND = GRPEND;
 INFO
 & call io:sqsaf_out(sqsaf => {                 &
