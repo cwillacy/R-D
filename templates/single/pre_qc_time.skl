@@ -245,6 +245,34 @@ INFO  --------------------------------------------------------------------------
 &		title 		=> 'Date vs Time QC'			&
 & )
 INFO
+STOP
+PARSTRNEXT
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for the absolute shooting time 
+INFO  --------------------------------------------------------------------------
+SQMANI
+SQEXPR USPAR0 = (DATE*100000.) + (TIME/10.);
+INFO
+INFO  --------------------------------------------------------------------------
+INFO  create the scatter plot for shot seconds 
+INFO  --------------------------------------------------------------------------
+& call acqlib:~~~:pltscat(						&
+&		xvar1		=> 'USPAR0', 				&
+&		yvar1 		=> 'SHTPT', 				&
+&		col1 		=> 'GRAY',	 			&
+&		symb1		=> 'CROSS', 				&
+&		second 		=> false, 				&
+&		filename 	=> $jobnm+'_'+'abstime_vs_shtpt.png',	&
+&		path	 	=> IMAGE_DIR,				&
+&		xlabel 		=> 'Shot Point',			&
+&		ylabel 		=> 'Time (sec)',			&
+&		timestamp	=> true,				&
+&		size		=> 1.0,					&
+&		xsize		=> 1000,				&
+&		ysize		=> 750, 				&
+&		title 		=> 'Absolute Shooting Time'		&
+& )
+INFO
 PARSTROUT 
 INFO
 & call end_sesam_deck(addstr => '-d7sec 4608')
