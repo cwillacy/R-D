@@ -35,7 +35,7 @@ class Ui_Wizard(object):
         global df, debug, Dialog, icons, tipstyle, groupstyle, storage
         
         # switch on debug mode
-        debug=True
+        debug=False
         
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
         
@@ -160,10 +160,10 @@ class Ui_Wizard(object):
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
                                        'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME'],
-                'VALUE': ['OBN','Single',0,000.00,'','','','False',0,0,'False',0,'True','False',
+                'VALUE': ['OBN','Single',0,'000.00','','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
-                          'False','','','']
+                          'False','','','000.00-simwiz']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -238,6 +238,7 @@ class Ui_Wizard(object):
     def updateInterface(self):
         global df, debug
         
+        
         #---------------------ATYPE---------------------
         val = df.loc[0,"VALUE"]
 
@@ -271,8 +272,12 @@ class Ui_Wizard(object):
         val = df.loc[2,"VALUE"]
         self.lineEdit_shtcod.setText(val)
         #---------------------JOBREV---------------------
+        
+        print(df)
+        
         val = df.loc[3,"VALUE"]
-        self.lineEdit.setText(val)
+        self.lineEdit.setText(str(val))
+        
         #---------------------SPSSRC---------------------
         val = str(df.loc[4,"VALUE"])
         self.lineEdit_5.setText(val)
@@ -497,10 +502,9 @@ class Ui_Wizard(object):
         #---------------------DESCRIPTION---------------------
         val = df.loc[49,"VALUE"]
         self.textBox.setPlainText(val)
+        
+
          
-        #---------------------WIZNAME---------------------
-        val = df.loc[51,"VALUE"]    
-        self.lineEdit_filename.setText(val) 
             
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
@@ -541,10 +545,10 @@ class Ui_Wizard(object):
             #
             #  now read csv file and update pandas dataframe
             #       
-            df = pd.read_csv(str(file_name[0]),keep_default_na=False)
+            df = pd.read_csv(str(file_name[0]),keep_default_na=False,dtype=str)
               
-            if debug:
-                print(df)
+            #if debug:
+            print('data frame',df)
                 
             # make sure to update all interface widgets with the loaded parameters 
             self.updateInterface()                  
@@ -813,18 +817,11 @@ class Ui_Wizard(object):
     def changestate_jobrev(self,text):
         global df, debug
    
-        df.loc[df['PARAMETER'] == 'JOBREV', 'VALUE'] = text
+        df.loc[df['PARAMETER'] == 'JOBREV', 'VALUE'] = str(text)
         
-        filename = str(df.loc[51,"VALUE"])
-        
-        print('filename=',filename)
-    
-        if filename != '':
-            self.lineEdit_filename.setText(filename)      
-        else:
-            defname = str(df.loc[3,"VALUE"]) + "-simwiz"
-            self.lineEdit_filename.setText(defname)
-        
+        # make sure to update the wizard filename
+        df.loc[df['PARAMETER'] == 'WIZNAME', 'VALUE'] = str(df.loc[3,"VALUE"]) + "-simwiz"             
+
         if debug:
             print(df)  
      
@@ -1006,14 +1003,6 @@ class Ui_Wizard(object):
         df.loc[df['PARAMETER'] == 'OUTDIR', 'VALUE'] = text
         if debug:
             print(df)       
-        
-    def changestate_filename(self,text):
-        global df, debug
-   
-        df.loc[df['PARAMETER'] == 'WIZNAME', 'VALUE'] = text
-        if debug:
-            print(df)           
-        
         
     def changestate_ssf(self,text):
         global df, debug

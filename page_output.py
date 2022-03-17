@@ -48,34 +48,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.pushButton_2.setIcon(QIcon(icons[3]))
     self.horizontalLayout_6.addWidget(self.pushButton_2)
     self.verticalLayout_8.addLayout(self.horizontalLayout_6)
-    
-    self.horizontalLayout_filename = QtWidgets.QHBoxLayout()
-    self.horizontalLayout_filename.setObjectName("horizontalLayout_filename")
-    self.label_filename = QtWidgets.QLabel(self.groupBox_6)
-    self.label_filename.setObjectName("label_filename")
-    self.label_filename.setStyleSheet(labelstyle)
-    self.label_filename.setText("Wizard filename:")  
-    self.label_filename.setFixedWidth(200)      
-    self.horizontalLayout_filename.addWidget(self.label_filename)
-    self.lineEdit_filename = QtWidgets.QLineEdit(self.groupBox_6)
-    self.lineEdit_filename.setObjectName("lineEdit_filename")
-    self.lineEdit_filename.textChanged[str].connect(self.changestate_filename)
-    
-    filename = str(df.loc[51,"VALUE"])
-    
-    if filename != '':
-        self.lineEdit_filename.setText(filename)      
-    else:
-        defname = str(df.loc[3,"VALUE"]) + "-simwiz"
-        self.lineEdit_filename.setText(defname)
-    
-    self.horizontalLayout_filename.addWidget(self.lineEdit_filename)
-    
-    spacerItem_filename = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
-    self.horizontalLayout_filename.addItem(spacerItem_filename)
-    
-    self.verticalLayout_8.addLayout(self.horizontalLayout_filename)
-    
+        
     self.lineEdit_4.setToolTip("output directory where the skeletons will be written")
     self.lineEdit_4.setStyleSheet(tipstyle) 
     self.lineEdit_4.setText('')

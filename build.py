@@ -15,6 +15,9 @@ import platform
 #------------------------------------------------------------------------------
 def buildmain(self, df, debug, fullpath):
         
+    # preserve string on output
+    df = df.astype(str)
+
     # save to csv file
     df.to_csv(fullpath, index=False)
 
