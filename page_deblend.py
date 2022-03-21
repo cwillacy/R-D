@@ -39,7 +39,7 @@ def PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.label_dbl.setObjectName("label_dbl")
     self.label_dbl.setStyleSheet(labelstyle)
     self.label_dbl.setText("Generate deblending skl's?")
-    self.label_dbl.setFixedWidth(225)  
+    self.label_dbl.setFixedWidth(250)  
     self.horizontalLayout_dbl.addWidget(self.label_dbl)
     self.checkBox_dbl = QtWidgets.QCheckBox(self.groupBox_dbl)
     self.checkBox_dbl.setText("")

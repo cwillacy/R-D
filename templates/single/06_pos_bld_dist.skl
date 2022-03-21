@@ -86,14 +86,7 @@
 &!
 & record io:std_io:sqsaf_in input_record_sqsaf_recip = {  &
 &    data_set => input_sqsaf_recip,                       &
-&    exec => 'EXEC',                                      &
-&    media => {                                           &
-&       data_range => ({                                  &
-&          mnemon => 'SHT',                               &
-&          minval => $recpt,                              &
-&          maxval => $recpt                               &
-&       })                                                &
-&    }                                                    &
+&    exec => 'EXEC'                                       &
 & }
 &!
 & call io:sipmap_in(sipmap => input_record,  &

@@ -136,11 +136,7 @@ DSCOUT                  waterbottom.saf
 SQSAF
 & endif
 CON
-& call io:sqsaf_in(sqsaf => {                &
-&    data_set => receiver_input,             &
-&    exec => 'EXEC'                          &
-& },                                         &
-&                  mode => 'DECLARE+CARDS')
+@@@
 INFO
 DSCOUT                  receiver.saf                                          
 SQSAF
@@ -169,9 +165,12 @@ SQSAF                                     NOEXEC
 INFO
 INFO  merge the SPS source, receiver and relational files and convert to SAF
 INFO
-& call acqlib:~~~:sps_merge(sqsort_maxrec => sqsort_maxrec, 	&
-&				ident => reident 		&
+& call acqlib:~~~:sps_merge(sqsort_maxrec => sqsort_maxrec, &
+&				ident => reident &
 & )
+INFO
+SQMANI
+SQEXPR SHT = SHTST;
 INFO
 INFO  add real node depths?
 INFO
@@ -223,7 +222,7 @@ INFO
 &    }                                                                           &
 & })
 & if (gen_trc) then
-DSCOUT                  merge.saf 
+DSCOUT                  merge.saf      
 MEDCTLFILE_SIZE=10GB
 SQSAF
 CON

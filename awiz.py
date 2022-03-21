@@ -23,6 +23,7 @@ import page_noise
 import page_blend
 import page_deblend
 import page_output
+import sys
 
 #------------------------------------------------------------------------------
 #
@@ -35,8 +36,13 @@ class Ui_Wizard(object):
         global df, debug, Dialog, icons, tipstyle, groupstyle, storage
         
         # switch on debug mode
+        
         debug=False
         
+        if len(sys.argv) == 2 :
+            if sys.argv[1] == '-verbose':
+                debug=True
+
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
         
         Wizard.setObjectName("Wizard")
@@ -159,11 +165,13 @@ class Ui_Wizard(object):
                                        'IORHIG','TMAX','DT','TOUT','T0','OUTDIR','SSF','QCGEOM','QCTIME',
                                        'QCDEPTH','SQSORT','SRTALL','CONV','WAVELET','POOL','DBL','FMAX',
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
-                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME'],
+                                       'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME',
+                                       'IDENT1','IDENT2','IDENT3','IDENT1MINVAL','IDENT1MAXVAL',
+                                       'IDENT2MINVAL','IDENT2MAXVAL','IDENT3MINVAL','IDENT3MAXVAL'],
                 'VALUE': ['OBN','Single',0,'000.00','','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
-                          'False','','','000.00-simwiz']
+                          'False','','','000.00-simwiz','','','',0,0,0,0,0,0]
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -272,8 +280,6 @@ class Ui_Wizard(object):
         val = df.loc[2,"VALUE"]
         self.lineEdit_shtcod.setText(val)
         #---------------------JOBREV---------------------
-        
-        print(df)
         
         val = df.loc[3,"VALUE"]
         self.lineEdit.setText(str(val))
@@ -503,8 +509,41 @@ class Ui_Wizard(object):
         val = df.loc[49,"VALUE"]
         self.textBox.setPlainText(val)
         
-
-         
+        #---------------------IDENT1--------------------
+        val = df.loc[52,"VALUE"]
+        self.lineEdit_ident1.setText(val)   
+        
+        #---------------------IDENT2--------------------
+        val = df.loc[53,"VALUE"]
+        self.lineEdit_ident2.setText(val) 
+        
+        #---------------------IDENT3--------------------
+        val = df.loc[54,"VALUE"]
+        self.lineEdit_ident3.setText(val)   
+        
+        #---------------------IDENT1minval--------------------
+        val = df.loc[55,"VALUE"]
+        self.lineEdit_ident1minval.setText(val)   
+        
+        #---------------------IDENT1maxval--------------------
+        val = df.loc[56,"VALUE"]
+        self.lineEdit_ident1maxval.setText(val)   
+        
+        #---------------------IDENT2minval--------------------
+        val = df.loc[57,"VALUE"]
+        self.lineEdit_ident2minval.setText(val)   
+        
+        #---------------------IDENT2maxval--------------------
+        val = df.loc[58,"VALUE"]
+        self.lineEdit_ident2maxval.setText(val)  
+        
+        #---------------------IDENT2minval--------------------
+        val = df.loc[59,"VALUE"]
+        self.lineEdit_ident3minval.setText(val)   
+        
+        #---------------------IDENT2maxval--------------------
+        val = df.loc[60,"VALUE"]
+        self.lineEdit_ident3maxval.setText(val)   
             
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
@@ -547,9 +586,6 @@ class Ui_Wizard(object):
             #       
             df = pd.read_csv(str(file_name[0]),keep_default_na=False,dtype=str)
               
-            #if debug:
-            print('data frame',df)
-                
             # make sure to update all interface widgets with the loaded parameters 
             self.updateInterface()                  
                           
@@ -1054,7 +1090,70 @@ class Ui_Wizard(object):
    
         df.loc[df['PARAMETER'] == 'SQSORT', 'VALUE'] = text
         if debug:
-            print(df)       
+            print(df)   
+            
+    def changestate_ident1(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT1', 'VALUE'] = text
+        if debug:
+            print(df) 
+            
+    def changestate_ident1minval(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT1MINVAL', 'VALUE'] = text
+        if debug:
+            print(df)  
+            
+    def changestate_ident1maxval(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT1MAXVAL', 'VALUE'] = text
+        if debug:
+            print(df) 
+            
+    def changestate_ident2minval(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT2MINVAL', 'VALUE'] = text
+        if debug:
+            print(df)  
+            
+    def changestate_ident2maxval(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT2MAXVAL', 'VALUE'] = text
+        if debug:
+            print(df) 
+
+    def changestate_ident3minval(self,text):
+       global df, debug
+  
+       df.loc[df['PARAMETER'] == 'IDENT3MINVAL', 'VALUE'] = text
+       if debug:
+           print(df)  
+           
+    def changestate_ident3maxval(self,text):
+       global df, debug
+  
+       df.loc[df['PARAMETER'] == 'IDENT3MAXVAL', 'VALUE'] = text
+       if debug:
+           print(df) 
+            
+    def changestate_ident2(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT2', 'VALUE'] = text
+        if debug:
+            print(df)  
+            
+    def changestate_ident3(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT3', 'VALUE'] = text
+        if debug:
+            print(df) 
 
     def changestate_srtall(self,text):
         global df, debug

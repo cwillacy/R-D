@@ -112,10 +112,6 @@ def buildinclude(self,df):
                
      else:
          fullpath = os.path.join(mypath,filename)
-     
-    
-     print('mypath=',mypath)
-    
 
      file = open(fullpath,'w')
      file.write("&!---------------------------------------------\n")
@@ -235,9 +231,20 @@ def buildinclude(self,df):
      
      mystring = mystring + mystring2
      
-     mystring = mystring + '\''
+     mystring = mystring + '\'\n'
      
      file.write(mystring) 
+     file.write('& character ident1_wiz = ' + '\'' + str(df.loc[52,"VALUE"]) + '\'' + '\n')
+     file.write('& integer ident1minval_wiz = ' + str(df.loc[55,"VALUE"]) + '\n')
+     file.write('& integer ident1maxval_wiz = ' + str(df.loc[56,"VALUE"]) + '\n')
+     
+     file.write('& character ident2_wiz = ' + '\'' + str(df.loc[53,"VALUE"]) + '\'' + '\n')
+     file.write('& integer ident2minval_wiz = ' + str(df.loc[57,"VALUE"]) + '\n')
+     file.write('& integer ident2maxval_wiz = ' + str(df.loc[58,"VALUE"]) + '\n')
+     
+     file.write('& character ident3_wiz = ' + '\'' + str(df.loc[54,"VALUE"]) + '\'' + '\n')
+     file.write('& integer ident3minval_wiz = ' + str(df.loc[59,"VALUE"]) + '\n')
+     file.write('& integer ident3maxval_wiz = ' + str(df.loc[60,"VALUE"]) + '\n')
           
      file.close()
      return
@@ -284,6 +291,220 @@ def buildskl_single(self,df,skl):
                    file.write(line.replace('~~~','dev'))
                else:
                    file.write(line.replace('~~~','cur'))    
+           elif '@@@' in line:
+               
+               
+               if str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) == '' and str(df.loc[54,"VALUE"]) == '':
+                   
+                   input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => ident1minval_wiz,       &
+&          maxval => ident1maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) == '':
+                     
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+                   
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) != '':   
+                   
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident3_wiz,             &
+&          minval => ident3minval_wiz,       &
+&          maxval => ident3maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+
+               else:
+                       
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+                               
+               file.write(line.replace('@@@',input_str))
+
+           elif '*~*' in line:
+               
+               
+               if str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) == '' and str(df.loc[54,"VALUE"]) == '':
+                   
+                   input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => ident1minval_wiz,       &
+&          maxval => ident1maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE')"""
+
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) == '':
+                     
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE')"""
+                   
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) != '':   
+                   
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident3_wiz,             &
+&          minval => ident3minval_wiz,       &
+&          maxval => ident3maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE')"""
+
+
+               else:
+                       
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input                   &
+& },                                         &
+&                  mode => 'DECLARE')"""
+
+                               
+               file.write(line.replace('*~*',input_str))
+
+           elif ':;' in line:
+               
+               
+               if str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) == '' and str(df.loc[54,"VALUE"]) == '':
+                   
+                   input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => ident1minval_wiz,       &
+&          maxval => ident1maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'CARDS')"""
+
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) == '':
+                     
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'CARDS')"""
+                   
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) != '':   
+                   
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input,                  &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident3_wiz,             &
+&          minval => ident3minval_wiz,       &
+&          maxval => ident3maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'CARDS')"""
+
+
+               else:
+                       
+                    input_str = """& call io:sipmap_in(sipmap => {         &
+&    data_set => ssf_input                   &
+& },                                         &
+&                  mode => 'CARDS')"""
+
+                               
+               file.write(line.replace(':;',input_str))
+                   
            else:
                file.write(line)
    
@@ -333,7 +554,81 @@ def buildskl_multi(self,df,skl):
                if str(df.loc[48,"VALUE"]) == 'True':   
                    file.write(line.replace('~~~','dev'))
                else:
-                   file.write(line.replace('~~~','cur'))    
+                   file.write(line.replace('~~~','cur')) 
+                   
+           elif '@@@' in line:
+               
+               
+               if str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) == '' and str(df.loc[54,"VALUE"]) == '':
+                   
+                   input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => ident1minval_wiz,       &
+&          maxval => ident1maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) == '':
+                     
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+                   
+                   
+               elif str(df.loc[52,"VALUE"]) != '' and str(df.loc[53,"VALUE"]) != '' and str(df.loc[54,"VALUE"]) != '':   
+                   
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC',                         &
+&    media => {                              &
+&       data_range => ({                     &
+&          mnemon => ident1_wiz,             &
+&          minval => iden1minval_wiz,        &
+&          maxval => ident1maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident2_wiz,             &
+&          minval => ident2minval_wiz,       &
+&          maxval => ident2maxval_wiz        &
+&       }, {                                 &
+&          mnemon => ident3_wiz,             &
+&          minval => ident3minval_wiz,       &
+&          maxval => ident3maxval_wiz        &
+&       })                                   &
+&    }                                       &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+
+               else:
+                       
+                    input_str = """& call io:sqsaf_in(sqsaf => {                &
+&    data_set => receiver_input,             &
+&    exec => 'EXEC'                          &
+& },                                         &
+&                  mode => 'DECLARE+CARDS')"""
+
+                               
+               file.write(line.replace('@@@',input_str))       
            else:
                file.write(line)
     

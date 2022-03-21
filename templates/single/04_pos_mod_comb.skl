@@ -107,21 +107,7 @@
 & call sys_config:get_system_config(chk_system => 'linux_fe',      &
 &                                   maxmem_mb => mem_per_core_mb)
 &!
-& call io:sipmap_in(sipmap => {         &
-&    data_set => ssf_input,             &
-&    media => {                         &
-&       data_range => ({                &
-&          mnemon => 'SHTLIN',          &
-&          minval => $reclin,           &
-&          maxval => $reclin            &
-&       }, {                            &
-&          mnemon => 'SHTPT',           &
-&          minval => $recpt,            &
-&          maxval => $recpt             &
-&       })                              &
-&    }                                  &
-& },                                    &
-&                   mode => 'DECLARE')
+*~*
 &!
 &  integer       tmax = $DSHIS(ssf_input,'TMAX')
 &!
@@ -153,21 +139,7 @@ CON
 INFO
 STLISTOPER  OPER  OPER
 INFO
-& call io:sipmap_in(sipmap => {       &
-&    data_set => ssf_input,           &
-&    media => {                       &
-&       data_range => ({              &
-&          mnemon => 'SHTLIN',        &
-&          minval => $reclin,         &
-&          maxval => $reclin          &
-&       }, {                          &
-&          mnemon => 'SHTPT',         &
-&          minval => $recpt,          &
-&          maxval => $recpt           &
-&       })                            &
-&    }                                &
-& },                                  &
-&                   mode => 'CARDS')
+:;
 &!
 INFO
 INFO  calculate the direct arrival time to use for qc later on

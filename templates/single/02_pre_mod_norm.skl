@@ -136,22 +136,7 @@ DSCOUT                  waterbottom.saf
 SQSAF
 & endif
 CON
-& call io:sqsaf_in(sqsaf => {                &
-&    data_set => receiver_input,             &
-&    exec => 'EXEC',                         &
-&    media => {                              &
-&       data_range => ({                     &
-&          mnemon => 'RECLIN',               &
-&          minval => $reclin,                &
-&          maxval => $reclin                 &
-&       }, {                                 &
-&          mnemon => 'RECPT',                &
-&          minval => $recpt,                 &
-&          maxval => $recpt                  &
-&       })                                   &
-&    }                                       &
-& },                                         &
-&                  mode => 'DECLARE+CARDS')
+@@@
 INFO
 DSCOUT                  receiver.saf                                          
 SQSAF
@@ -183,6 +168,9 @@ INFO
 & call acqlib:~~~:sps_merge(sqsort_maxrec => sqsort_maxrec, &
 &				ident => reident &
 & )
+INFO
+SQMANI
+SQEXPR SHT = SHTST;
 INFO
 INFO  add real node depths?
 INFO
