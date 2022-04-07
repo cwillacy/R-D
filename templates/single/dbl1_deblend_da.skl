@@ -77,7 +77,7 @@
 &  integer 	ymin 		  = $MINID(sei_input_a,'YSHTST') 	! Min yshtst in xyunits
 &  integer 	ymax 		  = $MAXID(sei_input_a,'YSHTST')	! Max yshtst in xyunits
 &  integer 	yinc 		  = 100      			                ! Nominal shot spacing in y direction.
-&  integer 	nshot 	  = dbl_nshot_wiz 		            ! Number of thousand shots in survey
+&  integer 	nshot 	  	= dbl_nshot_wiz 		            ! Number of thousand shots in survey
 &  integer 	fmax 		  = dbl_fmax_wiz  		            ! Max freq in subbands hz 
 &  real 	  pmax 		  = dbl_pmax_wiz  		            ! Max dip to be modeled in units of sec/xyunit
 &  integer 	mxblnd 	  = dbl_mxblnd_wiz    		        ! Max number of blended traces on which a given shot can appear
@@ -121,7 +121,7 @@
 &!
 &!
 &  call sys_config:get_system_config(       &
-&     chk_system   => 'sc40any'             &
+&     chk_system   => 'skylake_40_lustre'   &
 &    ,worknodes    => n_work_node           &
 &    ,cpu_per_host => cpu_per_host          &
 &    ,maxmem_mb    => memory_per_cpu_in_mb  )

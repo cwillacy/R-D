@@ -121,7 +121,7 @@
 &!
 &!
 &  call sys_config:get_system_config(       &
-&     chk_system   => 'sc40any'             &
+&     chk_system   => 'skylake_40_lustre'   &
 &    ,worknodes    => n_work_node           &
 &    ,cpu_per_host => cpu_per_host          &
 &    ,maxmem_mb    => memory_per_cpu_in_mb  )
