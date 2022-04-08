@@ -156,10 +156,6 @@ export OMP_NUM_THREADS
 &    exec => 'EXEC'                          &
 & },                                         &
 &                  mode => 'DECLARE+CARDS')
-SQMANISELECT
-SAFIRAACCEPT RECPT
-& sub(#1,i0) $recpt
-SFOR12          #1                      #1
 SQMANI  EXPR
 SQEXPR XSHTST = XSHT; YSHTST = YSHT; ZSHTST = ZSHT;
 SQEXPR XRECST = XREC; YRECST = YREC; ZRECST = ZREC;

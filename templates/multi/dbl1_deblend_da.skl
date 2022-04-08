@@ -77,7 +77,7 @@
 &  integer 	ymin 		  = $MINID(sei_input_a,'YSHTST') 	! Min yshtst in xyunits
 &  integer 	ymax 		  = $MAXID(sei_input_a,'YSHTST')	! Max yshtst in xyunits
 &  integer 	yinc 		  = 100      			                ! Nominal shot spacing in y direction.
-&  integer 	nshot 	  = dbl_nshot_wiz 		            ! Number of thousand shots in survey
+&  integer 	nshot 	  	= dbl_nshot_wiz 		            ! Number of thousand shots in survey
 &  integer 	fmax 		  = dbl_fmax_wiz  		            ! Max freq in subbands hz 
 &  real 	  pmax 		  = dbl_pmax_wiz  		            ! Max dip to be modeled in units of sec/xyunit
 &  integer 	mxblnd 	  = dbl_mxblnd_wiz    		        ! Max number of blended traces on which a given shot can appear
@@ -155,10 +155,6 @@ export OMP_NUM_THREADS
 &    exec => 'EXEC'                          &
 & },                                         &
 &                  mode => 'DECLARE+CARDS')
-SQMANISELECT
-SAFIRAACCEPT RECPT
-& sub(#1,i0) $recpt
-SFOR12          #1                      #1
 SQMANI  EXPR
 SQEXPR XSHTST = XSHT; YSHTST = YSHT; ZSHTST = ZSHT;
 SQEXPR XRECST = XREC; YRECST = YREC; ZRECST = ZREC;
@@ -219,7 +215,7 @@ INFO  ========================================================================
 INFO  INFO  7...12....18....24....30....36....42....48....54....60....66....72....78
 INFO  PANID MXINPNMXOUPNMAXSAFMXBLNDMXWMESMXPMES
 &  sub(@13,i6) nshot, (@19,i6) nshot, (@25,i6) nshot, (@31,i6) mxblnd
-OBNPTY RECPT                         16000
+OBNPTY RECPT                        
 OBDIRA  ZREC  1450  1000  1500    
 INFO   use shtlin, shtpt attributes from the shot saf to label the output deblended data.
 OBIDNTSHTLIN SHTPT
