@@ -1,0 +1,2 @@
+Library|Project|Attribute|Value|Kind|Description
+eptr_ai|deblend_dev|project_dir|/glb/data/ict1/jobpro/eptr_ai/deblend_dev|string|Project top-level directory

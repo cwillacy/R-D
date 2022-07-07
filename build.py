@@ -7,6 +7,9 @@ Created on Sun Mar 21 10:52:43 2021
 
 import os
 import platform
+import subprocess
+from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtWidgets import QApplication
 
 #------------------------------------------------------------------------------
 #
@@ -15,16 +18,23 @@ import platform
 #------------------------------------------------------------------------------
 def buildmain(self, df, debug, fullpath):
         
+    # start the busy cursor
+    QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+ 
+    self.bar.setValue(0)
+       
     # preserve string on output
     df = df.astype(str)
 
-    # save to csv file
-    df.to_csv(fullpath, index=False)
+    # # save to csv file
+    # df.to_csv(fullpath, index=False)
 
     # build skeletons
     # first create the include file
     buildinclude(self,df)
-    
+ 
+    self.bar.setValue(10)    
+ 
     if debug:
         print(str(df.loc[1,"VALUE"]))
 
@@ -48,6 +58,10 @@ def buildmain(self, df, debug, fullpath):
 
         for skl in tobuild:
             buildskl_single(self,df,skl)
+            mymess = 'skeleton built ->' + skl + '\n'
+            self.textBox_log.insertPlainText(mymess)
+            val = self.bar.value()
+            self.bar.setValue(val+10)
         
     else:
         
@@ -70,11 +84,44 @@ def buildmain(self, df, debug, fullpath):
             tobuild.append('dbl2_deblend.skl') 
 
         for skl in tobuild:
+            mymess = 'skeleton built ->' + skl + '\n'
+            self.textBox_log.insertPlainText(mymess)
             buildskl_multi(self,df,skl)              
     
+    
+    # build the jobpro partitions and add skeletons to jobpro if on Linux
+    if platform.system() == 'Linux':
+
+        revision = df.loc[3,"VALUE"]
+
+        nseg = ((int(df.loc[56,"VALUE"]) - int(df.loc[55,"VALUE"]))) / int(df.loc[64,"VALUE"]) + 1
+        print(nseg)
+        segment_list = []
+        for i in range(int(nseg)):
+            segname = 's' + str(i+1)
+            segment_list.append(segname)
+
+        ident_list = []
+
+
+        if str(df.loc[52,"VALUE"]) != '': 
+            ident_list.append('ident1minval')
+            ident_list.append('ident1inc')
+            ident_list.append('ident1maxval')
+        
+        
+        print('indentlist = ',ident_list)
+        
+        basename = df.loc[63,"VALUE"]
+        
+        build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list)
+   
+    self.bar.setValue(100)   
+    # stop the busy cursor
+    QApplication.restoreOverrideCursor()          
     # print out a completed message
     self.closeout()
-        
+    
     if debug:
         print("we are done") 
         
@@ -245,8 +292,24 @@ def buildinclude(self,df):
      file.write('& character ident3_wiz = ' + '\'' + str(df.loc[54,"VALUE"]) + '\'' + '\n')
      file.write('& integer ident3minval_wiz = ' + str(df.loc[59,"VALUE"]) + '\n')
      file.write('& integer ident3maxval_wiz = ' + str(df.loc[60,"VALUE"]) + '\n')
+     file.write('& integer ident1inc_wiz = ' + str(df.loc[64,"VALUE"]) + '\n')
+     file.write('& integer ident2inc_wiz = ' + str(df.loc[65,"VALUE"]) + '\n')
+     file.write('& integer ident3inc_wiz = ' + str(df.loc[66,"VALUE"]) + '\n')
           
      file.close()
+     
+     # display the simwiz paarmeter file to the log
+     # no we are ready to launch the job to build partitions etc
+     
+     with open(fullpath) as f:
+          for line in f:
+              print(line)
+              self.textBox_log.insertPlainText(line)
+     
+     f.close()
+     
+     self.textBox_log.centerCursor()
+         
      return
  
 #------------------------------------------------------------------------------
@@ -301,9 +364,10 @@ def buildskl_single(self,df,skl):
 &    exec => 'EXEC',                         &
 &    media => {                              &
 &       data_range => ({                     &
-&          mnemon => ident1_wiz,             &
-&          minval => ident1minval_wiz,       &
-&          maxval => ident1maxval_wiz        &
+&          mnemon => 'RECST',                &
+&          minval => $ident1minval,          &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -318,12 +382,14 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &   
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -338,16 +404,19 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       }, {                                 &
 &          mnemon => ident3_wiz,             &
-&          minval => ident3minval_wiz,       &
-&          maxval => ident3maxval_wiz        &
+&          minval => $ident3minval,          &
+&          incr => $ident3inc,               &
+&          maxval => $ident3maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -375,8 +444,9 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => ident1minval_wiz,       &
-&          maxval => ident1maxval_wiz        &
+&          minval => $ident1minval,          &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -390,12 +460,14 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc_wiz,           &
+&          maxval => $ident1maxval_wiz       &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -409,16 +481,19 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       }, {                                 &
 &          mnemon => ident3_wiz,             &
-&          minval => ident3minval_wiz,       &
-&          maxval => ident3maxval_wiz        &
+&          minval => $ident3minval,          &
+&          incr => $ident3inc,               &
+&          maxval => $ident3maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -445,8 +520,9 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => ident1minval_wiz,       &
-&          maxval => ident1maxval_wiz        &
+&          minval => $ident1minval,          &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -460,12 +536,14 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -479,16 +557,19 @@ def buildskl_single(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval_wiz       &
 &       }, {                                 &
 &          mnemon => ident3_wiz,             &
-&          minval => ident3minval_wiz,       &
-&          maxval => ident3maxval_wiz        &
+&          minval => $ident3minval,          &
+&          incr => $ident3inc,               &
+&          maxval => $ident3maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -566,9 +647,10 @@ def buildskl_multi(self,df,skl):
 &    exec => 'EXEC',                         &
 &    media => {                              &
 &       data_range => ({                     &
-&          mnemon => ident1_wiz,             &
-&          minval => ident1minval_wiz,       &
-&          maxval => ident1maxval_wiz        &
+&          mnemon => 'RECST',                &
+&          minval => $ident1minval,          &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -583,12 +665,14 @@ def buildskl_multi(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -603,16 +687,19 @@ def buildskl_multi(self,df,skl):
 &    media => {                              &
 &       data_range => ({                     &
 &          mnemon => ident1_wiz,             &
-&          minval => iden1minval_wiz,        &
-&          maxval => ident1maxval_wiz        &
+&          minval => $iden1minval,           &
+&          incr => $ident1inc,               &
+&          maxval => $ident1maxval           &
 &       }, {                                 &
 &          mnemon => ident2_wiz,             &
-&          minval => ident2minval_wiz,       &
-&          maxval => ident2maxval_wiz        &
+&          minval => $ident2minval,          &
+&          incr => $ident2inc,               &
+&          maxval => $ident2maxval           &
 &       }, {                                 &
 &          mnemon => ident3_wiz,             &
-&          minval => ident3minval_wiz,       &
-&          maxval => ident3maxval_wiz        &
+&          minval => $ident3minval,          &
+&          incr => $ident3inc,               &
+&          maxval => $ident3maxval           &
 &       })                                   &
 &    }                                       &
 & },                                         &
@@ -633,4 +720,122 @@ def buildskl_multi(self,df,skl):
                file.write(line)
     
     file.close()
+    return
+
+#------------------------------------------------------------------------------
+#
+#  build the jobpro partition building script
+#
+#------------------------------------------------------------------------------
+def build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list):
+
+    library = str(df.loc[61,"VALUE"])    
+    project = str(df.loc[62,"VALUE"]) 
+    part1 = basename + '_ad1'
+    part2 = basename + '_ad2'
+        
+    jobset_list = []
+    for job in tobuild:
+        skl = job.split('.')
+        jobset_list.append(skl[0])
+  
+    # check to see if the partitions already exist
+    jpcli_file = r'build/jpcli_check_part.txt'
+     
+    file = open(jpcli_file,'w')
+    
+    # define the add parition
+    file.write('list_partition ' + part1 + ' library ' + library + ' project ' + project + ' outputfile build/jp_part_exist.txt' + '\n')
+    
+    file.close()
+    
+    os.system('jpcli < build/jpcli_check_part.txt')
+    
+    # now check the output to see if part exists or not
+    fullpath = r'build/jp_part_exist.txt'
+    found = 0       
+    with open(fullpath) as f:
+        for line in f:
+            if part1 in line: 
+                found = 1 
+    f.close()              
+    
+    
+    # build the jpcli command list
+    jpcli_file = r'build/my_jpcli.txt'
+ 
+    print(jpcli_file)
+     
+    file = open(jpcli_file,'w')
+       
+    if found == 0:
+    
+        # define the add parition
+        file.write('add_partition ' + part1 + ' library ' + library + ' project ' + project + '\n')
+        file.write('add_partition ' + part2 + ' library ' + library + ' project ' + project + '\n')
+    
+        # define the add jobset
+        count = 0
+        for jobset in jobset_list:
+            if count == 0:
+                file.write('add_jobset ' + jobset + ' revision ' + revision + ' library ' + library + ' project ' + project + ' partition ' + part1 + '\n')
+            else:
+                file.write('add_jobset ' + jobset + ' revision ' + revision + ' library ' + library + ' project ' + project + ' partition ' + part2 + '\n')
+        
+            count = count + 1
+        
+        # define add segments
+        file.write('add_segment s1' + ' library ' + library + ' project ' + project + ' partition ' + part1 + '\n')
+        for segment in segment_list:
+          file.write('add_segment ' + segment + ' library ' + library + ' project ' + project + ' partition ' + part2 + '\n')
+          
+        # define add segment attributes
+        for ident in ident_list:
+            file.write('add_segment_attribute ' + ident + ' library ' + library + ' project ' + project + ' partition ' + part2 + ' default 1' + ' kind integer' + '\n')
+        
+        # update segment attributes with user values
+        ident1minval = int(df.loc[55,"VALUE"])
+        ident1inc = int(df.loc[64,"VALUE"])  
+        ident1maxval = int(df.loc[64,"VALUE"]) 
+                
+        for segment in segment_list:
+            if len(ident_list) == 3:
+                file.write('update_segment_attribute ident1minval' + ' library ' + library + ' project ' + project + ' partition ' + part2 + ' segment ' + segment + ' value ' + str(ident1minval) + '\n')
+                file.write('update_segment_attribute ident1inc' + ' library ' + library + ' project ' + project + ' partition ' + part2 + ' segment ' + segment + ' value ' + str(ident1inc) + '\n')
+                file.write('update_segment_attribute ident1maxval' + ' library ' + library + ' project ' + project + ' partition ' + part2 + ' segment ' + segment + ' value ' + str(ident1minval) + '\n')    
+                ident1minval = ident1minval + ident1inc  
+
+    else:
+        print('Partition already exists, will add to exsiting partition')
+        # define the add jobset
+        count = 0
+        for jobset in jobset_list:
+            if count == 0:
+                file.write('add_jobset ' + jobset + ' revision ' + revision + ' library ' + library + ' project ' + project + ' partition ' + part1 + '\n')
+            else:
+                file.write('add_jobset ' + jobset + ' revision ' + revision + ' library ' + library + ' project ' + project + ' partition ' + part2 + '\n')
+        
+            count = count + 1
+            
+            
+  
+    file.close()  
+
+    mymess = 'starting jpcli execution....' + '\n'
+    self.textBox_log.insertPlainText(mymess)
+    # no we are ready to launch the job to build partitions etc
+    
+    getOutput =  subprocess.Popen("jpcli < build/my_jpcli.txt", shell=True, stdout=subprocess.PIPE).stdout
+    output =  getOutput.read()
+
+    #print("My version is", output.decode())
+
+    self.textBox_log.insertPlainText(output.decode())
+    
+    #os.system('jpcli < build/my_jpcli.txt')
+
+    mymess = 'jpcli execution completed' + '\n'
+    self.textBox_log.insertPlainText(mymess)
+    self.textBox_log.centerCursor()
+     
     return

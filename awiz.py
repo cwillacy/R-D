@@ -13,7 +13,7 @@ import pandas as pd
 import os
 import platform
 import build
-import helpgui
+#import helpgui
 import sidebar
 import page_intro
 import page_setup
@@ -23,6 +23,7 @@ import page_noise
 import page_blend
 import page_deblend
 import page_output
+import page_build
 import sys
 
 #------------------------------------------------------------------------------
@@ -32,8 +33,9 @@ import sys
 #------------------------------------------------------------------------------
 class Ui_Wizard(object):
 
+
     def setupUi(self, Wizard):
-        global df, debug, Dialog, icons, tipstyle, groupstyle, storage
+        global df, debug, Dialog, icons, tipstyle, groupstyle, storage, libproj
         
         # switch on debug mode
         
@@ -43,7 +45,7 @@ class Ui_Wizard(object):
             if sys.argv[1] == '-verbose':
                 debug=True
 
-        icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png']
+        icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png', 'img/system-run.png']
         
         Wizard.setObjectName("Wizard")
 
@@ -54,9 +56,10 @@ class Ui_Wizard(object):
         #Wizard.setWindowIcon(QtGui.QIcon('img/draw-bezier-curves_32x32.png'))
         #Wizard.setWindowIcon(QtGui.QIcon("img/nepomuk_32x32.png"))
         Wizard.setWindowIcon(QtGui.QIcon(icons[0]))
+
  
         # create pandas data frame to hold any user env settings
-        myconfig = {'PARAMETER': ['LABELTEXTSIZE','LABELTEXTCOLOR','WINWIDTH','WINHEIGHT','SIDETEXTSIZE'],'VALUE': ['12','black','850','575','12']}   
+        myconfig = {'PARAMETER': ['LABELTEXTSIZE','LABELTEXTCOLOR','WINWIDTH','WINHEIGHT','SIDETEXTSIZE'],'VALUE': ['14','black','850','775','12']}   
         myenv = pd.DataFrame(myconfig, columns=['PARAMETER','VALUE'])   
          
         # check for env file
@@ -137,8 +140,13 @@ class Ui_Wizard(object):
         #Wizard.setWizardStyle(QtWidgets.QWizard.ModernStyle)
         #Wizard.setWizardStyle(QtWidgets.QWizard.AeroStyle)
                
+        #Wizard.setOptions(QtWidgets.QWizard.CancelButtonOnLeft|QtWidgets.QWizard.HaveHelpButton|QtWidgets.QWizard.NoDefaultButton|QtWidgets.QWizard.HaveCustomButton1)
+      
         Wizard.setOptions(QtWidgets.QWizard.CancelButtonOnLeft|QtWidgets.QWizard.HaveHelpButton|QtWidgets.QWizard.NoDefaultButton)
+      
         
+        Wizard.setWindowFlags(QtCore.Qt.WindowMinimizeButtonHint|QtCore.Qt.WindowCloseButtonHint)  
+      
         # nxt = Wizard.button(QtWidgets.QWizard.NextButton)
         # nxt.clicked.connect(self.providehelp)
         
@@ -154,6 +162,10 @@ class Ui_Wizard(object):
         bck = Wizard.button(QtWidgets.QWizard.BackButton)
         bck.clicked.connect(self.bckpage)
         
+        # bld = Wizard.button(QtWidgets.QWizard.CustomButton1)
+        # bld.setText('Build')
+        # bld.clicked.connect(self.bld)
+        
         done = Wizard.button(QtWidgets.QWizard.FinishButton)
         done.clicked.connect(self.done)
 
@@ -167,11 +179,13 @@ class Ui_Wizard(object):
                                        'NDIP','PMAX','MXBLND','XYWINDOW','TWINDOW','NITERS','NSHOT',
                                        'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME',
                                        'IDENT1','IDENT2','IDENT3','IDENT1MINVAL','IDENT1MAXVAL',
-                                       'IDENT2MINVAL','IDENT2MAXVAL','IDENT3MINVAL','IDENT3MAXVAL'],
+                                       'IDENT2MINVAL','IDENT2MAXVAL','IDENT3MINVAL','IDENT3MAXVAL','JPLIB','JPPROJ',
+                                       'JPPART','IDENT1INC','IDENT2INC', 'IDENT3INC'],
                 'VALUE': ['OBN','Single',0,'000.00','','','','False',0,0,'False',0,'True','False',
-                          '','False','PRE','NDB',0,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
+                          '','False','PRE','NDB',-100,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
-                          'False','','','000.00-simwiz','','','',0,0,0,0,0,0]
+                          'False','','','000.00-simwiz','SHT','','',1,1,0,0,0,0,'','','model',
+                          1,0,0]
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -190,6 +204,43 @@ class Ui_Wizard(object):
 
         if debug:
             print(df)
+            
+        library = []
+        project = []
+        libproj = []    
+        # also need to read in the jobpro projects list is on Linux
+        if platform.system() == 'Linux':
+            # create jobpro projects list
+            os.system('pwd')
+            os.system("jpcli < build/jpcli_projects.txt")
+
+
+            print('Reading Jobpro projects list.....') 
+            fullpath = r'build/projects_list.txt'
+       
+            # first check to see if the file exists
+            if os.path.isfile(fullpath):           
+                # read project list
+                with open(fullpath) as f:
+                    for line in f:
+                        if '|' in line:
+                            # split the line based on a deliminater
+                            x = line.split('|')
+                            library_tmp = x[0]
+                            project.append(x[1])
+                            comb = str(x[0]) + ':' + str(x[1])
+                            libproj.append(comb)
+                            
+                            # only add unique libraries to library list
+                            if not library_tmp in library:                       
+                                library.append(library_tmp)
+
+
+                # remove some items from the lists
+                project.remove('Project')
+                library.remove('Library')
+                libproj.remove('Library:Project')
+                
 
         #----------------------------------------------------------------------
         #  PAGE 1
@@ -214,7 +265,7 @@ class Ui_Wizard(object):
         #----------------------------------------------------------------------
         #  PAGE 5
         #----------------------------------------------------------------------
-        page_noise.PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
+        page_noise.PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle,df)
                       
         #----------------------------------------------------------------------
         #  PAGE 6
@@ -229,16 +280,22 @@ class Ui_Wizard(object):
         #----------------------------------------------------------------------
         #  PAGE 8
         #----------------------------------------------------------------------
-        page_output.PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
-                       
+        page_output.PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle,library,project)
+ 
+        #----------------------------------------------------------------------
+        #  PAGE 9
+        #----------------------------------------------------------------------
+        page_build.PageBuild(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle,library,project)
+                      
         self.pushButton_2.clicked.connect(self.openFileNameDialog_out_dir)
         self.pushButton_3.clicked.connect(self.openFileNameDialog_sps_src)
         self.pushButton_4.clicked.connect(self.openFileNameDialog_sps_rec)
         self.pushButton_5.clicked.connect(self.openFileNameDialog_sps_rel)
         self.pushButton_6.clicked.connect(self.openFileNameDialog_hor_saf)
-               
+        
         QtCore.QMetaObject.connectSlotsByName(Wizard)
-
+        
+       
 
     #----------------------------------------------------------------------
     #  INTERFACE STATE UPDATE
@@ -280,10 +337,8 @@ class Ui_Wizard(object):
         val = df.loc[2,"VALUE"]
         self.lineEdit_shtcod.setText(val)
         #---------------------JOBREV---------------------
-        
         val = df.loc[3,"VALUE"]
         self.lineEdit.setText(str(val))
-        
         #---------------------SPSSRC---------------------
         val = str(df.loc[4,"VALUE"])
         self.lineEdit_5.setText(val)
@@ -529,6 +584,10 @@ class Ui_Wizard(object):
         val = df.loc[56,"VALUE"]
         self.lineEdit_ident1maxval.setText(val)   
         
+        #---------------------IDENT1inc--------------------
+        val = df.loc[64,"VALUE"]
+        self.lineEdit_ident1inc.setText(val)   
+        
         #---------------------IDENT2minval--------------------
         val = df.loc[57,"VALUE"]
         self.lineEdit_ident2minval.setText(val)   
@@ -536,15 +595,35 @@ class Ui_Wizard(object):
         #---------------------IDENT2maxval--------------------
         val = df.loc[58,"VALUE"]
         self.lineEdit_ident2maxval.setText(val)  
+
+        #---------------------IDENT2inc--------------------
+        val = df.loc[65,"VALUE"]
+        self.lineEdit_ident2inc.setText(val)  
         
-        #---------------------IDENT2minval--------------------
+        #---------------------IDENT3minval--------------------
         val = df.loc[59,"VALUE"]
         self.lineEdit_ident3minval.setText(val)   
         
-        #---------------------IDENT2maxval--------------------
+        #---------------------IDENT3maxval--------------------
         val = df.loc[60,"VALUE"]
-        self.lineEdit_ident3maxval.setText(val)   
-            
+        self.lineEdit_ident3maxval.setText(val)  
+
+        #---------------------IDENT3inc--------------------
+        val = df.loc[66,"VALUE"]
+        self.lineEdit_ident3inc.setText(val)  
+        
+        #---------------------JPLIB--------------------
+        val = df.loc[61,"VALUE"]
+        self.comboBox_jl.setCurrentText(val) 
+        
+        #---------------------JPPROJ--------------------
+        val = df.loc[62,"VALUE"]
+        self.comboBox_jp.setCurrentText(val) 
+          
+        #---------------------JPPART--------------------
+        val = df.loc[63,"VALUE"]
+        self.lineEdit_part.setText(val) 
+        
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
     #----------------------------------------------------------------------
@@ -587,7 +666,10 @@ class Ui_Wizard(object):
             df = pd.read_csv(str(file_name[0]),keep_default_na=False,dtype=str)
               
             # make sure to update all interface widgets with the loaded parameters 
-            self.updateInterface()                  
+            self.updateInterface()      
+
+                
+         
                           
     #----------------------------------------------------------------------
     #  SPS SRC DIALOG
@@ -598,6 +680,7 @@ class Ui_Wizard(object):
         self.dialog.setWindowTitle('Open SPS source file')
         self.dialog.setFileMode(QFileDialog.AnyFile)
         self.dialog.setFilter(QDir.Files)
+        self.dialog.setNameFilter("SPS Source (*.s)");
         if self.dialog.exec_():
             file_name = self.dialog.selectedFiles()
             if debug:
@@ -614,6 +697,7 @@ class Ui_Wizard(object):
         self.dialog.setWindowTitle('Open SPS receiver file')
         self.dialog.setFileMode(QFileDialog.AnyFile)
         self.dialog.setFilter(QDir.Files)
+        self.dialog.setNameFilter("SPS Receiver (*.r)");
         if self.dialog.exec_():
             file_name = self.dialog.selectedFiles()
             if debug:
@@ -630,6 +714,7 @@ class Ui_Wizard(object):
         self.dialog.setWindowTitle('Open SPS relational file')
         self.dialog.setFileMode(QFileDialog.AnyFile)
         self.dialog.setFilter(QDir.Files)
+        self.dialog.setNameFilter("SPS Relational (*.x)");
         if self.dialog.exec_():
             file_name = self.dialog.selectedFiles()
             if debug:
@@ -701,7 +786,14 @@ class Ui_Wizard(object):
         if debug:
             print(df)
             
+    def changestate_part(self,text):
+        global df, debug
+        
+        df.loc[df['PARAMETER'] == 'JPPART', 'VALUE'] = text
 
+        if debug:
+            print(df)
+            
     def changestate_mirr(self):
         global debug
         
@@ -745,6 +837,77 @@ class Ui_Wizard(object):
         if debug:
             print(df) 
  
+    def changestate_select_jpprojects(self,text):
+        global df, debug, libproj
+        
+        df.loc[df['PARAMETER'] == 'JPLIB', 'VALUE'] = text
+        projselect = []
+        
+        # search list for projects then add to combobox
+        for element in libproj:
+            x = element.split(':')
+            if x[0] == text: 
+                #df.loc[df['PARAMETER'] == 'JPPROJ', 'VALUE'] = x[1]
+                # update the project combox
+                projselect.append(x[1])
+                
+        self.comboBox_jp.clear()
+        # add the JobPro libraries   
+        for element in projselect:
+            self.comboBox_jp.addItem(element)
+        
+        if debug:
+            print(df)
+
+        
+    def changestate_set_jpproject(self,text):
+        global df, debug, libproj
+        
+        df.loc[df['PARAMETER'] == 'JPPROJ', 'VALUE'] = text
+        
+        # also need to update the skl directory once project is selected
+        # also need to read in the jobpro projects list is on Linux
+        if platform.system() == 'Linux':
+            
+            # create the jpcli command file for retieving the root directory
+            library = str(df.loc[61,"VALUE"])    
+            project = str(df.loc[62,"VALUE"]) 
+            jpcli_file = r'build/jpcli_get_skldir.txt'         
+            file = open(jpcli_file,'w')
+            file.write('list_project_attribute project_dir library ' + library + ' project ' + project + ' outputfile build/jp_skl_dir.txt' + '\n')
+            file.close()    
+            print('Jobpro skl command created.....\n') 
+            os.system('cat build/jpcli_get_skldir.txt')
+            
+            # launch the jpcli command file for the skl dir
+            rcode = os.system('jpcli < build/jpcli_get_skldir.txt')
+            print('get skl dir return code =',rcode)
+                        
+            print('\nReading Jobpro skl directory.....\n\n') 
+            fullpath = r'build/jp_skl_dir.txt'
+       
+            # first check to see if the file exists
+            if os.path.isfile(fullpath):           
+                # read project list
+                with open(fullpath) as f:
+                    for line in f:
+                        if '|' in line:
+                            # split the line based on a deliminater
+                            x = line.split('|')
+                            skldir = x[3] + '/skl'
+                f.close()
+
+            print('Jobpro skl is: ', skldir)
+        
+            # update the skeleton dir parameter and refresh display
+            df.loc[df['PARAMETER'] == 'OUTDIR', 'VALUE'] = skldir
+            self.lineEdit_4.setText(skldir)
+        
+        if debug:
+            print(df)
+
+
+    
     def changestate_checkdbl(self):
         global debug
         
@@ -1112,7 +1275,14 @@ class Ui_Wizard(object):
         df.loc[df['PARAMETER'] == 'IDENT1MAXVAL', 'VALUE'] = text
         if debug:
             print(df) 
-            
+ 
+    def changestate_ident1inc(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT1INC', 'VALUE'] = text
+        if debug:
+            print(df)            
+ 
     def changestate_ident2minval(self,text):
         global df, debug
    
@@ -1124,6 +1294,13 @@ class Ui_Wizard(object):
         global df, debug
    
         df.loc[df['PARAMETER'] == 'IDENT2MAXVAL', 'VALUE'] = text
+        if debug:
+            print(df) 
+
+    def changestate_ident2inc(self,text):
+        global df, debug
+   
+        df.loc[df['PARAMETER'] == 'IDENT2INC', 'VALUE'] = text
         if debug:
             print(df) 
 
@@ -1140,7 +1317,14 @@ class Ui_Wizard(object):
        df.loc[df['PARAMETER'] == 'IDENT3MAXVAL', 'VALUE'] = text
        if debug:
            print(df) 
-            
+ 
+    def changestate_ident3inc(self,text):
+       global df, debug
+  
+       df.loc[df['PARAMETER'] == 'IDENT3INC', 'VALUE'] = text
+       if debug:
+           print(df) 
+ 
     def changestate_ident2(self,text):
         global df, debug
    
@@ -1272,6 +1456,10 @@ class Ui_Wizard(object):
         elif Wizard.currentId() == 8:
             self.pushButton_7s.setIcon(QIcon(icons[2]))
             self.pushButton_8s.setIcon(QIcon(icons[1]))
+        elif Wizard.currentId() == 9:
+            self.pushButton_8s.setIcon(QIcon(icons[2]))
+            self.pushButton_9s.setIcon(QIcon(icons[1]))
+            
 
     #----------------------------------------------------------------------
     #  SIDEBAR BACK BUTTON ACTIONS
@@ -1303,6 +1491,9 @@ class Ui_Wizard(object):
         elif Wizard.currentId() == 7:
             self.pushButton_7s.setIcon(QIcon(icons[1]))
             self.pushButton_8s.setIcon(QIcon(icons[2]))
+        elif Wizard.currentId() == 8:
+            self.pushButton_8s.setIcon(QIcon(icons[1]))
+            self.pushButton_9s.setIcon(QIcon(icons[2]))
 
         
     def changestate_noise(self,text):
@@ -1350,28 +1541,41 @@ class Ui_Wizard(object):
         msg.setDefaultButton(QMessageBox.No)
         return msg.exec()                  
 
+    def checkquitmess(self):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setText("Are you sure you want to quit (y/n)?")
+        msg.setWindowTitle("Wizard Exit")
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        msg.setDefaultButton(QMessageBox.No)
+        return msg.exec()   
+
     #----------------------------------------------------------------------
     #  HELP DIALOG
     #----------------------------------------------------------------------         
     def providehelp(self):
-        global Dialog
+        global debug
+                
+        # launch pdf help manual
+        if platform.system() == 'Windows': 
+            directory_path = os.getcwd()
+            cmd = 'start msedge --new-window ' + '"' + directory_path + '\doc\simwiz_help.pdf' + '"'
+        else:
+            cmd = 'firefox --new-window ' + 'doc/simwiz_help.pdf &'    
+        
+        if (debug):
+            print('launching browser')
+            print(cmd)
 
-        if Dialog is None:
-            # show help window  
-            Dialog = QtWidgets.QDialog()
-            ui = helpgui.Ui_Dialog()
-            ui.setupUi(Dialog)
-            Dialog.setWindowTitle("Help for SimWiz")
-            Dialog.show()
-            Dialog.exec_() 
-            Dialog = None 
+        os.system(cmd)
+      
             
     #----------------------------------------------------------------------
     #  COMPLETION DIALOG
     #----------------------------------------------------------------------  
-    def done(self):
+    def bld(self):
         global df, debug, Dialog
-        
+           
         # save pandas dataframe with wizard parameters
         #filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv"
         
@@ -1408,9 +1612,84 @@ class Ui_Wizard(object):
         else:
             build.buildmain(self,df,debug,fullpath)
             
-        # make sure to close help dialog if one was opened
-        if not Dialog == None:
-            Dialog.close()
+
+    #----------------------------------------------------------------------
+    #  SAVE WIZARD PARAMETERS
+    #----------------------------------------------------------------------  
+    def save(self):
+        global df, debug, Dialog
+           
+        # save pandas dataframe with wizard parameters
+        #filename = str(df.loc[3,"VALUE"]) + "-simwiz.csv"
+        
+        filename = str(df.loc[51,"VALUE"]) + ".csv"
+        
+        # check which os we are on
+        if platform.system() == 'Windows':
+            # check to see if directory exists
+            MYDIR = (r"c:\apps\SimWiz-store\user")
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+   
+            fullpath = os.path.join(MYDIR,filename)
+        else:
+            # check to see if directory exists
+            MYDIR = os.path.expanduser('~/SimWiz-store/user')
+            CHECK_FOLDER = os.path.isdir(MYDIR)
+           
+            if not CHECK_FOLDER:
+                os.makedirs(MYDIR)
+            
+            fullpath = os.path.join(MYDIR,filename)
+       
+        # first check to see if the file exists
+        if os.path.isfile(fullpath):           
+            # print warning message
+            choice = self.checkexistmess()
+
+            if choice == 16384:
+                
+                # then save                
+                # preserve string on output
+                df = df.astype(str)
+                # save to csv file
+                df.to_csv(fullpath, index=False)
+        
+        else:
+            # if new then save
+            # preserve string on output
+            df = df.astype(str)
+            # save to csv file
+            df.to_csv(fullpath, index=False)
+            # display message that the parameters have been saved
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("The wizard parameters have been saved")
+            msg.setWindowTitle("Saved")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+
+        
+    #----------------------------------------------------------------------
+    #  COMPLETION DIALOG
+    #----------------------------------------------------------------------  
+    def done(self):
+        global df, debug, Dialog
+   
+        # save all parameters on exit
+        self.save()
+    
+        # choice = self.checkquitmess()
+            
+        # if choice == 16384:
+        # # make sure to close help dialog if one was opened
+        # if not Dialog == None:
+        #     Dialog.close()
+
+   
+       
  
 #------------------------------------------------------------------------------
 #  MAIN

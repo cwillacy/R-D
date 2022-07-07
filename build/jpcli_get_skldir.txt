@@ -1,0 +1,1 @@
+list_project_attribute project_dir library eptr_ai project deblend_dev outputfile build/jp_skl_dir.txt

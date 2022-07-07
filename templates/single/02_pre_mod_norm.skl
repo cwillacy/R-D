@@ -170,7 +170,7 @@ INFO
 & )
 INFO
 SQMANI
-SQEXPR SHT = SHTST;
+SQEXPR SHT = RECST;
 INFO
 INFO  add real node depths?
 INFO

@@ -10,8 +10,8 @@ from PyQt5.QtGui import QIcon
 #----------------------------------------------------------------------
 #  GEOMETRY PAGE
 #----------------------------------------------------------------------
-def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle):   
-
+def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle,df):   
+    
     self.wizardPage5 = QtWidgets.QWizardPage()
     self.wizardPage5.setObjectName("wizardPage5")      
     self.wizardPage5.setTitle("Post-Modelling Wavelet & Noise Model")
@@ -185,7 +185,9 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle):
     self.lineEdit_faclev.setObjectName("lineEdit_faclev")               
     self.horizontalLayout_5b.addWidget(self.lineEdit_faclev)
     self.lineEdit_faclev.setToolTip("noise level depending on the selection of the noise mode, i.e. signal to noise ratio or fixed level.")
-    self.lineEdit_faclev.setStyleSheet(tipstyle)   
+    self.lineEdit_faclev.setStyleSheet(tipstyle) 
+    val = df.loc[18,"VALUE"]
+    self.lineEdit_faclev.setText(str(val))
     self.lineEdit_faclev.textChanged[str].connect(self.changestate_faclev) 
     self.lineEdit_faclev.setDisabled(True)
     spacerItem_faclev = QtWidgets.QSpacerItem(200, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
