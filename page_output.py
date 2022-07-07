@@ -4,33 +4,117 @@ Created on Tue Mar 30 13:29:37 2021
 
 @author: Christopher.Willacy
 """
+import platform
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QIcon
 
 #----------------------------------------------------------------------
 #   OUTPUT OPTIONS
 #----------------------------------------------------------------------
-def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle): 
+def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle,library,project): 
     
     self.wizardPage8 = QtWidgets.QWizardPage()
     self.wizardPage8.setObjectName("wizardPage8")
     self.wizardPage8.setTitle("Output Options")
     self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.wizardPage8)
     self.verticalLayout_7.setObjectName("verticalLayout_7")
+    
     self.groupBox_6 = QtWidgets.QGroupBox(self.wizardPage8)
-    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-    sizePolicy.setHorizontalStretch(0)
-    sizePolicy.setVerticalStretch(0)
-    sizePolicy.setHeightForWidth(self.groupBox_6.sizePolicy().hasHeightForWidth())
-    self.groupBox_6.setSizePolicy(sizePolicy)
     font = QtGui.QFont()
     font.setPointSize(12)
     self.groupBox_6.setFont(font)
     self.groupBox_6.setStyleSheet(groupstyle)
     self.groupBox_6.setObjectName("groupBox_6")
-    self.groupBox_6.setTitle("Location")
+    self.groupBox_6.setTitle("JobPro Project")
     self.verticalLayout_8 = QtWidgets.QVBoxLayout(self.groupBox_6)
-    self.verticalLayout_8.setObjectName("verticalLayout_8")
+    self.verticalLayout_8.setObjectName("verticalLayout_8")  
+    self.horizontalLayout_jp = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_jp.setObjectName("horizontalLayout_jp")
+    self.label_jl = QtWidgets.QLabel(self.groupBox_6)
+    self.label_jl.setObjectName("label_jl")
+    self.label_jl.setStyleSheet(labelstyle)
+    self.label_jl.setText("JobPro Library:")       
+    self.horizontalLayout_jp.addWidget(self.label_jl)
+
+    self.comboBox_jl = QtWidgets.QComboBox(self.groupBox_6)
+    self.comboBox_jl.setCurrentText("")
+    self.comboBox_jl.setObjectName("comboBox_jl")
+    self.comboBox_jl.setFixedWidth(250)
+    self.horizontalLayout_jp.addWidget(self.comboBox_jl)
+    spacerItem_jllab = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+    self.horizontalLayout_jp.addItem(spacerItem_jllab)
+    
+    self.comboBox_jl.addItem('')
+    # add the JobPro libraries   
+    for element in library:
+        self.comboBox_jl.addItem(element)
+
+    mylib = df.loc[df['PARAMETER'] == 'JPLIB', 'VALUE']
+    
+    self.comboBox_jl.setCurrentText('')
+    #self.comboBox_jl.setCurrentText(str(mylib))
+    self.comboBox_jl.setToolTip("select JobPro library")
+    self.comboBox_jl.setStyleSheet(tipstyle)
+    self.comboBox_jl.activated[str].connect(self.changestate_select_jpprojects)
+
+    self.horizontalLayout_jp2 = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_jp2.setObjectName("horizontalLayout_jp2")
+    self.label_jp = QtWidgets.QLabel(self.groupBox_6)
+    self.label_jp.setObjectName("label_jl")
+    self.label_jp.setStyleSheet(labelstyle)
+    self.label_jp.setText("JobPro Project:")      
+    self.horizontalLayout_jp2.addWidget(self.label_jp)
+    spacerItem_jp = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+
+    
+    self.comboBox_jp = QtWidgets.QComboBox(self.groupBox_6)
+    self.comboBox_jp.setObjectName("comboBox_jp")
+    self.comboBox_jp.setFixedWidth(250)
+
+    self.horizontalLayout_jp2.addWidget(self.comboBox_jp)
+    self.horizontalLayout_jp2.addItem(spacerItem_jp)
+        
+    self.comboBox_jp.addItem('')
+        
+    # add the JobPro libraries   
+    for element in project:
+        self.comboBox_jp.addItem(element)
+
+    self.comboBox_jp.setCurrentText('')
+
+    self.comboBox_jp.setToolTip("select JobPro project")
+    self.comboBox_jp.setStyleSheet(tipstyle)
+    self.comboBox_jp.activated[str].connect(self.changestate_set_jpproject)
+    
+    #----------
+    self.horizontalLayout_part = QtWidgets.QHBoxLayout()
+    self.horizontalLayout_part.setObjectName("horizontalLayout_part")
+    self.label_part = QtWidgets.QLabel(self.groupBox_6)
+    self.label_part.setObjectName("label_part")
+    self.label_part.setStyleSheet(labelstyle)
+    self.label_part.setText("JobPro Partition:")  
+    #self.label_part.setFixedWidth(200)      
+    self.horizontalLayout_part.addWidget(self.label_part)
+    self.lineEdit_part = QtWidgets.QLineEdit(self.groupBox_6)
+    self.lineEdit_part.setObjectName("lineEdit_part")
+    self.lineEdit_part.setToolTip("partition basename to be used for creating partitions")
+    self.lineEdit_part.setStyleSheet(tipstyle)
+    val = df.loc[63,"VALUE"]
+    self.lineEdit_part.setText(str(val))
+    self.lineEdit_part.setMaximumSize(QtCore.QSize(250, 16777215))
+    self.lineEdit_part.setBaseSize(QtCore.QSize(0, 0))
+    
+    if platform.system() == 'Linux': 
+        self.lineEdit_part.setDisabled(False)
+    else:
+        self.lineEdit_part.setDisabled(True)
+    
+    spacerItem_part = QtWidgets.QSpacerItem(100, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+    self.lineEdit_part.textChanged[str].connect(self.changestate_part)
+    self.horizontalLayout_part.addWidget(self.lineEdit_part)
+    self.horizontalLayout_part.addItem(spacerItem_part)
+    #----------
+        
     self.horizontalLayout_6 = QtWidgets.QHBoxLayout()
     self.horizontalLayout_6.setObjectName("horizontalLayout_6")
     self.label_7 = QtWidgets.QLabel(self.groupBox_6)
@@ -41,14 +125,22 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.horizontalLayout_6.addWidget(self.label_7)
     self.lineEdit_4 = QtWidgets.QLineEdit(self.groupBox_6)
     self.lineEdit_4.setObjectName("lineEdit_4")
+    
     self.horizontalLayout_6.addWidget(self.lineEdit_4)
     self.pushButton_2 = QtWidgets.QPushButton(self.groupBox_6)
     self.pushButton_2.setObjectName("pushButton_2")
     self.pushButton_2.setStyleSheet("border: none")
     self.pushButton_2.setIcon(QIcon(icons[3]))
     self.horizontalLayout_6.addWidget(self.pushButton_2)
+    
+    self.verticalLayout_8.addLayout(self.horizontalLayout_jp)
+    self.verticalLayout_8.addLayout(self.horizontalLayout_jp2)
+    self.verticalLayout_8.addLayout(self.horizontalLayout_part)
     self.verticalLayout_8.addLayout(self.horizontalLayout_6)
-        
+    
+    
+    #----------
+    
     self.lineEdit_4.setToolTip("output directory where the skeletons will be written")
     self.lineEdit_4.setStyleSheet(tipstyle) 
     self.lineEdit_4.setText('')
@@ -97,6 +189,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.label_18.setStyleSheet(labelstyle)
     self.label_18.setText("Geometry displays?")      
     self.horizontalLayout_17.addWidget(self.label_18)
+    
     self.checkBox_6 = QtWidgets.QCheckBox(self.groupBox_8)
     self.checkBox_6.setText("")
     self.checkBox_6.setChecked(False)
@@ -285,6 +378,24 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident1maxval.setStyleSheet(tipstyle) 
     self.lineEdit_ident1maxval.textChanged[str].connect(self.changestate_ident1maxval)
     
+    # ident1 inc
+    self.lineEdit_ident1inc = QtWidgets.QLineEdit(self.groupBox_range)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
+    self.lineEdit_ident1inc.setSizePolicy(sizePolicy)
+    self.lineEdit_ident1inc.setMaximumSize(QtCore.QSize(75, 16777215))
+    self.lineEdit_ident1inc.setBaseSize(QtCore.QSize(0, 0))
+    self.lineEdit_ident1inc.setObjectName("lineEdit_ident1inc")
+    self.lineEdit_ident1inc.setMaxLength(8)
+    val = df.loc[64,"VALUE"]
+    self.lineEdit_ident1inc.setText(str(val))
+    self.horizontalLayout_23.addWidget(self.lineEdit_ident1inc)
+    self.lineEdit_ident1inc.setToolTip("increment value for ident1")
+    self.lineEdit_ident1inc.setStyleSheet(tipstyle) 
+    self.lineEdit_ident1inc.textChanged[str].connect(self.changestate_ident1inc)
+    
     self.verticalLayout_12.addLayout(self.horizontalLayout_23)
     spacerItem_ident1 = QtWidgets.QSpacerItem(235, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
     self.horizontalLayout_23.addItem(spacerItem_ident1)
@@ -313,6 +424,9 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.horizontalLayout_24.addWidget(self.lineEdit_ident2)
     self.lineEdit_ident2.setToolTip("secondary ident to use for skeleton input ranging")
     self.lineEdit_ident2.setStyleSheet(tipstyle) 
+    
+    self.lineEdit_ident2.setDisabled(True)
+    
     self.lineEdit_ident2.textChanged[str].connect(self.changestate_ident2)
     
     
@@ -329,6 +443,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident2minval.setMaxLength(8)
     val = df.loc[57,"VALUE"]
     self.lineEdit_ident2minval.setText(str(val))
+    self.lineEdit_ident2minval.setDisabled(True)
     self.horizontalLayout_24.addWidget(self.lineEdit_ident2minval)
     self.lineEdit_ident2minval.setToolTip("minimum value for ident2")
     self.lineEdit_ident2minval.setStyleSheet(tipstyle) 
@@ -347,11 +462,30 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident2maxval.setMaxLength(8)
     val = df.loc[58,"VALUE"]
     self.lineEdit_ident2maxval.setText(str(val))
+    self.lineEdit_ident2maxval.setDisabled(True)
     self.horizontalLayout_24.addWidget(self.lineEdit_ident2maxval)
     self.lineEdit_ident2maxval.setToolTip("maximum value for ident2")
     self.lineEdit_ident2maxval.setStyleSheet(tipstyle) 
     self.lineEdit_ident2maxval.textChanged[str].connect(self.changestate_ident2maxval)
     
+    # ident2 inc
+    self.lineEdit_ident2inc = QtWidgets.QLineEdit(self.groupBox_range)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
+    self.lineEdit_ident2inc.setSizePolicy(sizePolicy)
+    self.lineEdit_ident2inc.setMaximumSize(QtCore.QSize(75, 16777215))
+    self.lineEdit_ident2inc.setBaseSize(QtCore.QSize(0, 0))
+    self.lineEdit_ident2inc.setObjectName("lineEdit_ident2inc")
+    self.lineEdit_ident2inc.setMaxLength(8)
+    val = df.loc[65,"VALUE"]
+    self.lineEdit_ident2inc.setText(str(val))
+    self.lineEdit_ident2inc.setDisabled(True)
+    self.horizontalLayout_24.addWidget(self.lineEdit_ident2inc)
+    self.lineEdit_ident2inc.setToolTip("increment value for ident2")
+    self.lineEdit_ident2inc.setStyleSheet(tipstyle) 
+    self.lineEdit_ident2inc.textChanged[str].connect(self.changestate_ident2inc)
     
     spacerItem_ident2 = QtWidgets.QSpacerItem(235, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
     self.horizontalLayout_24.addItem(spacerItem_ident2)
@@ -379,6 +513,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident3.setMaxLength(6)
     val = df.loc[54,"VALUE"]
     self.lineEdit_ident3.setText(str(val))
+    self.lineEdit_ident3.setDisabled(True)
     self.horizontalLayout_25.addWidget(self.lineEdit_ident3)
     self.lineEdit_ident3.setToolTip("tertiary ident to use for skeleton input ranging")
     self.lineEdit_ident3.setStyleSheet(tipstyle) 
@@ -397,6 +532,7 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident3minval.setMaxLength(8)
     val = df.loc[59,"VALUE"]
     self.lineEdit_ident3minval.setText(str(val))
+    self.lineEdit_ident3minval.setDisabled(True)
     self.horizontalLayout_25.addWidget(self.lineEdit_ident3minval)
     self.lineEdit_ident3minval.setToolTip("minimum value for ident3")
     self.lineEdit_ident3minval.setStyleSheet(tipstyle) 
@@ -415,12 +551,31 @@ def PageOutput(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_ident3maxval.setMaxLength(8)
     val = df.loc[60,"VALUE"]
     self.lineEdit_ident3maxval.setText(str(val))
+    self.lineEdit_ident3maxval.setDisabled(True)
     self.horizontalLayout_25.addWidget(self.lineEdit_ident3maxval)
     self.lineEdit_ident3maxval.setToolTip("maximum value for ident3")
     self.lineEdit_ident3maxval.setStyleSheet(tipstyle) 
     self.lineEdit_ident3maxval.textChanged[str].connect(self.changestate_ident3maxval)   
     
-        
+    # ident3 inc
+    self.lineEdit_ident3inc = QtWidgets.QLineEdit(self.groupBox_range)
+    sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+    sizePolicy.setHorizontalStretch(0)
+    sizePolicy.setVerticalStretch(0)
+    sizePolicy.setHeightForWidth(self.lineEdit.sizePolicy().hasHeightForWidth())
+    self.lineEdit_ident3inc.setSizePolicy(sizePolicy)
+    self.lineEdit_ident3inc.setMaximumSize(QtCore.QSize(75, 16777215))
+    self.lineEdit_ident3inc.setBaseSize(QtCore.QSize(0, 0))
+    self.lineEdit_ident3inc.setObjectName("lineEdit_ident3inc")
+    self.lineEdit_ident3inc.setMaxLength(8)
+    val = df.loc[66,"VALUE"]
+    self.lineEdit_ident3inc.setText(str(val))
+    self.lineEdit_ident3inc.setDisabled(True)
+    self.horizontalLayout_25.addWidget(self.lineEdit_ident3inc)
+    self.lineEdit_ident3inc.setToolTip("increment value for ident3")
+    self.lineEdit_ident3inc.setStyleSheet(tipstyle) 
+    self.lineEdit_ident3inc.textChanged[str].connect(self.changestate_ident3inc)  
+    
     spacerItem_ident3 = QtWidgets.QSpacerItem(235, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)        
     self.horizontalLayout_25.addItem(spacerItem_ident3)
   
