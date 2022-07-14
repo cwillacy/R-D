@@ -8,7 +8,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtCore import QDir
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QTextCursor
 import pandas as pd
 import os
 import platform
@@ -1026,9 +1026,26 @@ class Ui_Wizard(object):
      
         
     def changestate_desc(self):
-        global df, debug
-   
+        global df, debug 
+      
         textboxValue = self.textBox.toPlainText() 
+   
+        lastval = textboxValue[-1] 
+   
+        if lastval == '\'':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Sorry, you can't use single quotes in the text description.")
+            msg.setWindowTitle("Invalid Entry")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            # remove the last value
+            newstring = textboxValue.rstrip(textboxValue[-1])
+            textboxValue = newstring
+            self.textBox.setPlainText(textboxValue)
+            # have to move cursor back to end as by default it is at the beginning of the text
+            self.textBox.moveCursor(QTextCursor.End)
+            
    
         df.loc[df['PARAMETER'] == 'DESC', 'VALUE'] = textboxValue
         if debug:
