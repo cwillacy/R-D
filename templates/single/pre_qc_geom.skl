@@ -42,7 +42,7 @@
 & include 	'global_parameter_declaration'
 & include 	#######
 &!
-& character 	POOL = 'ird_ict1'
+& character 	POOL = pool_wiz
 &!
 &!==============================================================================
 &! SIPMAP dependencies:

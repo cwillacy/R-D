@@ -95,7 +95,7 @@ def buildmain(self, df, debug, fullpath):
         revision = df.loc[3,"VALUE"]
 
         nseg = ((int(df.loc[56,"VALUE"]) - int(df.loc[55,"VALUE"]))) / int(df.loc[64,"VALUE"]) + 1
-        print(nseg)
+        
         segment_list = []
         for i in range(int(nseg)):
             segname = 's' + str(i+1)
@@ -109,12 +109,12 @@ def buildmain(self, df, debug, fullpath):
             ident_list.append('ident1inc')
             ident_list.append('ident1maxval')
         
-        
-        print('indentlist = ',ident_list)
+        if debug:
+            print('indentlist = ',ident_list)
         
         basename = df.loc[63,"VALUE"]
         
-        build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list)
+        build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list,debug)
    
     self.bar.setValue(100)   
     # stop the busy cursor
@@ -171,8 +171,13 @@ def buildinclude(self,df):
      file.write('& integer srtall_wiz = ' + str(df.loc[33,"VALUE"]) + '\n')
      boolval = str(df.loc[7,"VALUE"])
      file.write('& boolean xyshift_wiz = ' + boolval.lower() + '\n')
-     file.write('& integer x0_wiz = ' + str(df.loc[8,"VALUE"]) + '\n')
-     file.write('& integer y0_wiz = ' + str(df.loc[9,"VALUE"]) + '\n')                     
+     
+     # make sure these are saved as a float
+     x0 = float(df.loc[8,"VALUE"])
+     y0 = float(df.loc[9,"VALUE"])
+     
+     file.write('& real x0_wiz = ' + str(x0) + '\n')
+     file.write('& real y0_wiz = ' + str(y0) + '\n')                     
      file.write('& character safsrc_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-sps_s' + '\'' + '\n')               
      file.write('& character safrec_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-sps_r' + '\'' + '\n')
      file.write('& character safrel_wiz = ' + '\'' + str(df.loc[3,"VALUE"]) + '-sps_x' + '\'' + '\n')
@@ -303,7 +308,6 @@ def buildinclude(self,df):
      
      with open(fullpath) as f:
           for line in f:
-              print(line)
               self.textBox_log.insertPlainText(line)
      
      f.close()
@@ -727,7 +731,7 @@ def buildskl_multi(self,df,skl):
 #  build the jobpro partition building script
 #
 #------------------------------------------------------------------------------
-def build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list):
+def build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list,debug):
 
     library = str(df.loc[61,"VALUE"])    
     project = str(df.loc[62,"VALUE"]) 
@@ -763,9 +767,7 @@ def build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list):
     
     # build the jpcli command list
     jpcli_file = r'build/my_jpcli.txt'
- 
-    print(jpcli_file)
-     
+   
     file = open(jpcli_file,'w')
        
     if found == 0:
@@ -806,7 +808,8 @@ def build_jpcli(self,df,basename,tobuild,revision,segment_list,ident_list):
                 ident1minval = ident1minval + ident1inc  
 
     else:
-        print('Partition already exists, will add to exsiting partition')
+        if debug:
+            print('Partition already exists, will add to exsiting partition')
         # define the add jobset
         count = 0
         for jobset in jobset_list:

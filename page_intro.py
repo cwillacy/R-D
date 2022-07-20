@@ -52,6 +52,11 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle,labelstyle,lineeditstyle):
     self.label.setStyleSheet(welcomestyle)
     self.label.setWordWrap(True)                                                                   
     self.label.setText("Welcome to SimWiz")
+    
+    # self.label.setText("<html><head/><body><p><span style=\" font-size:12pt; color:#0000ff;\">Welcome to SimWiz</span></<br/></p><p><span style=\" color:#000000;\">This wizard performs \
+    #                        the following functions:</span></p><p>- Generates deblending skeletons \
+    #                                </p><p>- Provides segment optimization</p></p><p>- Provides data QC</body></html>")
+    
     #self.label.setFixedWidth(155)               
     self.label.setAlignment(Qt.AlignTop)
     self.verticalLayout_lside.addWidget(self.label)  

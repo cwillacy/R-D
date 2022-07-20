@@ -36,9 +36,9 @@ def PageBuild(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle,library,projec
      
     self.pushButton_build = QtWidgets.QPushButton(self.groupBox_builds)
     self.pushButton_build.setObjectName("pushButton_build")
-    self.pushButton_build.setStyleSheet("border: none \
-                                        min-width: 100px \
-                                        min-height: 100px")
+    # self.pushButton_build.setStyleSheet("border: none \
+    #                                     min-width: 100px \
+    #                                     min-height: 100px")
 
     
     self.pushButton_build.setDisabled(False)

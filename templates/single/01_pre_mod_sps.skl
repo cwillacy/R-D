@@ -82,8 +82,8 @@ export IMAGE_DIR=#1
 &! 	- if yes, then set x0 and y0 to non-zero values to shift the data.
 &!
 & boolean 	xyshift			= xyshift_wiz 		! boolean switch to apply coordinate shift   
-& integer 	x0 			= x0_wiz  		! X value to shift by 
-& integer 	y0 			= y0_wiz		! Y value to shift by
+& real 	x0 			= x0_wiz  		! X value to shift by 
+& real 	y0 			= y0_wiz		! Y value to shift by
 &!-------------------
 &!  PARAMETER SUMMARY
 &!-------------------
@@ -136,10 +136,10 @@ INFO  shift origin ?
 INFO
 & if (xyshift) then
 SQMANI
-& sub(#1,i0) x0
-SQEXPR XSHT = XSHT + #1.; 
-& sub(#1,i0) y0
-SQEXPR YSHT = YSHT + #1.;
+& sub(#1,f0) x0
+SQEXPR XSHT = XSHT + #1; 
+& sub(#1,f0) y0
+SQEXPR YSHT = YSHT + #1;
 & endif
 INFO
 SRTALLSHTLIN SHTPT                     100 MEMMB
@@ -168,10 +168,10 @@ INFO  shift origin ?
 INFO
 & if xyshift then
 SQMANI
-& sub(#1,i0) x0
-SQEXPR XREC = XREC + #1.;
-& sub(#1,i0) y0 
-SQEXPR YREC = YREC + #1.; 
+& sub(#1,f0) x0
+SQEXPR XREC = XREC + #1;
+& sub(#1,f0) y0 
+SQEXPR YREC = YREC + #1; 
 & endif
 INFO
 & call io:sqsaf_out(sqsaf => {                                        &

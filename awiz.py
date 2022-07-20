@@ -6,7 +6,7 @@
 # Author: C. Willacy, 2021
 #
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QApplication
 from PyQt5.QtCore import QDir
 from PyQt5.QtGui import QIcon, QTextCursor
 import pandas as pd
@@ -40,10 +40,13 @@ class Ui_Wizard(object):
         # switch on debug mode
         
         debug=False
-        
+
         if len(sys.argv) == 2 :
+            
             if sys.argv[1] == '-verbose':
                 debug=True
+            else:
+                debug=False
 
         icons = ['img/tools-wizard_32x32.png', 'img/arrowr-black.png', 'img/blank.png', 'img/document-open-folder.png', 'img/system-run.png']
         
@@ -57,11 +60,11 @@ class Ui_Wizard(object):
         #Wizard.setWindowIcon(QtGui.QIcon("img/nepomuk_32x32.png"))
         Wizard.setWindowIcon(QtGui.QIcon(icons[0]))
 
- 
+
         # create pandas data frame to hold any user env settings
         myconfig = {'PARAMETER': ['LABELTEXTSIZE','LABELTEXTCOLOR','WINWIDTH','WINHEIGHT','SIDETEXTSIZE'],'VALUE': ['14','black','850','775','12']}   
         myenv = pd.DataFrame(myconfig, columns=['PARAMETER','VALUE'])   
-         
+
         # check for env file
       
         if platform.system() == 'Windows':
@@ -191,17 +194,35 @@ class Ui_Wizard(object):
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
 
 
-        storage = ["ird_ict1","sgsjpdata1","sgsjpdata2","sgsjpdata3","copydata","eptnmx","eptnobackup","eptram11scr_dyna", \
-               "eptram11scratch","eptram12scratch","eptram13scratch","eptram14scratch","eptram15scratch","eptram16scratch", \
-                   "eptram17scratch","eptram19scratch","eptram4scratch","eptram6scratch","eptram8scratch","epw0034_a5_3590h", \
-                       "epw0034_a5_3592b3","epw_scr_3592b3","epw_tc_v3590h","epwjpdata1","epwreg5scratch","hou_hsm_ua",\
-                           "hou_scr_gsp","hou_ua_usc_export","hou_vdisk_gsp","hou_vdisk_ua","hou_vt_ept","hou_vt_gsp",\
-                               "hou_vt_train","hou_vt_ua","hougdc_vt_ept","ird_ict1_dyna","sasnobackup","sgs_trd_3590b",\
-                                   "sgs_trd_3590e","sgs_trd_3590h","sgs_trd_3592a2","sgs_trd_3592a3","sgs_trd_3592b2",\
-                                       "sgs_trd_3592b3","sgsgdc_tc_v3590h"]
+        # load the storage pools list
+        storage = []
+        if debug:
+            print('Reading data pool list.....') 
+        
+        if platform.system() == 'Linux':
+            fullpath = r'build/pool_list.txt'     
+            # first check to see if the file exists
+            if os.path.isfile(fullpath):           
+                # read project list
+                with open(fullpath) as f:
+                    for line in f:
+                        storage.append(line.strip())
+                        
+        else:
+            cwd = os.getcwd()
+            file = (r'build\pool_list.txt')        
+            fullpath = os.path.join(cwd,file)
 
+            # first check to see if the file exists
+            if os.path.isfile(fullpath):      
+                # read project list
+                with open(fullpath) as f:
+                    for line in f:
+                        storage.append(line.strip())
+                        
+                        
         storage.sort()  
-
+    
         if debug:
             print(df)
             
@@ -214,8 +235,9 @@ class Ui_Wizard(object):
             os.system('pwd')
             os.system("jpcli < build/jpcli_projects.txt")
 
-
-            print('Reading Jobpro projects list.....') 
+            if debug:
+                print('Reading Jobpro projects list.....') 
+                
             fullpath = r'build/projects_list.txt'
        
             # first check to see if the file exists
@@ -295,7 +317,6 @@ class Ui_Wizard(object):
         
         QtCore.QMetaObject.connectSlotsByName(Wizard)
         
-       
 
     #----------------------------------------------------------------------
     #  INTERFACE STATE UPDATE
@@ -876,14 +897,16 @@ class Ui_Wizard(object):
             file = open(jpcli_file,'w')
             file.write('list_project_attribute project_dir library ' + library + ' project ' + project + ' outputfile build/jp_skl_dir.txt' + '\n')
             file.close()    
-            print('Jobpro skl command created.....\n') 
+            if debug:
+                print('Jobpro skl command created.....\n') 
             os.system('cat build/jpcli_get_skldir.txt')
             
             # launch the jpcli command file for the skl dir
             rcode = os.system('jpcli < build/jpcli_get_skldir.txt')
-            print('get skl dir return code =',rcode)
-                        
-            print('\nReading Jobpro skl directory.....\n\n') 
+            if debug:
+                print('get skl dir return code =',rcode)
+                print('\nReading Jobpro skl directory.....\n\n') 
+                
             fullpath = r'build/jp_skl_dir.txt'
        
             # first check to see if the file exists
@@ -897,7 +920,8 @@ class Ui_Wizard(object):
                             skldir = x[3] + '/skl'
                 f.close()
 
-            print('Jobpro skl is: ', skldir)
+            if debug:
+                print('Jobpro skl is: ', skldir)
         
             # update the skeleton dir parameter and refresh display
             df.loc[df['PARAMETER'] == 'OUTDIR', 'VALUE'] = skldir
@@ -1030,7 +1054,10 @@ class Ui_Wizard(object):
       
         textboxValue = self.textBox.toPlainText() 
    
-        lastval = textboxValue[-1] 
+        if len(textboxValue) == 0:
+            lastval = ''
+        else:
+            lastval = textboxValue[-1] 
    
         if lastval == '\'':
             msg = QMessageBox()
@@ -1170,22 +1197,19 @@ class Ui_Wizard(object):
         global df, debug
    
         text = self.lineEdit_tmax.text()
-        print(text)
+        if debug:
+            print(text)
    
         df.loc[df['PARAMETER'] == 'TMAX', 'VALUE'] = text
                  
         # # check for zero trace length
-        if float(text.translate({0x2c: '.', 0xa0: None, 0x2212: '-'})) <= 0:
-             print('error')
-             
+        if float(text.translate({0x2c: '.', 0xa0: None, 0x2212: '-'})) <= 0:             
              msg = QMessageBox()
              msg.setIcon(QMessageBox.Critical)
              msg.setText("The trace length cannot be zero or negative!")
              msg.setWindowTitle("Invalid Entry")
              msg.setStandardButtons(QMessageBox.Ok)
              msg.exec()
-        else:
-             print('ok')
                
         if debug:
             print(df)      
@@ -1428,17 +1452,17 @@ class Ui_Wizard(object):
             
     def nextId(self):
         
-        print('nextId')
+        #print('nextId')
         
         if self.pushButton_1s.clicked:
             val = 3       
-            print ('pushed',val)
+            #print ('pushed',val)
         elif self.pushButton_2s.clicked:
             val = 4       
-            print ('pushed',val)
+            #print ('pushed',val)
         else:
             val =  Wizard.currentId() + 1
-            print (val)
+            #print (val)
 
         return val
 
@@ -1624,8 +1648,7 @@ class Ui_Wizard(object):
             choice = self.checkexistmess()
             if choice == 16384:
                 build.buildmain(self,df,debug,fullpath)
-            else:
-                print('just quit')          
+         
         else:
             build.buildmain(self,df,debug,fullpath)
             
@@ -1671,6 +1694,9 @@ class Ui_Wizard(object):
                 # then save                
                 # preserve string on output
                 df = df.astype(str)
+                # make sure save these two params as float
+                df.loc[8,"VALUE"] = float(df.loc[8,"VALUE"])
+                df.loc[9,"VALUE"] = float(df.loc[9,"VALUE"])
                 # save to csv file
                 df.to_csv(fullpath, index=False)
         
@@ -1722,7 +1748,8 @@ if __name__ == "__main__":
     Wizard = QtWidgets.QWizard()
     ui = Ui_Wizard()
     ui.setupUi(Wizard)
+    QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
     Wizard.show()
-
+    
     sys.exit(app.exec_())
 
