@@ -14,7 +14,7 @@ def PageGeom(self,Wizard,icons,tipstyle,groupstyle,labelstyle):
 
     self.wizardPage4 = QtWidgets.QWizardPage()
     self.wizardPage4.setObjectName("wizardPage4")
-    self.wizardPage4.setTitle("Geometry Build")
+    self.wizardPage4.setTitle("Geometry Assignment")
     self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.wizardPage4)
     self.verticalLayout_5.setObjectName("verticalLayout_5")
     self.groupBox_5 = QtWidgets.QGroupBox(self.wizardPage4)

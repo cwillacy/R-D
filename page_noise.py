@@ -14,7 +14,7 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle,df):
     
     self.wizardPage5 = QtWidgets.QWizardPage()
     self.wizardPage5.setObjectName("wizardPage5")      
-    self.wizardPage5.setTitle("Post-Modelling Wavelet & Noise Model")
+    self.wizardPage5.setTitle("Trace Pre-Conditioning")
     self.verticalLayout_5b = QtWidgets.QGridLayout(self.wizardPage5)
     self.verticalLayout_5b.setObjectName("verticalLayout_5b")   
     
@@ -304,5 +304,4 @@ def PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle,df):
     self.verticalLayout_6b.addLayout(self.horizontalLayout_5f)     
     self.verticalLayout_5b.addWidget(self.groupBox_5b)   
     
-    #Wizard.addPage(self.wizardPage5)
-    Wizard.setPage(5,self.wizardPage5)
+    Wizard.setPage(6,self.wizardPage5)

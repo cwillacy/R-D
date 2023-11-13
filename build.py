@@ -300,7 +300,7 @@ def buildinclude(self,df):
      file.write('& integer ident1inc_wiz = ' + str(df.loc[64,"VALUE"]) + '\n')
      file.write('& integer ident2inc_wiz = ' + str(df.loc[65,"VALUE"]) + '\n')
      file.write('& integer ident3inc_wiz = ' + str(df.loc[66,"VALUE"]) + '\n')
-          
+     file.write('& character modtrace_wiz = ' + '\'' + str(df.loc[67,"VALUE"]) + '\'' + '\n')
      file.close()
      
      # display the simwiz paarmeter file to the log
