@@ -69,7 +69,7 @@
 &!
 &!....1) DEFINE THE INPUT MODELLED TRACES AND THE ORIGINAL ACQISITION GEOMETRY SAF 
 &!
-& character 	ssf_input 	= ''			! modelled traces
+& character 	ssf_input 	= modtrace_wiz		! modelled traces
 & character 	ident_saf 	= orig_geom_wiz  	! original acquisition saf from pre-modelling skl
 & integer	wvel		= 1500			! water velocity in m/s
 &!

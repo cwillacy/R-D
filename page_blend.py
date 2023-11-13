@@ -53,7 +53,6 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     self.lineEdit_tmax.setStyleSheet(tipstyle)
     self.lineEdit_tmax.editingFinished.connect(self.changestate_tmax)
 
-    #self.lineEdit_tmax.textChanged[str].connect(self.changestate_tmax)
     spacerItem_tmax = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_blend.addItem(spacerItem_tmax)
     
@@ -128,4 +127,4 @@ def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):
     spacerItem_t0 = QtWidgets.QSpacerItem(80, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
     self.horizontalLayout_t0.addItem(spacerItem_t0) 
     
-    Wizard.setPage(6,self.wizardPage_blend)
+    Wizard.setPage(7,self.wizardPage_blend)

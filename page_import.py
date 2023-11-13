@@ -14,7 +14,7 @@ def PageImport(self,Wizard,icons,tipstyle,groupstyle,labelstyle):
     
     self.wizardPage3 = QtWidgets.QWizardPage()
     self.wizardPage3.setObjectName("wizardPage3")
-    self.wizardPage3.setTitle("SPS Import")
+    self.wizardPage3.setTitle("Navigation Import")
     self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.wizardPage3)
     self.verticalLayout_2.setObjectName("verticalLayout_2")
     self.groupBox_3 = QtWidgets.QGroupBox(self.wizardPage3)

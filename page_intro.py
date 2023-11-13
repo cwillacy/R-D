@@ -64,7 +64,7 @@ def PageIntro(self,Wizard,icons,tipstyle,groupstyle,labelstyle,lineeditstyle):
     self.label_func = QtWidgets.QLabel(self.groupBox_3in)
     self.label_func.setObjectName("label_func")
     self.label_func.setStyleSheet(funcstyle)
-    self.label_func.setText("Wizard functions:\n- SPS to SAF conversion\n- Build geometry\n- Generate SSF traces\n- Ident updating\n- Blending\n- Deblending")
+    self.label_func.setText("Wizard functions:\n- SPS to SAF conversion\n- Build geometry\n- Generate SSF traces\n- Ident updating\n- Blending\n")
     self.label_func.setAlignment(Qt.AlignVCenter)  
     self.label_func.setWordWrap(True)      
     self.verticalLayout_lside.addWidget(self.label_func)   

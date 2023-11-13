@@ -21,9 +21,10 @@ import page_import
 import page_geom
 import page_noise
 import page_blend
-import page_deblend
+#import page_deblend
 import page_output
 import page_build
+import page_modelling
 import sys
 
 #------------------------------------------------------------------------------
@@ -39,7 +40,7 @@ class Ui_Wizard(object):
         
         # switch on debug mode
         
-        debug=False
+        debug=True
 
         if len(sys.argv) == 2 :
             
@@ -56,8 +57,6 @@ class Ui_Wizard(object):
         Wizard.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         Wizard.setWizardStyle(QtWidgets.QWizard.MacStyle)
         Wizard.setWindowTitle("SimWiz - Simultaneous Source Acquisition Design Wizard")
-        #Wizard.setWindowIcon(QtGui.QIcon('img/draw-bezier-curves_32x32.png'))
-        #Wizard.setWindowIcon(QtGui.QIcon("img/nepomuk_32x32.png"))
         Wizard.setWindowIcon(QtGui.QIcon(icons[0]))
 
 
@@ -183,12 +182,12 @@ class Ui_Wizard(object):
                                        'NWAVIT','REIDENT','VERSION','DESC','SPLITIDENT','WIZNAME',
                                        'IDENT1','IDENT2','IDENT3','IDENT1MINVAL','IDENT1MAXVAL',
                                        'IDENT2MINVAL','IDENT2MAXVAL','IDENT3MINVAL','IDENT3MAXVAL','JPLIB','JPPROJ',
-                                       'JPPART','IDENT1INC','IDENT2INC', 'IDENT3INC'],
+                                       'JPPART','IDENT1INC','IDENT2INC', 'IDENT3INC','MODTRACE'],
                 'VALUE': ['OBN','Single',0,'000.00','','','','False',0,0,'False',0,'True','False',
                           '','False','PRE','NDB',-100,0,0,0,0,0,4,0,0,'','True','False','False','False',100,
                           4000,'False','','ird_ict1','False',20,30,'0.0008333',40,700,400,3,550,3,'False',
                           'False','','','000.00-simwiz','SHT','','',1,1,0,0,0,0,'','','model',
-                          1,0,0]
+                          1,0,0,'']
                 }
         
         df = pd.DataFrame(data, columns=['PARAMETER','VALUE'])
@@ -283,21 +282,26 @@ class Ui_Wizard(object):
         #  PAGE 4
         #----------------------------------------------------------------------
         page_geom.PageGeom(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
+        
+        #----------------------------------------------------------------------
+        #  Page5
+        #----------------------------------------------------------------------
+        page_modelling.PageModel(self,Wizard,icons,tipstyle,groupstyle,labelstyle)
     
         #----------------------------------------------------------------------
-        #  PAGE 5
+        #  PAGE 6
         #----------------------------------------------------------------------
         page_noise.PageNoise(self,Wizard,icons,tipstyle,groupstyle,labelstyle,df)
                       
         #----------------------------------------------------------------------
-        #  PAGE 6
+        #  PAGE 7
         #----------------------------------------------------------------------
         page_blend.PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
 
         #----------------------------------------------------------------------
         #  PAGE 7
         #----------------------------------------------------------------------
-        page_deblend.PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
+        #page_deblend.PageDeblend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle)
                 
         #----------------------------------------------------------------------
         #  PAGE 8
@@ -308,7 +312,9 @@ class Ui_Wizard(object):
         #  PAGE 9
         #----------------------------------------------------------------------
         page_build.PageBuild(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle,library,project)
-                      
+        
+
+              
         self.pushButton_2.clicked.connect(self.openFileNameDialog_out_dir)
         self.pushButton_3.clicked.connect(self.openFileNameDialog_sps_src)
         self.pushButton_4.clicked.connect(self.openFileNameDialog_sps_rec)
@@ -330,13 +336,28 @@ class Ui_Wizard(object):
 
         if val == "OBN":
             index=0
+            
+            self.checkBox.setDisabled(False)
+            self.checkBox_2.setDisabled(False)
+            self.checkBox_5.setDisabled(False)
+            
         elif val == "Streamer":
             index=1
+            
+            self.checkBox.setChecked(False)
+            self.checkBox.setDisabled(True)
+            self.checkBox_2.setChecked(False)
+            self.checkBox_2.setDisabled(True)
+            self.checkBox_5.setChecked(False)
+            self.checkBox_5.setDisabled(True)
+            
         else:
             index=2
         
-        self.comboBox.setCurrentIndex(index)                 
-        #---------------------SRCTYPE---------------------
+        self.comboBox.setCurrentIndex(index)   
+         
+        #---------------------SRCTYPE---------
+
         val = df.loc[1,"VALUE"]
 
         if val == "Single":
@@ -402,7 +423,6 @@ class Ui_Wizard(object):
             self.checkBox_2.setChecked(True)  
         else:
             self.checkBox_2.setChecked(False)              
-        #---------------------INTERP---------------------
         val = df.loc[13,"VALUE"]
         if val == 'True':
             self.checkBox_5.setChecked(True)  
@@ -439,24 +459,24 @@ class Ui_Wizard(object):
              self.lineEdit_fhigh.setDisabled(True)
              self.lineEdit_iorhig.setDisabled(True)
              
-        val = df.loc[38,"VALUE"]    
-        self.lineEdit_dbl2a.setText(val)
-        val = df.loc[39,"VALUE"]    
-        self.lineEdit_dbl2b.setText(val)        
-        val = df.loc[40,"VALUE"]    
-        self.lineEdit_dbl3a.setText(val)        
-        val = df.loc[41,"VALUE"]    
-        self.lineEdit_dbl3b.setText(val)        
-        val = df.loc[42,"VALUE"]    
-        self.lineEdit_dbl4a.setText(val)        
-        val = df.loc[43,"VALUE"]    
-        self.lineEdit_dbl4b.setText(val)        
-        val = df.loc[44,"VALUE"]    
-        self.lineEdit_dbl5a.setText(val)  
-        val = df.loc[45,"VALUE"]    
-        self.lineEdit_dbl5b.setText(val)  
-        val = df.loc[46,"VALUE"]    
-        self.lineEdit_dbl6a.setText(val)  
+        # val = df.loc[38,"VALUE"]    
+        # self.lineEdit_dbl2a.setText(val)
+        # val = df.loc[39,"VALUE"]    
+        # self.lineEdit_dbl2b.setText(val)        
+        # val = df.loc[40,"VALUE"]    
+        # self.lineEdit_dbl3a.setText(val)        
+        # val = df.loc[41,"VALUE"]    
+        # self.lineEdit_dbl3b.setText(val)        
+        # val = df.loc[42,"VALUE"]    
+        # self.lineEdit_dbl4a.setText(val)        
+        # val = df.loc[43,"VALUE"]    
+        # self.lineEdit_dbl4b.setText(val)        
+        # val = df.loc[44,"VALUE"]    
+        # self.lineEdit_dbl5a.setText(val)  
+        # val = df.loc[45,"VALUE"]    
+        # self.lineEdit_dbl5b.setText(val)  
+        # val = df.loc[46,"VALUE"]    
+        # self.lineEdit_dbl6a.setText(val)  
         
         val = df.loc[16,"VALUE"]
         if val == 'POS':
@@ -544,28 +564,28 @@ class Ui_Wizard(object):
         
         #---------------------DBL---------------------
         val = df.loc[37,"VALUE"]
-        if val == 'True':
-            self.checkBox_dbl.setChecked(True)  
-            self.lineEdit_dbl2a.setDisabled(False)
-            self.lineEdit_dbl2b.setDisabled(False)
-            self.lineEdit_dbl3a.setDisabled(False)
-            self.lineEdit_dbl3b.setDisabled(False)
-            self.lineEdit_dbl4a.setDisabled(False)
-            self.lineEdit_dbl4b.setDisabled(False)
-            self.lineEdit_dbl5a.setDisabled(False)
-            self.lineEdit_dbl5b.setDisabled(False)       
-            self.lineEdit_dbl6a.setDisabled(False) 
-        else:
-            self.checkBox_dbl.setChecked(False) 
-            self.lineEdit_dbl2a.setDisabled(True)
-            self.lineEdit_dbl2b.setDisabled(True)
-            self.lineEdit_dbl3a.setDisabled(True)
-            self.lineEdit_dbl3b.setDisabled(True)
-            self.lineEdit_dbl4a.setDisabled(True)
-            self.lineEdit_dbl4b.setDisabled(True)
-            self.lineEdit_dbl5a.setDisabled(True)
-            self.lineEdit_dbl5b.setDisabled(True)   
-            self.lineEdit_dbl6a.setDisabled(True)  
+        # if val == 'True':
+        #     self.checkBox_dbl.setChecked(True)  
+        #     self.lineEdit_dbl2a.setDisabled(False)
+        #     self.lineEdit_dbl2b.setDisabled(False)
+        #     self.lineEdit_dbl3a.setDisabled(False)
+        #     self.lineEdit_dbl3b.setDisabled(False)
+        #     self.lineEdit_dbl4a.setDisabled(False)
+        #     self.lineEdit_dbl4b.setDisabled(False)
+        #     self.lineEdit_dbl5a.setDisabled(False)
+        #     self.lineEdit_dbl5b.setDisabled(False)       
+        #     self.lineEdit_dbl6a.setDisabled(False) 
+        # else:
+        #     self.checkBox_dbl.setChecked(False) 
+        #     self.lineEdit_dbl2a.setDisabled(True)
+        #     self.lineEdit_dbl2b.setDisabled(True)
+        #     self.lineEdit_dbl3a.setDisabled(True)
+        #     self.lineEdit_dbl3b.setDisabled(True)
+        #     self.lineEdit_dbl4a.setDisabled(True)
+        #     self.lineEdit_dbl4b.setDisabled(True)
+        #     self.lineEdit_dbl5a.setDisabled(True)
+        #     self.lineEdit_dbl5b.setDisabled(True)   
+        #     self.lineEdit_dbl6a.setDisabled(True)  
             
         #---------------------REIDENT---------------------
         val = df.loc[47,"VALUE"]
@@ -644,6 +664,10 @@ class Ui_Wizard(object):
         #---------------------JPPART--------------------
         val = df.loc[63,"VALUE"]
         self.lineEdit_part.setText(val) 
+        
+        #---------------------JPPART--------------------
+        val = df.loc[67,"VALUE"]
+        self.lineEdit_mod.setText(val) 
         
     #----------------------------------------------------------------------
     #  PARAMETER FILE DIALOG
@@ -758,6 +782,23 @@ class Ui_Wizard(object):
                 print(file_name)
             self.lineEdit_wavelet.setText(str(file_name[0]))
             df.loc[df['PARAMETER'] == 'WAVELET', 'VALUE'] = str(file_name[0])
+
+    #----------------------------------------------------------------------
+    #  DATA FILE DIALOG
+    #---------------------------------------------------------------------- 
+    def openFileNameDialog_data(self):
+        global df, debug
+        self.dialog = QFileDialog()
+        self.dialog.setWindowTitle('Select a SSF trace data file')
+        self.dialog.setFileMode(QFileDialog.AnyFile)
+        self.dialog.setFilter(QDir.Files)
+        if self.dialog.exec_():
+            file_name = self.dialog.selectedFiles()
+            if debug:
+                print(file_name)
+            head_tail = os.path.split(str(file_name[0]))
+            self.lineEdit_mod.setText(head_tail[1])
+            df.loc[df['PARAMETER'] == 'MODTRACE', 'VALUE'] = head_tail[1]
 
     #----------------------------------------------------------------------
     #  TW HORIZON SAF FILE DIALOG
@@ -932,34 +973,34 @@ class Ui_Wizard(object):
 
 
     
-    def changestate_checkdbl(self):
-        global debug
+    # def changestate_checkdbl(self):
+    #     global debug
         
-        if (self.checkBox_dbl.isChecked()):
-            df.loc[df['PARAMETER'] == 'DBL', 'VALUE'] = 'True'
-            self.lineEdit_dbl2a.setDisabled(False)
-            self.lineEdit_dbl2b.setDisabled(False)
-            self.lineEdit_dbl3a.setDisabled(False)
-            self.lineEdit_dbl3b.setDisabled(False)
-            self.lineEdit_dbl4a.setDisabled(False)
-            self.lineEdit_dbl4b.setDisabled(False)
-            self.lineEdit_dbl5a.setDisabled(False)
-            self.lineEdit_dbl5b.setDisabled(False)
-            self.lineEdit_dbl6a.setDisabled(False)
-        else:
-            df.loc[df['PARAMETER'] == 'DBL', 'VALUE'] = 'False'
-            self.lineEdit_dbl2a.setDisabled(True)
-            self.lineEdit_dbl2b.setDisabled(True)
-            self.lineEdit_dbl3a.setDisabled(True)
-            self.lineEdit_dbl3b.setDisabled(True)
-            self.lineEdit_dbl4a.setDisabled(True)
-            self.lineEdit_dbl4b.setDisabled(True)
-            self.lineEdit_dbl5a.setDisabled(True)
-            self.lineEdit_dbl5b.setDisabled(True)
-            self.lineEdit_dbl6a.setDisabled(True)
+    #     if (self.checkBox_dbl.isChecked()):
+    #         df.loc[df['PARAMETER'] == 'DBL', 'VALUE'] = 'True'
+    #         self.lineEdit_dbl2a.setDisabled(False)
+    #         self.lineEdit_dbl2b.setDisabled(False)
+    #         self.lineEdit_dbl3a.setDisabled(False)
+    #         self.lineEdit_dbl3b.setDisabled(False)
+    #         self.lineEdit_dbl4a.setDisabled(False)
+    #         self.lineEdit_dbl4b.setDisabled(False)
+    #         self.lineEdit_dbl5a.setDisabled(False)
+    #         self.lineEdit_dbl5b.setDisabled(False)
+    #         self.lineEdit_dbl6a.setDisabled(False)
+    #     else:
+    #         df.loc[df['PARAMETER'] == 'DBL', 'VALUE'] = 'False'
+    #         self.lineEdit_dbl2a.setDisabled(True)
+    #         self.lineEdit_dbl2b.setDisabled(True)
+    #         self.lineEdit_dbl3a.setDisabled(True)
+    #         self.lineEdit_dbl3b.setDisabled(True)
+    #         self.lineEdit_dbl4a.setDisabled(True)
+    #         self.lineEdit_dbl4b.setDisabled(True)
+    #         self.lineEdit_dbl5a.setDisabled(True)
+    #         self.lineEdit_dbl5b.setDisabled(True)
+    #         self.lineEdit_dbl6a.setDisabled(True)
             
-        if debug:
-            print(df)     
+    #     if debug:
+    #         print(df)     
  
 
     def changestate_reident(self):
@@ -996,6 +1037,19 @@ class Ui_Wizard(object):
                           
     def changestate_workflow(self,text):
         global df, debug
+        
+        if (text == "Streamer"):
+            self.checkBox.setChecked(False)
+            self.checkBox.setDisabled(True)
+            self.checkBox_2.setChecked(False)
+            self.checkBox_2.setDisabled(True)
+            self.checkBox_5.setChecked(False)
+            self.checkBox_5.setDisabled(True)
+        else:
+            self.checkBox.setDisabled(False)
+            self.checkBox_2.setDisabled(False)
+            self.checkBox_5.setDisabled(False)
+        
         
         df.loc[df['PARAMETER'] == 'ATYPE', 'VALUE'] = text
         if debug:
@@ -1193,6 +1247,19 @@ class Ui_Wizard(object):
     # def make_float(num):
     #  return float(num.translate({0x2c: '.', 0xa0: None, 0x2212: '-'}))   
  
+    
+    def changestate_mod(self):
+        global df, debug
+   
+        text = self.lineEdit_mod.text()
+        if debug:
+            print(text)
+   
+        df.loc[df['PARAMETER'] == 'MODTRACE', 'VALUE'] = text
+               
+        if debug:
+            print(df) 
+    
     def changestate_tmax(self):
         global df, debug
    
@@ -1487,15 +1554,15 @@ class Ui_Wizard(object):
             self.pushButton_4s.setIcon(QIcon(icons[1])) 
         elif Wizard.currentId() == 5:
             self.pushButton_4s.setIcon(QIcon(icons[2]))
-            self.pushButton_5s.setIcon(QIcon(icons[1]))
+            self.pushButton_mod.setIcon(QIcon(icons[1]))
         elif Wizard.currentId() == 6:
+            self.pushButton_mod.setIcon(QIcon(icons[2]))
+            self.pushButton_5s.setIcon(QIcon(icons[1]))
+        elif Wizard.currentId() == 7:
             self.pushButton_5s.setIcon(QIcon(icons[2]))
             self.pushButton_6s.setIcon(QIcon(icons[1]))
-        elif Wizard.currentId() == 7:
-            self.pushButton_6s.setIcon(QIcon(icons[2]))
-            self.pushButton_7s.setIcon(QIcon(icons[1]))
         elif Wizard.currentId() == 8:
-            self.pushButton_7s.setIcon(QIcon(icons[2]))
+            self.pushButton_6s.setIcon(QIcon(icons[2]))
             self.pushButton_8s.setIcon(QIcon(icons[1]))
         elif Wizard.currentId() == 9:
             self.pushButton_8s.setIcon(QIcon(icons[2]))
@@ -1522,15 +1589,15 @@ class Ui_Wizard(object):
             self.pushButton_4s.setIcon(QIcon(icons[2]))
         elif Wizard.currentId() == 4:
             self.pushButton_4s.setIcon(QIcon(icons[1]))
-            self.pushButton_5s.setIcon(QIcon(icons[2])) 
+            self.pushButton_mod.setIcon(QIcon(icons[2])) 
         elif Wizard.currentId() == 5:
+            self.pushButton_mod.setIcon(QIcon(icons[1]))
+            self.pushButton_5s.setIcon(QIcon(icons[2]))
+        elif Wizard.currentId() == 6:
             self.pushButton_5s.setIcon(QIcon(icons[1]))
             self.pushButton_6s.setIcon(QIcon(icons[2]))
-        elif Wizard.currentId() == 6:
-            self.pushButton_6s.setIcon(QIcon(icons[1]))
-            self.pushButton_7s.setIcon(QIcon(icons[2]))
         elif Wizard.currentId() == 7:
-            self.pushButton_7s.setIcon(QIcon(icons[1]))
+            self.pushButton_6s.setIcon(QIcon(icons[1]))
             self.pushButton_8s.setIcon(QIcon(icons[2]))
         elif Wizard.currentId() == 8:
             self.pushButton_8s.setIcon(QIcon(icons[1]))
