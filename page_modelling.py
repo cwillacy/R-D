@@ -60,10 +60,12 @@ def PageModel(self,Wizard,icons,tipstyle,groupstyle,labelstyle):
     self.label_modins.setBaseSize(QtCore.QSize(0, 0))
     self.label_modins.setObjectName("label_mod")
     self.label_modins.setStyleSheet(labelstyle)
-    mystring = '''\n\nOPTION 1: If the user would like to create synthetic traces for the acqusition design, then this can be achieved using the \
-existing Jobpro modelling wizards (e.g. FWI, RTMIG, WFD). In this case no entry is needed for the above text box and the user will be \
-required to manually enter the dataset name in the post-modelling skeletons (04_pos_mod_comb.skl).\n\nOPTION 2: If modelled or field traces are already \
-available, then they can be included into this instance of the workflow by providing the Jobpro dataset name in the text box above e.g., 123.00-mytraces.'''
+
+    mystring = '''\n\nOPTION 1: If modelled or field traces are already available, then they can be included here by providing the Jobpro dataset \
+name in the text box above.\n\nOPTION 2: If the user would like to create synthetic traces for the acqusition design, then this can be achieved using \
+the existing Jobpro modelling wizards (e.g. FWI, RTMIG, WFD). In this instance, no entry is needed in the text box above and the user will be required \
+to manually enter the dataset name in the post-modelling skeleton (e.g., 04_pos_mod_comb.skl).'''
+
     self.label_modins.setText(mystring)
     self.label_modins.setWordWrap(True)
 

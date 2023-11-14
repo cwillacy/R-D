@@ -50,7 +50,7 @@ def PageSetup(self,Wizard,icons,tipstyle,groupstyle,storage,labelstyle):
     self.comboBox.setFixedWidth(135)      
     self.horizontalLayout_2.addWidget(self.comboBox)
     self.comboBox.addItem("OBN")
-    self.comboBox.addItem("Streamer")
+    #self.comboBox.addItem("Streamer")
     #self.comboBox.addItem("Land")        
     self.comboBox.setToolTip("select type of workflow to build")
     self.comboBox.setStyleSheet(tipstyle)
