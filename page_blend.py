@@ -13,7 +13,7 @@ from PyQt5 import QtGui, QtWidgets
 def PageBlend(self,Wizard,icons,df,tipstyle,groupstyle,labelstyle):   
     self.wizardPage_blend = QtWidgets.QWizardPage()
     self.wizardPage_blend.setObjectName("wizardPage6")
-    self.wizardPage_blend.setTitle("Post-Modelling Data Blending")
+    self.wizardPage_blend.setTitle("Data Blending")
     self.verticalLayout_blend = QtWidgets.QVBoxLayout(self.wizardPage_blend)
     self.verticalLayout_blend.setObjectName("verticalLayout_blend")
     self.groupBox_blend = QtWidgets.QGroupBox(self.wizardPage_blend)
