@@ -40,7 +40,7 @@ class Ui_Wizard(object):
         
         # switch on debug mode
         
-        debug=True
+        debug=False
 
         if len(sys.argv) == 2 :
             
